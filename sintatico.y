@@ -9,6 +9,9 @@
 
 using namespace std;
 
+int int_temp_qnt;
+int float_temp_qnt;
+int doubletemp_qnt;
 int var_temp_qnt;
 
 struct atributos {
@@ -151,7 +154,11 @@ E           : E '+' E
                 $$.label = gentempcode();
                 $$.traducao = "\t" + $$.label + " = " + "0" + ";\n";
             }
-            | TK_INT TK_ID
+            | TK_ID
+            {   
+                $$.label = gentempcode();
+                $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+            }| TK_INT TK_ID
             {   
                 $$.label = gentempcode();
                 string nome_interno = adiciona_variavel_na_tabela($$.label, $2.label, "int");
