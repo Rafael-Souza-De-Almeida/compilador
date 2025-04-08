@@ -1,5 +1,7 @@
 function main() 
 {   
-    a = 5;
-    valor = a * 2;
+   int a = 5;
+   float b = 2;
+   double pi = 3.14;
+   boolean yeah = true;
 }
