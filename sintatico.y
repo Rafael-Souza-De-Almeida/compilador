@@ -4,6 +4,9 @@
 #include <sstream>
 #include <map>
 
+//usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
+
+
 
 #define YYSTYPE atributos
 
@@ -34,6 +37,7 @@ void yyerror(string);
 string gentempcode();
 string gettempcode();
 string adiciona_variavel_na_tabela(string, string, string);
+string pega_variavel_na_tabela(string);
 %}
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
@@ -114,7 +118,11 @@ E           : E '+' E
                 $$.label = gentempcode();
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " / " + $3.label + ";\n";
             }
-            | TK_INT TK_ID '=' E
+            |  TK_ID '=' E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
+            } | TK_INT TK_ID '=' E
             {
                 string nome_interno = adiciona_variavel_na_tabela(gettempcode(),$2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
@@ -212,6 +220,12 @@ string adiciona_variavel_na_tabela(string nome_temp, string variavel, string tip
     string nome_interno = "__v" + to_string(var_user_qnt++);
     tabela_simbolos[variavel] = {nome_temp, nome_interno, tipo};
     return nome_interno;
+}
+
+string pega_variavel_na_tabela(string nome_variavel) {
+
+    return tabela_simbolos[nome_variavel].nome_interno;
+
 }
 
 void yyerror(string MSG) {

@@ -1,6 +1,7 @@
 function main() 
 {   
-   float t1 = 5.0;
-   float t2 = t1 * 5.0;
-   boolean t3 = true;
+   int a = 5;
+   float b = 2;
+   boolean c = true;
+   a = 5 * 2;
 }
