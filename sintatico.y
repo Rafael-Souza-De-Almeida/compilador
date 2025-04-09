@@ -14,7 +14,6 @@ using namespace std;
 
 int int_temp_qnt;
 int float_temp_qnt;
-int doubletemp_qnt;
 int var_temp_qnt;
 
 struct atributos {
@@ -23,26 +22,27 @@ struct atributos {
 };
 
 struct Simbolo {
-    string nome_temp;
     string nome_interno;
     string tipo;
     // string escopo;
 };
 
 map<string, Simbolo> tabela_simbolos;
+map<string, string> temporarias;
 int var_user_qnt;
 
 int yylex(void);
 void yyerror(string);
-string gentempcode();
+string gentempcode(string);
 string gettempcode();
-string adiciona_variavel_na_tabela(string, string, string);
+string adiciona_variavel_na_tabela(string, string);
 string pega_variavel_na_tabela(string);
+string resolve_tipo(string, string);
 %}
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
-%token TK_INT TK_FLOAT TK_DOUBLE TK_BOOLEAN 
+%token TK_INT TK_FLOAT  TK_BOOLEAN 
 %token TK_FIM TK_ERROR
 
 %start S
@@ -60,9 +60,9 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                                 "int main(void) {\n"; 
                 
                 
-                for(auto iterador : tabela_simbolos) {
-                    codigo += "\t" + iterador.second.tipo + " " + iterador.second.nome_temp + ";\n";
-                }
+                 for(auto iterador : temporarias) {
+                     codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
+                 }
 
                 for(auto iterador : tabela_simbolos) {
                     codigo += "\t" + iterador.second.tipo + " " + iterador.second.nome_interno + ";\n";
@@ -100,22 +100,26 @@ COMANDO     : E ';'
 
 E           : E '+' E
             {
-                $$.label = gentempcode();
+                string tipo = resolve_tipo($1.label, $3.label);
+                $$.label = gentempcode(tipo);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " + " + $3.label + ";\n";
             }
             | E '-' E 
-            {
-                $$.label = gentempcode();
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                $$.label = gentempcode(tipo);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " - " + $3.label + ";\n";
             }
             | E '*' E
-            {
-                $$.label = gentempcode();
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                $$.label = gentempcode(tipo);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " * " + $3.label + ";\n";
             }
             | E '/' E
-            {
-                $$.label = gentempcode();
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                $$.label = gentempcode(tipo);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " / " + $3.label + ";\n";
             }
             |  TK_ID '=' E
@@ -124,70 +128,60 @@ E           : E '+' E
                 $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
             } | TK_INT TK_ID '=' E
             {
-                string nome_interno = adiciona_variavel_na_tabela(gettempcode(),$2.label, "int");
+                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_FLOAT TK_ID '=' E
             {
-                string nome_interno = adiciona_variavel_na_tabela(gettempcode(), $2.label, "float");
-                $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
-            }
-            | TK_DOUBLE TK_ID '=' E
-            {
-                string nome_interno = adiciona_variavel_na_tabela(gettempcode(), $2.label, "double");
+                string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_BOOLEAN TK_ID '=' E
             {
-                string nome_interno = adiciona_variavel_na_tabela(gettempcode(), $2.label, "int");
+                string nome_interno = adiciona_variavel_na_tabela( $2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_NUM
             {
-                $$.label = gentempcode();
+                $$.label = gentempcode("int");
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_REAL
             {
-                $$.label = gentempcode();
+                $$.label = gentempcode("float");
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_TRUE
             {
-                $$.label = gentempcode();
+                $$.label = gentempcode("int");
                 $$.traducao = "\t" + $$.label + " = " + "1" + ";\n";
             }
             | TK_FALSE
             {
-                $$.label = gentempcode();
+                $$.label = gentempcode("int");
                 $$.traducao = "\t" + $$.label + " = " + "0" + ";\n";
             }
             | TK_ID
             {   
-                $$.label = gentempcode();
-                $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+                $$.label = gentempcode("int");
+                string nome_interno = adiciona_variavel_na_tabela($1.label, "int");
+                $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }| TK_INT TK_ID
             {   
-                $$.label = gentempcode();
-                string nome_interno = adiciona_variavel_na_tabela($$.label, $2.label, "int");
+                $$.label = gentempcode($1.label);
+                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }
             | TK_FLOAT TK_ID
             {   
-                $$.label = gentempcode();
-                string nome_interno = adiciona_variavel_na_tabela($$.label, $2.label, "float");
-                $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
-            }
-            | TK_DOUBLE TK_ID
-            {   
-                $$.label = gentempcode();
-                string nome_interno = adiciona_variavel_na_tabela($$.label, $2.label, "double");
+                $$.label = gentempcode($1.label);
+                string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }
             | TK_BOOLEAN TK_ID
             {   
-                $$.label = gentempcode();
-                string nome_interno = adiciona_variavel_na_tabela($$.label, $2.label, "int");
+                $$.label = gentempcode($1.label);
+                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }
             ;
@@ -197,9 +191,19 @@ E           : E '+' E
 
 int yyparse();
 
-string gentempcode() {
+string gentempcode(string tipo) {
     var_temp_qnt++;
-    return "t" + to_string(var_temp_qnt);
+    string temp = "t" + to_string(var_temp_qnt); 
+    temporarias[temp] = tipo;
+    return temp;
+}
+
+string resolve_tipo(string temp1, string temp2) {
+    if(temp1 == "float" && temp2 == "float") {
+        return "float";
+    }
+
+    return "int";
 }
 
 string gettempcode() {
@@ -212,13 +216,13 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-string adiciona_variavel_na_tabela(string nome_temp, string variavel, string tipo) {
+string adiciona_variavel_na_tabela( string variavel, string tipo) {
     if(tabela_simbolos.count(variavel)) {
         return tabela_simbolos[variavel].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    tabela_simbolos[variavel] = {nome_temp, nome_interno, tipo};
+    tabela_simbolos[variavel] = { nome_interno, tipo};
     return nome_interno;
 }
 

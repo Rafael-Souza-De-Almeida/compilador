@@ -28,8 +28,6 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "float"     {return TK_FLOAT;}
 
-"double"    {return TK_DOUBLE;}
-
 "boolean"   {return TK_BOOLEAN;}
 
 "true"      {return TK_TRUE;}

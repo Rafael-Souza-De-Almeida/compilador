@@ -63,10 +63,9 @@ extern int yydebug;
     TK_FUNCTION = 264,             /* TK_FUNCTION  */
     TK_INT = 265,                  /* TK_INT  */
     TK_FLOAT = 266,                /* TK_FLOAT  */
-    TK_DOUBLE = 267,               /* TK_DOUBLE  */
-    TK_BOOLEAN = 268,              /* TK_BOOLEAN  */
-    TK_FIM = 269,                  /* TK_FIM  */
-    TK_ERROR = 270                 /* TK_ERROR  */
+    TK_BOOLEAN = 267,              /* TK_BOOLEAN  */
+    TK_FIM = 268,                  /* TK_FIM  */
+    TK_ERROR = 269                 /* TK_ERROR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -84,10 +83,9 @@ extern int yydebug;
 #define TK_FUNCTION 264
 #define TK_INT 265
 #define TK_FLOAT 266
-#define TK_DOUBLE 267
-#define TK_BOOLEAN 268
-#define TK_FIM 269
-#define TK_ERROR 270
+#define TK_BOOLEAN 267
+#define TK_FIM 268
+#define TK_ERROR 269
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
