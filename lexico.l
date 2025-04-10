@@ -16,7 +16,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 %%
 
-"\n"		{}
+"\n"		{linha++;}
 
 {DELIM} 	{}
 

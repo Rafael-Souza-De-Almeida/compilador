@@ -14,10 +14,12 @@ using namespace std;
 
 
 int var_temp_qnt;
+int linha;
 
 struct atributos {
     string label;
     string traducao;
+    string tipo;
 };
 
 struct Simbolo {
@@ -36,6 +38,7 @@ string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string);
 string pega_variavel_na_tabela(string);
 string resolve_tipo(string, string);
+void verifica_tipo(string, string, string);
 string getTipo(string);
 %}
 
@@ -101,73 +104,87 @@ E           : E '+' E
             {
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " + " + $3.label + ";\n";
             }
             | E '-' E 
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " - " + $3.label + ";\n";
             }
             | E '*' E
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " * " + $3.label + ";\n";
             }
             | E '/' E
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " / " + $3.label + ";\n";
             }
             |  TK_ID '=' E
             {
                 string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição incompatível!");
                 $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
             } 
             | TK_INT TK_ID '=' E
             {
+                verifica_tipo($4.tipo, "int", "tipo incompatível na atribuição à variável int");
                 string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_FLOAT TK_ID '=' E
-            {
+            {   
+                verifica_tipo($4.tipo, "float", "tipo incompatível na atribuição à variável float");
                 string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_BOOLEAN TK_ID '=' E
             {
+                verifica_tipo($4.tipo, "int", "tipo incompatível na atribuição à variável boolean");
                 string nome_interno = adiciona_variavel_na_tabela( $2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_NUM
             {
                 $$.label = gentempcode("int");
+                $$.tipo = "int";
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_REAL
             {
                 $$.label = gentempcode("float");
+                $$.tipo = "float";
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_TRUE
             {
                 $$.label = gentempcode("int");
+                $$.tipo = "int";
                 $$.traducao = "\t" + $$.label + " = " + "1" + ";\n";
             }
             | TK_FALSE
             {
                 $$.label = gentempcode("int");
+                $$.tipo = "int";
                 $$.traducao = "\t" + $$.label + " = " + "0" + ";\n";
             }
             | TK_ID
             {   
                 string tipo = getTipo($1.label); 
                 $$.label = gentempcode(tipo);
-                string nome_interno = adiciona_variavel_na_tabela($1.label, tipo);
+                string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
-            }| TK_INT TK_ID
+            }
+            | TK_INT TK_ID
             {   
                 string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = "";
@@ -217,6 +234,7 @@ string resolve_tipo(string temp1, string temp2) {
 
 int main(int argc, char* argv[]) {
     var_temp_qnt = 0;
+    linha = 1;
     yyparse();
     return 0;
 }
@@ -237,8 +255,19 @@ string pega_variavel_na_tabela(string nome_variavel) {
 
 }
 
+void verifica_tipo(string tipo1, string tipo2, string mensagem) {
+    if(tipo1 == "" || tipo2 == "") {
+        yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
+    }
+
+    else if( tipo1 != tipo2 ) {
+        yyerror("Erro na linha " + to_string(linha) + ": "+ mensagem);
+    }
+
+}
+
 void yyerror(string MSG) {
-    cout << MSG <<endl;
+    cout << "\033[1;31m" << MSG << "\033[0m" << endl;
     exit (0);
 }
 
