@@ -24,6 +24,7 @@ struct atributos {
 struct Simbolo {
     string nome_interno;
     string tipo;
+    string temp_associada;
     // string escopo;
 };
 
@@ -35,7 +36,7 @@ int var_user_qnt;
 int yylex(void);
 void yyerror(string);
 string gentempcode(string);
-string adiciona_variavel_na_tabela(string, string);
+string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
@@ -113,27 +114,30 @@ E           : E '+' E
             | E '-' E 
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " - " + $3.label + ";\n";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " - " + t2 + ";\n";
             }
             | E '*' E
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " * " + $3.label + ";\n";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " * " + t2 + ";\n";
             }
             | E '/' E
             {   
                 string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " / " + $3.label + ";\n";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " / " + t2 + ";\n";
             }
             |  TK_ID '=' E
             {
-                string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo);
+                string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
             } 
             | TK_NUM
@@ -167,6 +171,26 @@ E           : E '+' E
                 string nome_interno = pega_variavel_na_tabela($1.label, tipo);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }
+            | '('TK_INT')' TK_ID
+            {  
+                string tipo_atual = getTipo($4.label);
+                string novo_tipo = "int";
+                $$.label = gentempcode(novo_tipo);
+                string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
+                $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+            | '('TK_FLOAT')' TK_ID
+            {  
+                string tipo_atual = getTipo($4.label);
+                string novo_tipo = "float";
+                $$.label = gentempcode(novo_tipo);
+                string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
+                $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+            | '('TK_BOOLEAN')' TK_ID
+            {  
+                yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
+            }
             ;
 %%
 
@@ -185,7 +209,9 @@ string getTipo(string nome_interno) {
     string tipo = tipos_atuais[nome_interno];
 
     if(tipo == "") {
-        yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
+        yyerror("Erro na linha " + to_string(linha) + 
+        ": Ao declarar uma variável é necessária atribuí-la \n" + 
+        "Dica: Atribua a variável com 0 se você não deseja definir um valor a ela ainda.");
     }
     string variavel_formatada = nome_interno + "_" + tipo;
     return tabela_simbolos[variavel_formatada].tipo;
@@ -231,7 +257,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 
 
 
-string adiciona_variavel_na_tabela( string variavel, string tipo) {
+string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_associada) {
 
     string variavel_formatada = variavel + "_" + tipo;
 
@@ -240,7 +266,7 @@ string adiciona_variavel_na_tabela( string variavel, string tipo) {
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    tabela_simbolos[variavel_formatada] = { nome_interno, tipo};
+    tabela_simbolos[variavel_formatada] = { nome_interno, tipo, temp_associada};
     tipos_atuais[variavel] = tipo;
     return nome_interno;
 }

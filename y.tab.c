@@ -94,6 +94,7 @@ struct atributos {
 struct Simbolo {
     string nome_interno;
     string tipo;
+    string temp_associada;
     // string escopo;
 };
 
@@ -105,14 +106,14 @@ int var_user_qnt;
 int yylex(void);
 void yyerror(string);
 string gentempcode(string);
-string adiciona_variavel_na_tabela(string, string);
+string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
 void verifica_tipo(string, string, string);
 string getTipo(string);
 
-#line 116 "y.tab.c"
+#line 117 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -566,16 +567,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   31
+#define YYLAST   40
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  25
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  16
+#define YYNRULES  19
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  30
+#define YYNSTATES  40
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   269
@@ -625,8 +626,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    83,    89,    94,    98,   104,   113,   120,
-     127,   134,   139,   145,   151,   157,   163
+       0,    58,    58,    84,    90,    95,    99,   105,   114,   122,
+     130,   138,   143,   149,   155,   161,   167,   174,   182,   190
 };
 #endif
 
@@ -656,7 +657,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-16)
+#define YYPACT_NINF (-13)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -670,9 +671,10 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -8,    -3,     2,    -2,   -16,    -4,     6,    17,   -16,   -16,
-     -16,   -16,   -16,     7,    10,    17,   -15,    17,   -16,   -16,
-      17,   -16,    17,    17,    17,   -12,     5,   -12,   -12,   -12
+      -5,     0,    11,     3,   -13,     1,    14,    -3,   -13,   -13,
+     -13,   -13,   -13,     9,    -2,    15,    -3,     2,    -3,     4,
+      18,    19,   -13,   -13,    -3,   -13,    -3,    -3,    -3,     5,
+      29,    30,    31,     8,     5,     5,     5,   -13,   -13,   -13
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -681,20 +683,21 @@ static const yytype_int8 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     0,     0,     0,     1,     0,     0,     5,     2,    12,
-      13,    14,    15,    16,     0,     5,     0,     0,     3,     4,
-       0,     6,     0,     0,     0,    11,     7,     8,     9,    10
+      13,    14,    15,    16,     0,     0,     5,     0,     0,     0,
+       0,     0,     3,     4,     0,     6,     0,     0,     0,    11,
+       0,     0,     0,     7,     8,     9,    10,    17,    18,    19
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -16,   -16,   -16,     1,   -16,    -5
+     -13,   -13,   -13,    24,   -13,   -12
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,     8,    14,    15,    16
+       0,     2,     8,    15,    16,    17
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -702,18 +705,20 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      20,     1,     4,    20,     3,    21,    22,    23,    24,    22,
-      23,    24,    25,     6,     5,    26,    19,    27,    28,    29,
-       9,    10,    11,    12,     7,    13,    22,    23,    24,    18,
-       0,    17
+       9,    10,    11,    12,     1,    13,    29,     3,    19,    20,
+      21,     4,    33,    14,    34,    35,    36,    24,     6,     5,
+      24,    30,    25,    26,    27,    28,    26,    27,    28,    26,
+      27,    28,     7,    18,    22,    31,    32,    37,    38,    39,
+      23
 };
 
 static const yytype_int8 yycheck[] =
 {
-      15,     9,     0,    15,     7,    20,    21,    22,    23,    21,
-      22,    23,    17,    17,    16,    20,    15,    22,    23,    24,
-       3,     4,     5,     6,    18,     8,    21,    22,    23,    19,
-      -1,    24
+       3,     4,     5,     6,     9,     8,    18,     7,    10,    11,
+      12,     0,    24,    16,    26,    27,    28,    15,    17,    16,
+      15,    17,    20,    21,    22,    23,    21,    22,    23,    21,
+      22,    23,    18,    24,    19,    17,    17,     8,     8,     8,
+      16
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -721,22 +726,23 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     9,    26,     7,     0,    16,    17,    18,    27,     3,
-       4,     5,     6,     8,    28,    29,    30,    24,    19,    28,
-      15,    20,    21,    22,    23,    30,    30,    30,    30,    30
+       4,     5,     6,     8,    16,    28,    29,    30,    24,    10,
+      11,    12,    19,    28,    15,    20,    21,    22,    23,    30,
+      17,    17,    17,    30,    30,    30,    30,     8,     8,     8
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    25,    26,    27,    28,    28,    29,    30,    30,    30,
-      30,    30,    30,    30,    30,    30,    30
+      30,    30,    30,    30,    30,    30,    30,    30,    30,    30
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     5,     3,     2,     0,     2,     3,     3,     3,
-       3,     3,     1,     1,     1,     1,     1
+       3,     3,     1,     1,     1,     1,     1,     4,     4,     4
 };
 
 
@@ -1200,7 +1206,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* S: TK_FUNCTION TK_MAIN '(' ')' BLOCO  */
-#line 58 "sintatico.y"
+#line 59 "sintatico.y"
             {
                 string codigo = "/* Compilador hahaha */\n"
                                 "#include <iostream>\n"
@@ -1224,43 +1230,43 @@ yyreduce:
                 cout << codigo << endl;
 
             }
-#line 1228 "y.tab.c"
+#line 1234 "y.tab.c"
     break;
 
   case 3: /* BLOCO: '{' COMANDOS '}'  */
-#line 84 "sintatico.y"
+#line 85 "sintatico.y"
             {
                 yyval.traducao = yyvsp[-1].traducao;
             }
-#line 1236 "y.tab.c"
+#line 1242 "y.tab.c"
     break;
 
   case 4: /* COMANDOS: COMANDO COMANDOS  */
-#line 90 "sintatico.y"
+#line 91 "sintatico.y"
             {
                 yyval.traducao = yyvsp[-1].traducao + yyvsp[0].traducao;
             }
-#line 1244 "y.tab.c"
+#line 1250 "y.tab.c"
     break;
 
   case 5: /* COMANDOS: %empty  */
-#line 94 "sintatico.y"
+#line 95 "sintatico.y"
             {
                 yyval.traducao = "";
             }
-#line 1252 "y.tab.c"
+#line 1258 "y.tab.c"
     break;
 
   case 6: /* COMANDO: E ';'  */
-#line 99 "sintatico.y"
+#line 100 "sintatico.y"
             {
                 yyval = yyvsp[-1];
             }
-#line 1260 "y.tab.c"
+#line 1266 "y.tab.c"
     break;
 
   case 7: /* E: E '+' E  */
-#line 105 "sintatico.y"
+#line 106 "sintatico.y"
             {
             string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
             auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
@@ -1269,104 +1275,139 @@ yyreduce:
             yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " + " + t2 + ";\n";
 
             }
-#line 1273 "y.tab.c"
+#line 1279 "y.tab.c"
     break;
 
   case 8: /* E: E '-' E  */
-#line 114 "sintatico.y"
+#line 115 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " - " + yyvsp[0].label + ";\n";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " - " + t2 + ";\n";
             }
-#line 1284 "y.tab.c"
+#line 1291 "y.tab.c"
     break;
 
   case 9: /* E: E '*' E  */
-#line 121 "sintatico.y"
+#line 123 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " * " + yyvsp[0].label + ";\n";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " * " + t2 + ";\n";
             }
-#line 1295 "y.tab.c"
+#line 1303 "y.tab.c"
     break;
 
   case 10: /* E: E '/' E  */
-#line 128 "sintatico.y"
+#line 131 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " / " + yyvsp[0].label + ";\n";
-            }
-#line 1306 "y.tab.c"
-    break;
-
-  case 11: /* E: TK_ID '=' E  */
-#line 135 "sintatico.y"
-            {
-                string nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo);
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + nome_variavel + " = " + yyvsp[0].label + ";\n";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " / " + t2 + ";\n";
             }
 #line 1315 "y.tab.c"
     break;
 
+  case 11: /* E: TK_ID '=' E  */
+#line 139 "sintatico.y"
+            {
+                string nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo, yyvsp[0].label);
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + nome_variavel + " = " + yyvsp[0].label + ";\n";
+            }
+#line 1324 "y.tab.c"
+    break;
+
   case 12: /* E: TK_NUM  */
-#line 140 "sintatico.y"
+#line 144 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1325 "y.tab.c"
+#line 1334 "y.tab.c"
     break;
 
   case 13: /* E: TK_REAL  */
-#line 146 "sintatico.y"
+#line 150 "sintatico.y"
             {
                 yyval.label = gentempcode("float");
                 yyval.tipo = "float";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1335 "y.tab.c"
+#line 1344 "y.tab.c"
     break;
 
   case 14: /* E: TK_TRUE  */
-#line 152 "sintatico.y"
+#line 156 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + "1" + ";\n";
             }
-#line 1345 "y.tab.c"
+#line 1354 "y.tab.c"
     break;
 
   case 15: /* E: TK_FALSE  */
-#line 158 "sintatico.y"
+#line 162 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + "0" + ";\n";
             }
-#line 1355 "y.tab.c"
+#line 1364 "y.tab.c"
     break;
 
   case 16: /* E: TK_ID  */
-#line 164 "sintatico.y"
+#line 168 "sintatico.y"
             {   
                 string tipo = getTipo(yyvsp[0].label); 
                 yyval.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo);
                 yyval.traducao = "\t" + yyval.label + " = " + nome_interno + ";\n";
             }
-#line 1366 "y.tab.c"
+#line 1375 "y.tab.c"
+    break;
+
+  case 17: /* E: '(' TK_INT ')' TK_ID  */
+#line 175 "sintatico.y"
+            {  
+                string tipo_atual = getTipo(yyvsp[0].label);
+                string novo_tipo = "int";
+                yyval.label = gentempcode(novo_tipo);
+                string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo_atual);
+                yyval.traducao = "\t" + yyval.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+#line 1387 "y.tab.c"
+    break;
+
+  case 18: /* E: '(' TK_FLOAT ')' TK_ID  */
+#line 183 "sintatico.y"
+            {  
+                string tipo_atual = getTipo(yyvsp[0].label);
+                string novo_tipo = "float";
+                yyval.label = gentempcode(novo_tipo);
+                string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo_atual);
+                yyval.traducao = "\t" + yyval.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+#line 1399 "y.tab.c"
+    break;
+
+  case 19: /* E: '(' TK_BOOLEAN ')' TK_ID  */
+#line 191 "sintatico.y"
+            {  
+                yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
+            }
+#line 1407 "y.tab.c"
     break;
 
 
-#line 1370 "y.tab.c"
+#line 1411 "y.tab.c"
 
       default: break;
     }
@@ -1559,7 +1600,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 171 "sintatico.y"
+#line 195 "sintatico.y"
 
 
 #include "lex.yy.c"
@@ -1577,7 +1618,9 @@ string getTipo(string nome_interno) {
     string tipo = tipos_atuais[nome_interno];
 
     if(tipo == "") {
-        yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
+        yyerror("Erro na linha " + to_string(linha) + 
+        ": Ao declarar uma variável é necessária atribuí-la \n" + 
+        "Dica: Atribua a variável com 0 se você não deseja definir um valor a ela ainda.");
     }
     string variavel_formatada = nome_interno + "_" + tipo;
     return tabela_simbolos[variavel_formatada].tipo;
@@ -1623,7 +1666,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 
 
 
-string adiciona_variavel_na_tabela( string variavel, string tipo) {
+string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_associada) {
 
     string variavel_formatada = variavel + "_" + tipo;
 
@@ -1632,7 +1675,7 @@ string adiciona_variavel_na_tabela( string variavel, string tipo) {
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    tabela_simbolos[variavel_formatada] = { nome_interno, tipo};
+    tabela_simbolos[variavel_formatada] = { nome_interno, tipo, temp_associada};
     tipos_atuais[variavel] = tipo;
     return nome_interno;
 }
