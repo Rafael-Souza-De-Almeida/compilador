@@ -30,13 +30,14 @@ struct Simbolo {
 
 map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
+map<string, string> tipos_atuais;
 int var_user_qnt;
 
 int yylex(void);
 void yyerror(string);
 string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string);
-string pega_variavel_na_tabela(string);
+string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 void verifica_tipo(string, string, string);
 string getTipo(string);
@@ -130,29 +131,9 @@ E           : E '+' E
             }
             |  TK_ID '=' E
             {
-                string nome_variavel = pega_variavel_na_tabela($1.label);
-                string tipo_var = getTipo($1.label);
-                verifica_tipo(tipo_var, $3.tipo, "atribuição incompatível!");
+                string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo);
                 $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
             } 
-            | TK_INT TK_ID '=' E
-            {
-                verifica_tipo($4.tipo, "int", "tipo incompatível na atribuição à variável int");
-                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
-                $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
-            }
-            | TK_FLOAT TK_ID '=' E
-            {   
-                verifica_tipo($4.tipo, "float", "tipo incompatível na atribuição à variável float");
-                string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
-                $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
-            }
-            | TK_BOOLEAN TK_ID '=' E
-            {
-                verifica_tipo($4.tipo, "int", "tipo incompatível na atribuição à variável boolean");
-                string nome_interno = adiciona_variavel_na_tabela( $2.label, "int");
-                $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
-            }
             | TK_NUM
             {
                 $$.label = gentempcode("int");
@@ -181,25 +162,8 @@ E           : E '+' E
             {   
                 string tipo = getTipo($1.label); 
                 $$.label = gentempcode(tipo);
-                string nome_interno = pega_variavel_na_tabela($1.label);
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
-            }
-            | TK_INT TK_ID
-            {   
-                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
-                $$.traducao = "";
-            }
-            | TK_FLOAT TK_ID
-            {   
-               
-                string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
-                $$.traducao = "";
-            }
-            | TK_BOOLEAN TK_ID
-            {   
-               
-                string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
-                $$.traducao = "";
             }
             ;
 %%
@@ -216,7 +180,9 @@ string gentempcode(string tipo) {
 }
 
 string getTipo(string nome_interno) {
-    return tabela_simbolos[nome_interno].tipo;
+    string tipo = tipos_atuais[nome_interno];
+    string variavel_formatada = nome_interno + "_" + tipo;
+    return tabela_simbolos[variavel_formatada].tipo;
 }
 
 string resolve_tipo(string temp1, string temp2) {
@@ -240,18 +206,25 @@ int main(int argc, char* argv[]) {
 }
 
 string adiciona_variavel_na_tabela( string variavel, string tipo) {
-    if(tabela_simbolos.count(variavel)) {
-        return tabela_simbolos[variavel].nome_interno;
+
+    string variavel_formatada = variavel + "_" + tipo;
+
+    if(tabela_simbolos.count(variavel_formatada)) {
+        tipos_atuais[variavel] = tipo;
+        return tabela_simbolos[variavel_formatada].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    tabela_simbolos[variavel] = { nome_interno, tipo};
+    tabela_simbolos[variavel_formatada] = { nome_interno, tipo};
+    tipos_atuais[variavel] = tipo;
     return nome_interno;
 }
 
-string pega_variavel_na_tabela(string nome_variavel) {
+string pega_variavel_na_tabela(string nome_variavel, string tipo) {
 
-    return tabela_simbolos[nome_variavel].nome_interno;
+    string variavel_formatada = nome_variavel + "_" + tipo;
+
+    return tabela_simbolos[variavel_formatada].nome_interno;
 
 }
 
