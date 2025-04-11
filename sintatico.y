@@ -181,6 +181,10 @@ string gentempcode(string tipo) {
 
 string getTipo(string nome_interno) {
     string tipo = tipos_atuais[nome_interno];
+
+    if(tipo == "") {
+        yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
+    }
     string variavel_formatada = nome_interno + "_" + tipo;
     return tabela_simbolos[variavel_formatada].tipo;
 }
@@ -210,7 +214,6 @@ string adiciona_variavel_na_tabela( string variavel, string tipo) {
     string variavel_formatada = variavel + "_" + tipo;
 
     if(tabela_simbolos.count(variavel_formatada)) {
-        tipos_atuais[variavel] = tipo;
         return tabela_simbolos[variavel_formatada].nome_interno;
     }
 

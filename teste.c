@@ -2,46 +2,33 @@
 #include <stdio.h>
 int main(void) {
         int t1;
-        int t10;
-        int t11;
-        int t12;
-        int t13;
-        int t14;
-        int t2;
-        int t3;
-        int t4;
+        float t10;
+        float t2;
+        float t3;
+        float t4;
         float t5;
         float t6;
         float t7;
-        int t8;
-        int t9;
+        float t8;
+        float t9;
+        float __v1;
         int __v0;
-        int __v1;
         float __v2;
-        int __v3;
-        t1 = 5;
+        t1 = 3;
         __v0 = t1;
-        t2 = __v0;
-        t3 = 5;
+        t2 = 2.0;
+        t3 = 3.0;
         t4 = t2 + t3;
         __v1 = t4;
-        t5 = 2.0;
+        t5 = __v1;
         t6 = 5.0;
         t7 = t5 + t6;
         __v2 = t7;
-        t8 = 1;
-        __v3 = t8;
-        t9 = 7;
-        t10 = __v1;
-        t11 = t9 * t10;
-        __v0 = t11;
-        t12 = __v1;
-        t13 = 1;
-        t14 = t12 + t13;
-        __v1 = t14;
+        t8 = __v2;
+        t9 = 8.0;
+        t10 = t8 + t9;
+        __v2 = t10;
 
-
-
-        printf("%d\n %d\n %f\n %d\n", __v0, __v1, __v2, __v3);
+        printf("%d\n %f\n %f\n ", __v0, __v1, __v2);
         return 0;
 }
