@@ -73,10 +73,9 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <tuple>
 
 //usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
-
-
 
 #define YYSTYPE atributos
 
@@ -109,6 +108,7 @@ string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string);
 string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
+tuple<string, string, string> resolve_coercao(string, string, string);
 void verifica_tipo(string, string, string);
 string getTipo(string);
 
@@ -625,8 +625,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    83,    89,    94,    98,   104,   111,   118,
-     125,   132,   137,   143,   149,   155,   161
+       0,    57,    57,    83,    89,    94,    98,   104,   113,   120,
+     127,   134,   139,   145,   151,   157,   163
 };
 #endif
 
@@ -1262,109 +1262,111 @@ yyreduce:
   case 7: /* E: E '+' E  */
 #line 105 "sintatico.y"
             {
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
-                yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " + " + yyvsp[0].label + ";\n";
+            string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+            auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
+            yyval.label = gentempcode(tipo);
+            yyval.tipo = tipo;
+            yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " + " + t2 + ";\n";
+
             }
-#line 1271 "y.tab.c"
+#line 1273 "y.tab.c"
     break;
 
   case 8: /* E: E '-' E  */
-#line 112 "sintatico.y"
+#line 114 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " - " + yyvsp[0].label + ";\n";
             }
-#line 1282 "y.tab.c"
+#line 1284 "y.tab.c"
     break;
 
   case 9: /* E: E '*' E  */
-#line 119 "sintatico.y"
+#line 121 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " * " + yyvsp[0].label + ";\n";
             }
-#line 1293 "y.tab.c"
+#line 1295 "y.tab.c"
     break;
 
   case 10: /* E: E '/' E  */
-#line 126 "sintatico.y"
+#line 128 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " / " + yyvsp[0].label + ";\n";
             }
-#line 1304 "y.tab.c"
+#line 1306 "y.tab.c"
     break;
 
   case 11: /* E: TK_ID '=' E  */
-#line 133 "sintatico.y"
+#line 135 "sintatico.y"
             {
                 string nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo);
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + nome_variavel + " = " + yyvsp[0].label + ";\n";
             }
-#line 1313 "y.tab.c"
+#line 1315 "y.tab.c"
     break;
 
   case 12: /* E: TK_NUM  */
-#line 138 "sintatico.y"
+#line 140 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1323 "y.tab.c"
+#line 1325 "y.tab.c"
     break;
 
   case 13: /* E: TK_REAL  */
-#line 144 "sintatico.y"
+#line 146 "sintatico.y"
             {
                 yyval.label = gentempcode("float");
                 yyval.tipo = "float";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1333 "y.tab.c"
+#line 1335 "y.tab.c"
     break;
 
   case 14: /* E: TK_TRUE  */
-#line 150 "sintatico.y"
+#line 152 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + "1" + ";\n";
             }
-#line 1343 "y.tab.c"
+#line 1345 "y.tab.c"
     break;
 
   case 15: /* E: TK_FALSE  */
-#line 156 "sintatico.y"
+#line 158 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + "0" + ";\n";
             }
-#line 1353 "y.tab.c"
+#line 1355 "y.tab.c"
     break;
 
   case 16: /* E: TK_ID  */
-#line 162 "sintatico.y"
+#line 164 "sintatico.y"
             {   
                 string tipo = getTipo(yyvsp[0].label); 
                 yyval.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo);
                 yyval.traducao = "\t" + yyval.label + " = " + nome_interno + ";\n";
             }
-#line 1364 "y.tab.c"
+#line 1366 "y.tab.c"
     break;
 
 
-#line 1368 "y.tab.c"
+#line 1370 "y.tab.c"
 
       default: break;
     }
@@ -1557,7 +1559,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 169 "sintatico.y"
+#line 171 "sintatico.y"
 
 
 #include "lex.yy.c"
@@ -1590,16 +1592,36 @@ string resolve_tipo(string temp1, string temp2) {
         return "float";
     }
 
+    if(tipo1 == "int" && tipo2 == "float" || tipo1 == "float" && tipo2 == "int") {
+        return "float";
+    }
+
     return "int";
 }
 
+tuple<string, string, string> resolve_coercao(string label1, string label2, string tipo) {
 
-int main(int argc, char* argv[]) {
-    var_temp_qnt = 0;
-    linha = 1;
-    yyparse();
-    return 0;
+    string t1 = label1;
+    string t2 = label2;
+    string coercoes = "";
+
+    if(temporarias[t1] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t1 + ";\n";
+        t1 = coerced;
+    }
+
+    if(temporarias[t2] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t2 + ";\n";
+        t2 = coerced;
+    }
+
+    return {coercoes, t1, t2};
+
 }
+
+
 
 string adiciona_variavel_na_tabela( string variavel, string tipo) {
 
@@ -1639,4 +1661,10 @@ void yyerror(string MSG) {
     exit (0);
 }
 
+int main(int argc, char* argv[]) {
+    var_temp_qnt = 0;
+    linha = 1;
+    yyparse();
+    return 0;
+}
 

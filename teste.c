@@ -1,34 +1,49 @@
 #include <string.h>
 #include <stdio.h>
 int main(void) {
-        int t1;
+        float t1;
         float t10;
-        float t2;
+        float t11;
+        float t12;
+        float t13;
+        float t14;
+        int t2;
         float t3;
-        float t4;
+        int t4;
         float t5;
         float t6;
-        float t7;
+        int t7;
         float t8;
-        float t9;
-        float __v1;
-        int __v0;
+        int t9;
         float __v2;
-        t1 = 3;
+        float __v0;
+        int __v3;
+        float __v4;
+        int __v1;
+        float __v5;
+        t1 = 5.0;
         __v0 = t1;
-        t2 = 2.0;
-        t3 = 3.0;
-        t4 = t2 + t3;
-        __v1 = t4;
-        t5 = __v1;
-        t6 = 5.0;
-        t7 = t5 + t6;
-        __v2 = t7;
-        t8 = __v2;
-        t9 = 8.0;
-        t10 = t8 + t9;
-        __v2 = t10;
+        t2 = 3;
+        __v1 = t2;
+        t3 = __v0;
+        t4 = __v1;
+        t5 = (float) t4;
+        t6 = t3 + t5;
+        __v2 = t6;
+        t7 = 5;
+        __v3 = t7;
+        t8 = 10.0;
+        __v4 = t8;
+        t9 = __v3;
+        t10 = __v4;
+        t11 = (float) t9;
+        t12 = t11 + t10;
+        t13 = __v2;
+        t14 = t12 + t13;
+        __v5 = t14;
+     
 
-        printf("%d\n %f\n %f\n ", __v0, __v1, __v2);
+
+        printf("%f\n %f\n", __v2,__v5);
         return 0;
 }

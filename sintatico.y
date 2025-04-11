@@ -3,10 +3,9 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <tuple>
 
 //usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
-
-
 
 #define YYSTYPE atributos
 
@@ -39,6 +38,7 @@ string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string);
 string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
+tuple<string, string, string> resolve_coercao(string, string, string);
 void verifica_tipo(string, string, string);
 string getTipo(string);
 %}
@@ -103,10 +103,12 @@ COMANDO     : E ';'
 
 E           : E '+' E
             {
-                string tipo = resolve_tipo($1.label, $3.label);
-                $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " + " + $3.label + ";\n";
+            string tipo = resolve_tipo($1.label, $3.label);
+            auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+            $$.label = gentempcode(tipo);
+            $$.tipo = tipo;
+            $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " + " + t2 + ";\n";
+
             }
             | E '-' E 
             {   
@@ -198,16 +200,36 @@ string resolve_tipo(string temp1, string temp2) {
         return "float";
     }
 
+    if(tipo1 == "int" && tipo2 == "float" || tipo1 == "float" && tipo2 == "int") {
+        return "float";
+    }
+
     return "int";
 }
 
+tuple<string, string, string> resolve_coercao(string label1, string label2, string tipo) {
 
-int main(int argc, char* argv[]) {
-    var_temp_qnt = 0;
-    linha = 1;
-    yyparse();
-    return 0;
+    string t1 = label1;
+    string t2 = label2;
+    string coercoes = "";
+
+    if(temporarias[t1] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t1 + ";\n";
+        t1 = coerced;
+    }
+
+    if(temporarias[t2] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t2 + ";\n";
+        t2 = coerced;
+    }
+
+    return {coercoes, t1, t2};
+
 }
+
+
 
 string adiciona_variavel_na_tabela( string variavel, string tipo) {
 
@@ -247,4 +269,10 @@ void yyerror(string MSG) {
     exit (0);
 }
 
+int main(int argc, char* argv[]) {
+    var_temp_qnt = 0;
+    linha = 1;
+    yyparse();
+    return 0;
+}
 
