@@ -1,5 +1,11 @@
-function main() 
-{   
-  a = 10;
-  a = (float) a / 5;
+function main() {
+    a = true;
+    b = false;
+    c = a;
+    d = b;
+    e = 1;
+    f = 2;
+    g = e + f;
+    h = g;
+    i = h;
 }

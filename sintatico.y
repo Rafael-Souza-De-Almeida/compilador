@@ -65,11 +65,20 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                 
                 
                  for(auto iterador : temporarias) {
-                     codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
+                    if(iterador.second == "boolean") {
+                        codigo += "\tint " + iterador.first + ";\n";
+                        continue;
+                    }
+                    codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
                  }
 
                 for(auto iterador : tabela_simbolos) {
+                    if(iterador.second.tipo == "boolean") {
+                        codigo += "\tint " + iterador.second.nome_interno + ";\n";
+                        continue;
+                    }
                     codigo += "\t" + iterador.second.tipo + " " + iterador.second.nome_interno + ";\n";
+
                 }
 
                 codigo += $5.traducao;
@@ -135,6 +144,11 @@ E           : E '+' E
                 $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " / " + t2 + ";\n";
             }
+            | '(' E ')'
+            {   
+                $$.label = $2.label;
+                $$.traducao = $2.traducao;
+            }
             |  TK_ID '=' E
             {
                 string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
@@ -155,13 +169,13 @@ E           : E '+' E
             | TK_TRUE
             {
                 $$.label = gentempcode("int");
-                $$.tipo = "int";
+                $$.tipo = "boolean";
                 $$.traducao = "\t" + $$.label + " = " + "1" + ";\n";
             }
             | TK_FALSE
             {
                 $$.label = gentempcode("int");
-                $$.tipo = "int";
+                $$.tipo = "boolean";
                 $$.traducao = "\t" + $$.label + " = " + "0" + ";\n";
             }
             | TK_ID
@@ -170,12 +184,14 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label, tipo);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
+                $$.tipo = tipo;
             }
             | '('TK_INT')' TK_ID
             {  
                 string tipo_atual = getTipo($4.label);
                 string novo_tipo = "int";
                 $$.label = gentempcode(novo_tipo);
+                $$.tipo = novo_tipo;
                 string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
                 $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
             }
@@ -184,6 +200,7 @@ E           : E '+' E
                 string tipo_atual = getTipo($4.label);
                 string novo_tipo = "float";
                 $$.label = gentempcode(novo_tipo);
+                $$.tipo = novo_tipo;
                 string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
                 $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
             }
@@ -228,6 +245,10 @@ string resolve_tipo(string temp1, string temp2) {
 
     if(tipo1 == "int" && tipo2 == "float" || tipo1 == "float" && tipo2 == "int") {
         return "float";
+    }
+
+    if(tipo1 == "boolean" || tipo2 == "boolean") {
+         yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações entre tipos " + tipo1 +" e " + tipo2); 
     }
 
     return "int";
