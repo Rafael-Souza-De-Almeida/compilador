@@ -34,6 +34,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "false"      {return TK_FALSE;}
 
+"print"      {return TK_PRINT;}
+
+"println"      {return TK_PRINTLN;}
+
 [(){}[\];,]	{ return *yytext; }
 
 [+\-*/]		{ return *yytext; }

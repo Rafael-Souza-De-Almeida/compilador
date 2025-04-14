@@ -47,7 +47,7 @@ string getTipo(string);
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
 %token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
-%token TK_FIM TK_ERROR
+%token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN
 
 %start S
 
@@ -61,7 +61,8 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                                 "#include <iostream>\n"
                                 "#include <string.h>\n"
                                 "#include <stdio.h>\n"
-                                "int main(void) {\n"; 
+                                "using namespace std; \n"
+                                "int main(void) {\n";
                 
                 
                  for(auto iterador : temporarias) {
@@ -108,6 +109,12 @@ COMANDOS    : COMANDO COMANDOS
 COMANDO     : E ';'
             {
                 $$ = $1;
+            }
+            | TK_PRINT '(' E ')' ';' {
+                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
+            }
+            | TK_PRINTLN '(' E ')' ';' {
+                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
             ;
 
@@ -253,8 +260,12 @@ string resolve_tipo(string temp1, string temp2) {
         return "float";
     }
 
+    if(tipo1 == "char" || tipo2 == "char") {
+         yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações aritméticas entre tipos " + tipo1 +" e " + tipo2); 
+    }
+
     if(tipo1 == "boolean" || tipo2 == "boolean") {
-         yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações entre tipos " + tipo1 +" e " + tipo2); 
+         yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações aritméticas entre tipos " + tipo1 +" e " + tipo2); 
     }
 
     return "int";

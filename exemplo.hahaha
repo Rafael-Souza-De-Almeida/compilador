@@ -1,4 +1,7 @@
  function main() 
 {   
-  a = 'a';
+  a = 10;
+  b = (float) a;
+  println(a);
+  println(b);
 }
