@@ -2,25 +2,29 @@
 #include <stdio.h>
 int main(void) {
         int t1;
-        float t2;
+        int t2;
         float t3;
-        int t4;
-        float t5;
+        float t4;
+        int t5;
         float t6;
-        int __v0;
+        float t7;
+        int __v1;
         float __v2;
-        float __v1;
-        t1 = 5;
+        int __v0;
+        float __v3;
+        t1 = 10;
         __v0 = t1;
-        t2 = 2.0;
+        t2 = 1;
         __v1 = t2;
-        t3 = (float) __v0;
-        t4 = 2;
-        t5 = (float) t4;
-        t6 = t3 + t5;
-        __v2 = t6;
+        t3 = 2.1;
+        __v2 = t3;
+        t4 = __v2;
+        t5 = 10;
+        t6 = (float) t5;
+        t7 = t4 + t6;
+        __v3 = t7;
 
-        printf("%f", __v2);
+        printf("%f", __v3);
 
         return 0;
 }

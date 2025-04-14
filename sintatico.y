@@ -46,7 +46,7 @@ string getTipo(string);
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
-%token TK_INT TK_FLOAT  TK_BOOLEAN 
+%token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
 %token TK_FIM TK_ERROR
 
 %start S
@@ -177,6 +177,12 @@ E           : E '+' E
                 $$.label = gentempcode("int");
                 $$.tipo = "boolean";
                 $$.traducao = "\t" + $$.label + " = " + "0" + ";\n";
+            }
+            | TK_CHAR
+            {
+                $$.label = gentempcode("char");
+                $$.tipo = "char";
+                $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_ID
             {   

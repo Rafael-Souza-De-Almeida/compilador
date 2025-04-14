@@ -1,11 +1,4 @@
-function main() {
-    a = true;
-    b = false;
-    c = a;
-    d = b;
-    e = 1;
-    f = 2;
-    g = e + f;
-    h = g;
-    i = h;
+ function main() 
+{   
+  a = 'a';
 }
