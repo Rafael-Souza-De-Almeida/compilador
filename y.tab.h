@@ -68,7 +68,16 @@ extern int yydebug;
     TK_FIM = 269,                  /* TK_FIM  */
     TK_ERROR = 270,                /* TK_ERROR  */
     TK_PRINT = 271,                /* TK_PRINT  */
-    TK_PRINTLN = 272               /* TK_PRINTLN  */
+    TK_PRINTLN = 272,              /* TK_PRINTLN  */
+    GREATER_THAN = 273,            /* GREATER_THAN  */
+    LESS_THAN = 274,               /* LESS_THAN  */
+    GREATER_OR_EQUAL = 275,        /* GREATER_OR_EQUAL  */
+    LESS_OR_EQUAL = 276,           /* LESS_OR_EQUAL  */
+    EQUAL = 277,                   /* EQUAL  */
+    NOT_EQUAL = 278,               /* NOT_EQUAL  */
+    NOT = 279,                     /* NOT  */
+    AND = 280,                     /* AND  */
+    OR = 281                       /* OR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -92,6 +101,15 @@ extern int yydebug;
 #define TK_ERROR 270
 #define TK_PRINT 271
 #define TK_PRINTLN 272
+#define GREATER_THAN 273
+#define LESS_THAN 274
+#define GREATER_OR_EQUAL 275
+#define LESS_OR_EQUAL 276
+#define EQUAL 277
+#define NOT_EQUAL 278
+#define NOT 279
+#define AND 280
+#define OR 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

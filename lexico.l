@@ -44,6 +44,17 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "="         {   return '='; }
 
+">"         {return GREATER_THAN;}
+"<"         {return LESS_THAN;}
+">="         {return GREATER_OR_EQUAL;}
+"<="         {return LESS_OR_EQUAL;}
+"=="         {return EQUAL;}
+"!="         {return NOT_EQUAL;}
+
+"!"        { return NOT; }
+"&&"        { return AND; }
+"||"        { return OR; }
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }

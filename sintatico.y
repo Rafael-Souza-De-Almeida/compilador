@@ -4,6 +4,7 @@
 #include <sstream>
 #include <map>
 #include <tuple>
+#include <fstream>
 
 //usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
 
@@ -41,6 +42,7 @@ string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
 void verifica_tipo(string, string, string);
+void verifica_tipo_logico(string, string);
 string getTipo(string);
 %}
 
@@ -48,10 +50,15 @@ string getTipo(string);
 %token TK_MAIN TK_ID TK_FUNCTION
 %token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
 %token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN
+%token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 
 %start S
 
 %left '+'
+%left OR
+%left AND
+%right NOT
+
 
 %%
 
@@ -87,6 +94,19 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                           "\n}";
 
                 cout << codigo << endl;
+
+                string nome_arquivo = "teste.cpp";
+
+                ofstream arquivo(nome_arquivo, ios::out | ios::trunc);
+
+                if (!arquivo.is_open()) {
+                    std::cerr << "Erro ao abrir o arquivo." << std::endl;
+                    return 1;
+                }
+
+                arquivo << codigo;
+
+                arquivo.close();
 
             }
             ;
@@ -156,6 +176,77 @@ E           : E '+' E
                 $$.label = $2.label;
                 $$.traducao = $2.traducao;
             }
+            |   E GREATER_THAN E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " > " + t2 + ";\n";
+            }
+            |   E LESS_THAN E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " < " + t2 + ";\n";
+            }
+            |   E GREATER_OR_EQUAL E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " >= " + t2 + ";\n";
+            }
+            |   E LESS_OR_EQUAL E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " <= " + t2 + ";\n";
+            }
+            |   E EQUAL E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
+            }
+            |   E NOT_EQUAL E 
+            {   
+                string tipo = resolve_tipo($1.label, $3.label);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " != " + t2 + ";\n";
+            }
+            |   NOT E
+            {   
+                if($2.tipo != "boolean") {
+                    yyerror("Erro na linha " + to_string(linha) + ": não é possível usar o operador '!' em uma variável não booleana!");
+                }
+                $$.label = gentempcode("int");
+                $$.tipo = "boolean";
+                $$.traducao = $2.traducao + "\t" + $$.label + " = " "!" + $2.label + ";\n";
+            }
+            |   E AND E
+            {   
+                verifica_tipo_logico($1.tipo, $3.tipo);
+                $$.label = gentempcode("int");
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " && " + $3.label + ";\n";
+            }
+            |   E OR E
+            {   
+                verifica_tipo_logico($1.tipo, $3.tipo);
+                $$.label = gentempcode("int");
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " || " + $3.label + ";\n";
+            }
             |  TK_ID '=' E
             {
                 string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
@@ -221,7 +312,7 @@ E           : E '+' E
             {  
                 yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
             }
-            ;
+            ;             
 %%
 
 #include "lex.yy.c"
@@ -309,6 +400,7 @@ string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_as
     return nome_interno;
 }
 
+
 string pega_variavel_na_tabela(string nome_variavel, string tipo) {
 
     string variavel_formatada = nome_variavel + "_" + tipo;
@@ -326,6 +418,13 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
         yyerror("Erro na linha " + to_string(linha) + ": "+ mensagem);
     }
 
+}
+
+void verifica_tipo_logico(string tipo1, string tipo2) {
+    if(tipo1 != "boolean" || tipo2 != "boolean") {
+         yyerror("Erro na linha " + to_string(linha) + ": "+ "Não é possível realizar o operador && entre variáveis não booleanas");
+    }
+    
 }
 
 void yyerror(string MSG) {
