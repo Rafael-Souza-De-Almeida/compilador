@@ -49,7 +49,7 @@ string getTipo(string);
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
 %token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
-%token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN
+%token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN 
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 
 %start S
@@ -130,10 +130,20 @@ COMANDO     : E ';'
             {
                 $$ = $1;
             }
+            | E
+            {
+                $$ = $1;
+            }
             | TK_PRINT '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
             }
             | TK_PRINTLN '(' E ')' ';' {
+                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
+            }
+            | TK_PRINT '(' E ')' {
+                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
+            }
+            | TK_PRINTLN '(' E ')' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
             ;

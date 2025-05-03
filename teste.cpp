@@ -20,12 +20,13 @@ int main(void) {
 	t2 = 0;
 	__v1 = t2;
 	t3 = __v0;
-	t4 = !t3;
-	t5 = __v1;
-	t6 = !t5;
-	t7 = t4 && t6;
-	__v2 = t7;
-	t8 = __v2;
+	t4 = __v1;
+	t5 = !t4;
+	t6 = t3 && t5;
+	__v2 = t6;
+	t7 = __v2;
+	 cout << t7 << endl;
+	t8 = __v1;
 	 cout << t8 << endl;
 	return 0;
 }
