@@ -4,9 +4,8 @@
 #include <sstream>
 #include <map>
 
+
 //usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
-
-
 
 #define YYSTYPE atributos
 
@@ -44,12 +43,13 @@ string getTipo(string);
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
-%token TK_INT TK_FLOAT  TK_BOOLEAN 
+%token TK_INT TK_FLOAT  TK_BOOLEAN
 %token TK_FIM TK_ERROR
 
 %start S
 
-%left '+'
+%left '+' '-'
+%left '*' '/' 
 
 %%
 
@@ -102,6 +102,7 @@ COMANDO     : E ';'
 
 E           : E '+' E
             {
+                /* cout <<"Operation soma" <<endl; */
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -109,6 +110,7 @@ E           : E '+' E
             }
             | E '-' E 
             {   
+                /* cout<<"Operation subtraction"<<endl; */
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -116,6 +118,7 @@ E           : E '+' E
             }
             | E '*' E
             {   
+               /*  cout <<"Operation multiplication"<<endl; */
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -123,11 +126,19 @@ E           : E '+' E
             }
             | E '/' E
             {   
+              /*   cout <<"Operation division"<<endl; */
                 string tipo = resolve_tipo($1.label, $3.label);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " / " + $3.label + ";\n";
             }
+            |  '(' E ')'
+            {
+                /* cout <<"Operation parenteses"<<endl; */
+                $$.label = $2.label;
+                $$.tipo = $2.tipo;
+                $$.traducao = $2.traducao;
+            } 
             |  TK_ID '=' E
             {
                 string nome_variavel = pega_variavel_na_tabela($1.label);

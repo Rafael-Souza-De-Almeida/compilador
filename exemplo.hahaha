@@ -1,9 +1,5 @@
 function main() 
 {   
-   int a = 5;
-   int b = a + 5;
-   float c = 2.0 + 5.0;
-   boolean d = true;
-   a = 7 * b;
-   b = a + 1;
+ boolean b;
+ b = True;
 }

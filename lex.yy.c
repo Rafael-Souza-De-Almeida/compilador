@@ -362,7 +362,7 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[53] =
     {   0,
-        0,    0,   18,   16,    2,    1,   10,   11,   13,   12,
+        0,    0,   18,   16,    2,    1,   11,   10,   13,   12,
        15,   15,   15,   15,   15,   15,    2,    0,   13,   15,
        15,   15,   15,   15,   15,   15,   15,   15,   14,   15,
        15,   15,   15,    5,   15,   15,   15,   15,   15,   15,
@@ -376,16 +376,16 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    1,    1,    1,    1,    1,    1,    4,
-        4,    5,    5,    4,    5,    6,    5,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    1,    4,    1,
+        4,    4,    4,    5,    4,    6,    4,    7,    7,    7,
+        7,    7,    7,    7,    7,    7,    7,    1,    5,    1,
         8,    1,    1,    1,    9,    9,    9,    9,    9,    9,
         9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
         9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
-        4,    1,    4,    1,    9,    1,   10,   11,   12,    9,
+        5,    1,    5,    1,    9,    1,   10,   11,   12,    9,
 
        13,   14,    9,    9,   15,    9,    9,   16,   17,   18,
        19,    9,    9,   20,   21,   22,   23,    9,    9,    9,
-        9,    9,    4,    1,    4,    1,    1,    1,    1,    1,
+        9,    9,    5,    1,    5,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -775,67 +775,67 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 23 "lexico.l"
+#line 24 "lexico.l"
 {return TK_MAIN;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 25 "lexico.l"
+#line 26 "lexico.l"
 {return TK_FUNCTION;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 27 "lexico.l"
+#line 28 "lexico.l"
 {return TK_INT;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 29 "lexico.l"
+#line 30 "lexico.l"
 {return TK_FLOAT;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 31 "lexico.l"
+#line 32 "lexico.l"
 {return TK_BOOLEAN;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 33 "lexico.l"
+#line 34 "lexico.l"
 {return TK_TRUE;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 35 "lexico.l"
+#line 36 "lexico.l"
 {return TK_FALSE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 37 "lexico.l"
+#line 38 "lexico.l"
 { return *yytext; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 39 "lexico.l"
+#line 40 "lexico.l"
 { return *yytext; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 41 "lexico.l"
+#line 42 "lexico.l"
 {   return '='; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 43 "lexico.l"
+#line 44 "lexico.l"
 { yylval.label = yytext; return TK_NUM; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 44 "lexico.l"
+#line 45 "lexico.l"
 {yylval.label = yytext; return TK_REAL;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 45 "lexico.l"
+#line 46 "lexico.l"
 { yylval.label = yytext; return TK_ID; }
 	YY_BREAK
 case 16:
@@ -845,7 +845,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 49 "lexico.l"
+#line 50 "lexico.l"
 ECHO;
 	YY_BREAK
 #line 852 "lex.yy.c"
@@ -1853,6 +1853,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 49 "lexico.l"
+#line 50 "lexico.l"
 
 

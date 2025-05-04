@@ -20,6 +20,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 {DELIM} 	{}
 
+
 "main"		{return TK_MAIN;}
 
 "function"	{return TK_FUNCTION;}
@@ -34,16 +35,16 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "false"      {return TK_FALSE;}
 
-[(){}[\];,]	{ return *yytext; }
+[{}[\];,]	{ return *yytext; }
 
-[+\-*/]		{ return *yytext; }
+[()+\-*/]		{ return *yytext; }
 
 "="         {   return '='; }
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
-
 .			{ *yytext; }
+
 
 %%
