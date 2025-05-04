@@ -43,8 +43,9 @@ string getTipo(string);
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
-%token TK_INT TK_FLOAT  TK_BOOLEAN
+%token TK_INT TK_FLOAT  TK_CHAR TK_BOOLEAN
 %token TK_FIM TK_ERROR
+%token TK_MAIOR TK_MAIORIGUAL TK_MENOR TK_MENORIGUAL TK_IGUALDADE TK_DIFERENTE
 
 %start S
 
@@ -138,7 +139,55 @@ E           : E '+' E
                 $$.label = $2.label;
                 $$.tipo = $2.tipo;
                 $$.traducao = $2.traducao;
-            } 
+            }
+            |  E TK_MAIOR E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MAIORIGUAL E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MENOR E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MENORIGUAL E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
+
+            }
+            |  E TK_IGUALDADE E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
+
+            }
+            |  E TK_DIFERENTE E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode("int");
+                $$.tipo = "int";
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
+
+            }
             |  TK_ID '=' E
             {
                 string nome_variavel = pega_variavel_na_tabela($1.label);
@@ -148,6 +197,7 @@ E           : E '+' E
             } 
             | TK_INT TK_ID '=' E
             {
+
                 verifica_tipo($4.tipo, "int", "tipo incompatível na atribuição à variável int");
                 string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";

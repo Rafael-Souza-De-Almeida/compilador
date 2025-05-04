@@ -1,5 +1,8 @@
 function main() 
 {   
- boolean b;
- b = True;
+    int a = 3;
+    int b= 10;
+    boolean r = 3==10;
+
+    
 }

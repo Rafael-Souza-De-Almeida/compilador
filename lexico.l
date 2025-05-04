@@ -31,6 +31,8 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "boolean"   {return TK_BOOLEAN;}
 
+"char"      {return TK_CHAR;}
+
 "true"      {return TK_TRUE;}
 
 "false"      {return TK_FALSE;}
@@ -41,9 +43,23 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "="         {   return '='; }
 
+">"         {return TK_MAIOR;}
+
+">="         {return TK_MAIORIGUAL;}
+
+"<"         {return TK_MENOR;}
+
+"<="         {return TK_MENORIGUAL;}
+
+"=="         {return TK_IGUALDADE;}
+
+"!="         {return TK_DIFERENTE;}
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
+{CHAR}      {yylval.label = yytext;return TK_CHAR;} 
+
 .			{ *yytext; }
 
 
