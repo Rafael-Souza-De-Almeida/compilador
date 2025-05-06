@@ -59,7 +59,6 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "||"            {return TK_OU;}  
 
-
 "!"           {return TK_NEGATIVO;}
 
 

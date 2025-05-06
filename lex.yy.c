@@ -882,37 +882,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 63 "lexico.l"
+#line 62 "lexico.l"
 {return TK_NEGATIVO;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 67 "lexico.l"
+#line 66 "lexico.l"
 { yylval.label = yytext; return TK_NUM; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 68 "lexico.l"
+#line 67 "lexico.l"
 {yylval.label = yytext; return TK_REAL;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 69 "lexico.l"
+#line 68 "lexico.l"
 { yylval.label = yytext; return TK_ID; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 70 "lexico.l"
+#line 69 "lexico.l"
 {yylval.label = yytext;return TK_CHAR;} 
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 72 "lexico.l"
+#line 71 "lexico.l"
 { *yytext; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 75 "lexico.l"
+#line 74 "lexico.l"
 ECHO;
 	YY_BREAK
 #line 919 "lex.yy.c"
@@ -1920,6 +1920,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 75 "lexico.l"
+#line 74 "lexico.l"
 
 

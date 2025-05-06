@@ -1,6 +1,6 @@
 function main() 
 {   
-    char leo= 'abbb';
+    int c = (2*2)+(2+2);
    
 
 

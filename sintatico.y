@@ -194,13 +194,15 @@ E           : E '+' E
             }
             |  E  TK_OU E
             {
-                string tipo = resolve_tipo($1.label,$3.label);
+                verifica_tipo($1.tipo,"int","Operando esquerdo deve ser inteiro");
+                verifica_tipo($3.tipo,"int","Operando direita deve ser inteiro");
+
+                string tipo = "int";
                 $$.label=gentempcode(tipo);
                 $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "||" +  $3.label + ";\n";  
 
             }
-        
              |  E TK_E E
             {
                 verifica_tipo($1.tipo,"int","Operando esquerdo deve ser inteiro");
@@ -214,7 +216,8 @@ E           : E '+' E
             }
             |   TK_NEGATIVO E
             {
-                 verifica_tipo($2.tipo,"int","Operando esquerdo deve ser int");
+                verifica_tipo($2.tipo,"int","Operando esquerdo deve ser inteiro");
+                
 
                 string tipo = "int";
                 $$.label=gentempcode(tipo);
@@ -282,6 +285,7 @@ E           : E '+' E
             | TK_ID
             {   
                 string tipo = getTipo($1.label); 
+                $$.tipo=tipo;
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
