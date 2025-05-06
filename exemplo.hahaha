@@ -1,6 +1,9 @@
 function main() 
 {   
-    int c = (2*2)+(2+2);
+    int oi = 2;
+    float a =2.1;
+    int b = a<oi;
+    printf("%d",b);
    
 
 

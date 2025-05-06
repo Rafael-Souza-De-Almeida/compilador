@@ -374,6 +374,7 @@ string pega_variavel_na_tabela(string nome_variavel) {
 
 }
 
+
 void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     if(tipo1 == "" || tipo2 == "") {
         yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
