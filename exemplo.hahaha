@@ -1,8 +1,8 @@
 function main() 
 {   
-    int c = (2*2)+(2+2);
-   
+    int a = 20;
+    float b = 10.0;
+    float d = b + a;
+    d;
 
-
-    
 }
