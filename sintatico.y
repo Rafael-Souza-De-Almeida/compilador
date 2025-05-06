@@ -14,7 +14,7 @@ using namespace std;
 
 
 int var_temp_qnt;
-int linha;
+int linha = 0;
 
 struct atributos {
     string label;
@@ -29,9 +29,15 @@ struct Simbolo {
     // string escopo;
 };
 
+struct Simbolos_atuais {
+    string tipo;
+    string temp_associada;
+    
+};
+
 map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
-map<string, string> tipos_atuais;
+map<string, Simbolos_atuais> tipos_atuais;
 int var_user_qnt;
 
 int yylex(void);
@@ -41,6 +47,7 @@ string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
+string getTempId(string variavel);
 void verifica_tipo(string, string, string);
 void verifica_tipo_logico(string, string);
 string getTipo(string);
@@ -49,7 +56,7 @@ string getTipo(string);
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
 %token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
-%token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN 
+%token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN TK_LINHA
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 
 %start S
@@ -129,28 +136,23 @@ COMANDOS    : COMANDO COMANDOS
 COMANDO     : E ';'
             {
                 $$ = $1;
-            }
-            | E
-            {
-                $$ = $1;
-            }
+            }  
+            |  TK_ID ';'
+            {   
+                string temp_associada = getTempId($1.label);
+                $$.traducao =   "\t cout << "  + temp_associada + " << endl;\n";   
+            } 
             | TK_PRINT '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
             }
             | TK_PRINTLN '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
-            | TK_PRINT '(' E ')' {
-                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
-            }
-            | TK_PRINTLN '(' E ')' {
-                $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
-            }
             ;
 
 E           : E '+' E
             {
-            string tipo = resolve_tipo($1.label, $3.label);
+            string tipo = resolve_tipo($1.tipo, $3.tipo);
             auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
             $$.label = gentempcode(tipo);
             $$.tipo = tipo;
@@ -159,7 +161,7 @@ E           : E '+' E
             }
             | E '-' E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -167,7 +169,7 @@ E           : E '+' E
             }
             | E '*' E
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -175,7 +177,7 @@ E           : E '+' E
             }
             | E '/' E
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
                 $$.tipo = tipo;
@@ -336,8 +338,12 @@ string gentempcode(string tipo) {
     return temp;
 }
 
+string getTempId(string variavel) {
+    return tipos_atuais[variavel].temp_associada;
+}
+
 string getTipo(string nome_interno) {
-    string tipo = tipos_atuais[nome_interno];
+    string tipo = tipos_atuais[nome_interno].tipo;
 
     if(tipo == "") {
         yyerror("Erro na linha " + to_string(linha) + 
@@ -348,10 +354,8 @@ string getTipo(string nome_interno) {
     return tabela_simbolos[variavel_formatada].tipo;
 }
 
-string resolve_tipo(string temp1, string temp2) {
+string resolve_tipo(string tipo1, string tipo2) {
 
-    string tipo1 = temporarias[temp1];
-    string tipo2 = temporarias[temp2];
 
     if(tipo1 == "float" && tipo2 == "float") {
         return "float";
@@ -401,12 +405,16 @@ string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_as
     string variavel_formatada = variavel + "_" + tipo;
 
     if(tabela_simbolos.count(variavel_formatada)) {
+        tabela_simbolos[variavel_formatada].temp_associada = temp_associada;
+        tipos_atuais[variavel].tipo = tipo;
+        tipos_atuais[variavel].temp_associada = temp_associada;
         return tabela_simbolos[variavel_formatada].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
     tabela_simbolos[variavel_formatada] = { nome_interno, tipo, temp_associada};
-    tipos_atuais[variavel] = tipo;
+    tipos_atuais[variavel].tipo = tipo;
+    tipos_atuais[variavel].temp_associada = temp_associada;
     return nome_interno;
 }
 
@@ -418,6 +426,7 @@ string pega_variavel_na_tabela(string nome_variavel, string tipo) {
     return tabela_simbolos[variavel_formatada].nome_interno;
 
 }
+
 
 void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     if(tipo1 == "" || tipo2 == "") {
