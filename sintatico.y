@@ -46,11 +46,15 @@ string getTipo(string);
 %token TK_INT TK_FLOAT  TK_CHAR TK_BOOLEAN
 %token TK_FIM TK_ERROR
 %token TK_MAIOR TK_MAIORIGUAL TK_MENOR TK_MENORIGUAL TK_IGUALDADE TK_DIFERENTE
+%token  TK_E TK_OU TK_NEGATIVO
 
 %start S
 
 %left '+' '-'
 %left '*' '/' 
+%left TK_OU
+%left TK_E
+%right TK_NEGATIVO
 
 %%
 
@@ -143,51 +147,82 @@ E           : E '+' E
             |  E TK_MAIOR E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
 
             }
             |  E TK_MAIORIGUAL E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
 
             }
             |  E TK_MENOR E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
 
             }
             |  E TK_MENORIGUAL E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
 
             }
             |  E TK_IGUALDADE E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
 
             }
             |  E TK_DIFERENTE E
             {
                 string tipo = resolve_tipo($1.label,$3.label);
-                $$.label=gentempcode("int");
-                $$.tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
 
             }
+            |  E  TK_OU E
+            {
+                string tipo = resolve_tipo($1.label,$3.label);
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "||" +  $3.label + ";\n";  
+
+            }
+        
+             |  E TK_E E
+            {
+                verifica_tipo($1.tipo,"int","Operando esquerdo deve ser inteiro");
+                verifica_tipo($3.tipo,"int","Operando direita deve ser inteiro");
+
+                string tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "&&" +  $3.label + ";\n";  
+
+            }
+            |   TK_NEGATIVO E
+            {
+                 verifica_tipo($2.tipo,"int","Operando esquerdo deve ser int");
+
+                string tipo = "int";
+                $$.label=gentempcode(tipo);
+                $$.tipo=tipo;
+                $$.traducao = $2.traducao + "\t" + $$.label + "= !" + $2.label + ";\n"; 
+
+            }
+
             |  TK_ID '=' E
             {
                 string nome_variavel = pega_variavel_na_tabela($1.label);
@@ -207,6 +242,12 @@ E           : E '+' E
                 verifica_tipo($4.tipo, "float", "tipo incompatível na atribuição à variável float");
                 string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
+            }
+            | TK_CHAR TK_ID '=' E
+            {
+                verifica_tipo($4.tipo,"char","tipo incompativel na atribuicao à variável char");
+                string nome_interno = adiciona_variavel_na_tabela($2.label,"char");
+                $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + "=" + $4.label + ";\n";
             }
             | TK_BOOLEAN TK_ID '=' E
             {
@@ -245,6 +286,13 @@ E           : E '+' E
                 string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
             }
+            | TK_CHAR 
+            {
+                $$.label = gentempcode("char");
+                $$.tipo = "char";
+                $$.traducao = "\t" + $$.label + " = " + $1.label  + ";\n";
+
+            }
             | TK_INT TK_ID
             {   
                 string nome_interno = adiciona_variavel_na_tabela($2.label, "int");
@@ -255,6 +303,12 @@ E           : E '+' E
                
                 string nome_interno = adiciona_variavel_na_tabela( $2.label, "float");
                 $$.traducao = "";
+            }
+            | TK_CHAR TK_ID
+            {
+                string nome_interno = adiciona_variavel_na_tabela($2.label,"char");
+                $$.traducao = "";
+
             }
             | TK_BOOLEAN TK_ID
             {   
@@ -324,12 +378,9 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     else if( tipo1 != tipo2 ) {
         yyerror("Erro na linha " + to_string(linha) + ": "+ mensagem);
     }
-
 }
 
 void yyerror(string MSG) {
     cout << "\033[1;31m" << MSG << "\033[0m" << endl;
     exit (0);
 }
-
-

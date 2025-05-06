@@ -39,21 +39,30 @@ ID {LETRA}({LETRA}|{NUM})*
 
 [{}[\];,]	{ return *yytext; }
 
-[()+\-*/]		{ return *yytext; }
+[()+\-*/]    { return *yytext; }
 
-"="         {   return '='; }
-
-">"         {return TK_MAIOR;}
+"="          {return '='; }
 
 ">="         {return TK_MAIORIGUAL;}
 
-"<"         {return TK_MENOR;}
+">"         {return TK_MAIOR;}
 
 "<="         {return TK_MENORIGUAL;}
+
+"<"         {return TK_MENOR;}
 
 "=="         {return TK_IGUALDADE;}
 
 "!="         {return TK_DIFERENTE;}
+
+"&&"         {return TK_E;}
+
+"||"            {return TK_OU;}  
+
+
+"!"           {return TK_NEGATIVO;}
+
+
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}

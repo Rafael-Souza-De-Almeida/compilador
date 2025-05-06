@@ -72,7 +72,10 @@ extern int yydebug;
     TK_MENOR = 273,                /* TK_MENOR  */
     TK_MENORIGUAL = 274,           /* TK_MENORIGUAL  */
     TK_IGUALDADE = 275,            /* TK_IGUALDADE  */
-    TK_DIFERENTE = 276             /* TK_DIFERENTE  */
+    TK_DIFERENTE = 276,            /* TK_DIFERENTE  */
+    TK_E = 277,                    /* TK_E  */
+    TK_OU = 278,                   /* TK_OU  */
+    TK_NEGATIVO = 279              /* TK_NEGATIVO  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -100,6 +103,9 @@ extern int yydebug;
 #define TK_MENORIGUAL 274
 #define TK_IGUALDADE 275
 #define TK_DIFERENTE 276
+#define TK_E 277
+#define TK_OU 278
+#define TK_NEGATIVO 279
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
