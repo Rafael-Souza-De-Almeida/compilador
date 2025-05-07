@@ -97,8 +97,7 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                           "\n}";
 
                 cout << codigo << endl;
-                cout << "hahahahahahahahahahahahhahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahaahahahahahahahahahaha Na vida é melhor sorrir do que chorar" << endl;
-
+            
                 string nome_arquivo = "teste.cpp";
 
                 ofstream arquivo(nome_arquivo, ios::out | ios::trunc);
@@ -133,11 +132,7 @@ COMANDOS    : COMANDO COMANDOS
 COMANDO     : E ';'
             {
                 $$ = $1;
-            } |  TK_ID ';'
-            {   
-                string temp_associada = getTempId($1.label);
-                $$.traducao =   "\t cout << "  + temp_associada + " << endl;\n";   
-            } 
+            }
             | TK_PRINT '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
             }

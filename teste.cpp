@@ -7,6 +7,7 @@ int main(void) {
 	int t1;
 	int t10;
 	int t11;
+	int t12;
 	int t2;
 	int t3;
 	int t4;
@@ -28,5 +29,7 @@ int main(void) {
 	t10 = 5;
 	t11 = t9 + t10;
 	__v0 = t11;
+	t12 = __v0;
+	 cout << t12 << endl;
 	return 0;
 }
