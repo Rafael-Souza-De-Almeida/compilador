@@ -112,19 +112,6 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
                 arquivo.close();
 
-                string nome_arquivo = "teste.cpp";
-
-                ofstream arquivo(nome_arquivo, ios::out | ios::trunc);
-
-                if (!arquivo.is_open()) {
-                    std::cerr << "Erro ao abrir o arquivo." << std::endl;
-                    return 1;
-                }
-
-                arquivo << codigo;
-
-                arquivo.close();
-
             }
             ;
 
@@ -461,28 +448,6 @@ string resolve_tipo(string tipo1, string tipo2) {
     }
 
     return "int";
-}
-
-tuple<string, string, string> resolve_coercao(string label1, string label2, string tipo) {
-
-    string t1 = label1;
-    string t2 = label2;
-    string coercoes = "";
-
-    if(temporarias[t1] == "int" && tipo == "float") {
-        string coerced = gentempcode("float");
-        coercoes += "\t" + coerced + " = (float) " + t1 + ";\n";
-        t1 = coerced;
-    }
-
-    if(temporarias[t2] == "int" && tipo == "float") {
-        string coerced = gentempcode("float");
-        coercoes += "\t" + coerced + " = (float) " + t2 + ";\n";
-        t2 = coerced;
-    }
-
-    return {coercoes, t1, t2};
-
 }
 
 
