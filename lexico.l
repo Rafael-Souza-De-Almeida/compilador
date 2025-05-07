@@ -29,6 +29,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "float"     {return TK_FLOAT;}
 
+"print"      {return TK_PRINT;}
+
+"println"      {return TK_PRINTLN;}
+
 "boolean"   {return TK_BOOLEAN;}
 
 "char"      {return TK_CHAR;}

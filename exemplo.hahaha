@@ -1,11 +1,9 @@
 function main() 
 {   
-    int oi = 2;
-    float a =2.1;
-    int b = a<oi;
-    printf("%d",b);
-   
+
+ boolean c = true;
+ boolean d = c==c;
+ d;
 
 
-    
 }
