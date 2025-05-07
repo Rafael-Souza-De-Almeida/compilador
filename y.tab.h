@@ -63,9 +63,21 @@ extern int yydebug;
     TK_FUNCTION = 264,             /* TK_FUNCTION  */
     TK_INT = 265,                  /* TK_INT  */
     TK_FLOAT = 266,                /* TK_FLOAT  */
-    TK_BOOLEAN = 267,              /* TK_BOOLEAN  */
-    TK_FIM = 268,                  /* TK_FIM  */
-    TK_ERROR = 269                 /* TK_ERROR  */
+    TK_CHAR = 267,                 /* TK_CHAR  */
+    TK_BOOLEAN = 268,              /* TK_BOOLEAN  */
+    TK_FIM = 269,                  /* TK_FIM  */
+    TK_ERROR = 270,                /* TK_ERROR  */
+    TK_MAIOR = 271,                /* TK_MAIOR  */
+    TK_MAIORIGUAL = 272,           /* TK_MAIORIGUAL  */
+    TK_MENOR = 273,                /* TK_MENOR  */
+    TK_MENORIGUAL = 274,           /* TK_MENORIGUAL  */
+    TK_IGUALDADE = 275,            /* TK_IGUALDADE  */
+    TK_DIFERENTE = 276,            /* TK_DIFERENTE  */
+    TK_E = 277,                    /* TK_E  */
+    TK_OU = 278,                   /* TK_OU  */
+    TK_NEGATIVO = 279,             /* TK_NEGATIVO  */
+    TK_PRINT = 280,                /* TK_PRINT  */
+    TK_PRINTLN = 281               /* TK_PRINTLN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -83,9 +95,21 @@ extern int yydebug;
 #define TK_FUNCTION 264
 #define TK_INT 265
 #define TK_FLOAT 266
-#define TK_BOOLEAN 267
-#define TK_FIM 268
-#define TK_ERROR 269
+#define TK_CHAR 267
+#define TK_BOOLEAN 268
+#define TK_FIM 269
+#define TK_ERROR 270
+#define TK_MAIOR 271
+#define TK_MAIORIGUAL 272
+#define TK_MENOR 273
+#define TK_MENORIGUAL 274
+#define TK_IGUALDADE 275
+#define TK_DIFERENTE 276
+#define TK_E 277
+#define TK_OU 278
+#define TK_NEGATIVO 279
+#define TK_PRINT 280
+#define TK_PRINTLN 281
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
