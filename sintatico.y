@@ -112,6 +112,19 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
                 arquivo.close();
 
+                string nome_arquivo = "teste.cpp";
+
+                ofstream arquivo(nome_arquivo, ios::out | ios::trunc);
+
+                if (!arquivo.is_open()) {
+                    std::cerr << "Erro ao abrir o arquivo." << std::endl;
+                    return 1;
+                }
+
+                arquivo << codigo;
+
+                arquivo.close();
+
             }
             ;
 
@@ -311,7 +324,11 @@ E           : E '+' E
             | TK_BOOLEAN TK_ID '=' E
             {
                 
+<<<<<<< HEAD
                 string nome_interno = adiciona_variavel_na_tabela( $2.label, "boolean", $4.label);
+=======
+                string nome_interno = adiciona_variavel_na_tabela( $2.label, "int", $4.label);
+>>>>>>> 042413b388a38ed3e78d3791b144b464a3edf806
                 $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
             }
             | TK_NUM
@@ -373,7 +390,11 @@ E           : E '+' E
             | TK_BOOLEAN TK_ID
             {   
                
+<<<<<<< HEAD
                 string nome_interno = adiciona_variavel_na_tabela($2.label, "boolean", "");
+=======
+                string nome_interno = adiciona_variavel_na_tabela($2.label, "int", "");
+>>>>>>> 042413b388a38ed3e78d3791b144b464a3edf806
                 $$.traducao = "";
             }
             | '('TK_INT')' TK_ID
@@ -422,12 +443,15 @@ string getTempId(string variavel) {
     return tabela_simbolos[variavel].temp_associada;
 }
 
+<<<<<<< HEAD
 void verifica_tipo_relacional(string tipo1, string tipo2) {
     if (tipo1 == "boolean" || tipo2 == "boolean") {
         yyerror("Erro na linha " + to_string(linha) + ": não é permitido fazer operation com booleano , somente int e float!");
     }
 }
 
+=======
+>>>>>>> 042413b388a38ed3e78d3791b144b464a3edf806
 string resolve_tipo(string tipo1, string tipo2) {
 
 
@@ -448,6 +472,28 @@ string resolve_tipo(string tipo1, string tipo2) {
     }
 
     return "int";
+}
+
+tuple<string, string, string> resolve_coercao(string label1, string label2, string tipo) {
+
+    string t1 = label1;
+    string t2 = label2;
+    string coercoes = "";
+
+    if(temporarias[t1] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t1 + ";\n";
+        t1 = coerced;
+    }
+
+    if(temporarias[t2] == "int" && tipo == "float") {
+        string coerced = gentempcode("float");
+        coercoes += "\t" + coerced + " = (float) " + t2 + ";\n";
+        t2 = coerced;
+    }
+
+    return {coercoes, t1, t2};
+
 }
 
 

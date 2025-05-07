@@ -1,9 +1,17 @@
 function main() 
 {   
+<<<<<<< HEAD
 
  boolean c = true;
  boolean d = c==c;
  d;
 
 
+=======
+    int a = 20;
+    float b = 10.0;
+    float d = b + a;
+    d;
+
+>>>>>>> 042413b388a38ed3e78d3791b144b464a3edf806
 }
