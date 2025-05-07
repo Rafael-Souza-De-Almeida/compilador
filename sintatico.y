@@ -190,50 +190,50 @@ E           : E '+' E
             }
             |   E GREATER_THAN E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " > " + t2 + ";\n";
             }
             |   E LESS_THAN E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " < " + t2 + ";\n";
             }
             |   E GREATER_OR_EQUAL E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " >= " + t2 + ";\n";
             }
             |   E LESS_OR_EQUAL E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " <= " + t2 + ";\n";
             }
             |   E EQUAL E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
             }
             |   E NOT_EQUAL E 
             {   
-                string tipo = resolve_tipo($1.label, $3.label);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
+                $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " != " + t2 + ";\n";
             }
             |   NOT E

@@ -1478,10 +1478,10 @@ yyreduce:
   case 15: /* E: E GREATER_THAN E  */
 #line 192 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " > " + t2 + ";\n";
             }
 #line 1488 "y.tab.c"
@@ -1490,10 +1490,10 @@ yyreduce:
   case 16: /* E: E LESS_THAN E  */
 #line 200 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " < " + t2 + ";\n";
             }
 #line 1500 "y.tab.c"
@@ -1502,10 +1502,10 @@ yyreduce:
   case 17: /* E: E GREATER_OR_EQUAL E  */
 #line 208 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " >= " + t2 + ";\n";
             }
 #line 1512 "y.tab.c"
@@ -1514,10 +1514,10 @@ yyreduce:
   case 18: /* E: E LESS_OR_EQUAL E  */
 #line 216 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " <= " + t2 + ";\n";
             }
 #line 1524 "y.tab.c"
@@ -1526,10 +1526,10 @@ yyreduce:
   case 19: /* E: E EQUAL E  */
 #line 224 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " == " + t2 + ";\n";
             }
 #line 1536 "y.tab.c"
@@ -1538,10 +1538,10 @@ yyreduce:
   case 20: /* E: E NOT_EQUAL E  */
 #line 232 "sintatico.y"
             {   
-                string tipo = resolve_tipo(yyvsp[-2].label, yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
-                yyval.tipo = tipo;
+                yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " != " + t2 + ";\n";
             }
 #line 1548 "y.tab.c"

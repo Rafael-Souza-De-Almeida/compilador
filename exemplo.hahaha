@@ -1,7 +1,6 @@
  function main() 
 {   
-  a = true;
-  b = false;
-  c = a || b;
-  c;
+  a = 1 < 2.0;
+  a = a + 1;
+  a;
 }
