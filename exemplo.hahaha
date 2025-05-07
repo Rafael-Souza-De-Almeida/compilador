@@ -2,7 +2,5 @@ function main()
 {   
 
 
- boolean c = true;
- boolean d = c==c;
- d;
+ int a = 1+2+3+4+5+5;
 }
