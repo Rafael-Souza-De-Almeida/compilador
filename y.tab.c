@@ -1468,12 +1468,12 @@ yyreduce:
   case 14: /* E: E TK_MAIOR E  */
 #line 187 "sintatico.y"
             {
-                  verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
+                verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + ">" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + ">" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1480 "y.tab.c"
@@ -1482,12 +1482,12 @@ yyreduce:
   case 15: /* E: E TK_MAIORIGUAL E  */
 #line 197 "sintatico.y"
             {
-                  verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
-                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
+                verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
+                auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + ">=" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + ">=" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1494 "y.tab.c"
@@ -1496,12 +1496,12 @@ yyreduce:
   case 16: /* E: E TK_MENOR E  */
 #line 207 "sintatico.y"
             {
-                 verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
+                verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo); 
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + "<" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + "<" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1508 "y.tab.c"
@@ -1511,11 +1511,11 @@ yyreduce:
 #line 217 "sintatico.y"
             {
                   verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
                  auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + "<=" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + "<=" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1522 "y.tab.c"
@@ -1525,11 +1525,11 @@ yyreduce:
 #line 227 "sintatico.y"
             {
                 ver_boolean(yyvsp[-2].tipo,yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + "==" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + "==" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1536 "y.tab.c"
@@ -1539,11 +1539,11 @@ yyreduce:
 #line 237 "sintatico.y"
             {
                 ver_boolean(yyvsp[-2].tipo,yyvsp[0].tipo);
-                string tipo = resolve_tipo(yyvsp[-2].label,yyvsp[0].label);
-                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
+                string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
+                auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label=gentempcode(tipo);
-                yyval.tipo = tipo;
-                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + "= " + yyvsp[-2].label + "!=" +  yyvsp[0].label + ";\n";  
+                yyval.tipo = "boolean";
+                yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + "= " + yyvsp[-2].label + "!=" +  yyvsp[0].label + ";\n";  
 
             }
 #line 1550 "y.tab.c"

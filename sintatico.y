@@ -185,62 +185,62 @@ E           : E '+' E
             }
             |  E TK_MAIOR E
             {
-                  verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
 
             }
             |  E TK_MAIORIGUAL E
             {
-                  verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
-                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
 
             }
             |  E TK_MENOR E
             {
-                 verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo); 
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
 
             }
             |  E TK_MENORIGUAL E
             {
                   verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
                  auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
 
             }
             |  E TK_IGUALDADE E
             {
                 ver_boolean($1.tipo,$3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
 
             }
             |  E TK_DIFERENTE E
             {
                 ver_boolean($1.tipo,$3.tipo);
-                string tipo = resolve_tipo($1.label,$3.label);
-                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
 
             }
             |  E  TK_OU E
