@@ -245,7 +245,7 @@ E           : E '+' E
             }
             |  E  TK_OU E
             {
-                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser boolean");
+                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser do tipo boolean");
                 verifica_tipo($3.tipo,"boolean","Operando direita deve ser boolean");
 
                 string tipo = "boolean";
