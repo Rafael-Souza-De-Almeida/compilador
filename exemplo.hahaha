@@ -1,6 +1,4 @@
  function main() 
 {   
-  a = 1 < 2.0;
-  a = a + 1;
-  a;
+  a = "string";
 }

@@ -6,7 +6,28 @@
 #include <tuple>
 #include <fstream>
 
-//usar /n do lexico e uma variavel global de numero da linha incrementar quando paarecer /n 
+// to-do: Gerar rótulos de saída para o if e guardar (Fim_1, fim_2)
+//bloco -> sumidoro "{ Comandos }"
+//sumidoro -> vazio {crie empilhe rotulos}
+//yacc possui uma variavel para isso
+// marcador ou tamanho da temp para string
+// colocar na tabela de simbolos da string,a string e o tamanho da string para quando passar b = a, fazer t2[3].
+// fazer malloc
+//strcat para concatenar
+/*
+    string a = 'oi'
+    string b = a;
+
+    char t1*;
+    strcpy(t1, 'oi')
+    contar(t1) //criar função no codigo intermediario com if t4 = t4 +1;
+
+    t2 = malloc(sizeof(t3))
+    strcpy(t2, t1)
+
+    char t1[3];
+    strcpy(t1, "oi");
+*/
 
 #define YYSTYPE atributos
 
@@ -55,7 +76,7 @@ string getTipo(string);
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
 %token TK_MAIN TK_ID TK_FUNCTION
-%token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR
+%token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR TK_STRING
 %token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN TK_LINHA
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 
@@ -274,6 +295,11 @@ E           : E '+' E
             {
                 $$.label = gentempcode("float");
                 $$.tipo = "float";
+                $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
+            }
+            | TK_STRING {
+                $$.label = gentempcode("string");
+                $$.tipo = "string";
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_TRUE

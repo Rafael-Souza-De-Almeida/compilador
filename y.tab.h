@@ -65,20 +65,21 @@ extern int yydebug;
     TK_FLOAT = 266,                /* TK_FLOAT  */
     TK_BOOLEAN = 267,              /* TK_BOOLEAN  */
     TK_CHAR = 268,                 /* TK_CHAR  */
-    TK_FIM = 269,                  /* TK_FIM  */
-    TK_ERROR = 270,                /* TK_ERROR  */
-    TK_PRINT = 271,                /* TK_PRINT  */
-    TK_PRINTLN = 272,              /* TK_PRINTLN  */
-    TK_LINHA = 273,                /* TK_LINHA  */
-    GREATER_THAN = 274,            /* GREATER_THAN  */
-    LESS_THAN = 275,               /* LESS_THAN  */
-    GREATER_OR_EQUAL = 276,        /* GREATER_OR_EQUAL  */
-    LESS_OR_EQUAL = 277,           /* LESS_OR_EQUAL  */
-    EQUAL = 278,                   /* EQUAL  */
-    NOT_EQUAL = 279,               /* NOT_EQUAL  */
-    NOT = 280,                     /* NOT  */
-    AND = 281,                     /* AND  */
-    OR = 282                       /* OR  */
+    TK_STRING = 269,               /* TK_STRING  */
+    TK_FIM = 270,                  /* TK_FIM  */
+    TK_ERROR = 271,                /* TK_ERROR  */
+    TK_PRINT = 272,                /* TK_PRINT  */
+    TK_PRINTLN = 273,              /* TK_PRINTLN  */
+    TK_LINHA = 274,                /* TK_LINHA  */
+    GREATER_THAN = 275,            /* GREATER_THAN  */
+    LESS_THAN = 276,               /* LESS_THAN  */
+    GREATER_OR_EQUAL = 277,        /* GREATER_OR_EQUAL  */
+    LESS_OR_EQUAL = 278,           /* LESS_OR_EQUAL  */
+    EQUAL = 279,                   /* EQUAL  */
+    NOT_EQUAL = 280,               /* NOT_EQUAL  */
+    NOT = 281,                     /* NOT  */
+    AND = 282,                     /* AND  */
+    OR = 283                       /* OR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -98,20 +99,21 @@ extern int yydebug;
 #define TK_FLOAT 266
 #define TK_BOOLEAN 267
 #define TK_CHAR 268
-#define TK_FIM 269
-#define TK_ERROR 270
-#define TK_PRINT 271
-#define TK_PRINTLN 272
-#define TK_LINHA 273
-#define GREATER_THAN 274
-#define LESS_THAN 275
-#define GREATER_OR_EQUAL 276
-#define LESS_OR_EQUAL 277
-#define EQUAL 278
-#define NOT_EQUAL 279
-#define NOT 280
-#define AND 281
-#define OR 282
+#define TK_STRING 269
+#define TK_FIM 270
+#define TK_ERROR 271
+#define TK_PRINT 272
+#define TK_PRINTLN 273
+#define TK_LINHA 274
+#define GREATER_THAN 275
+#define LESS_THAN 276
+#define GREATER_OR_EQUAL 277
+#define LESS_OR_EQUAL 278
+#define EQUAL 279
+#define NOT_EQUAL 280
+#define NOT 281
+#define AND 282
+#define OR 283
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

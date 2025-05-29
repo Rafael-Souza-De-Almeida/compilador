@@ -12,6 +12,7 @@ DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 CHAR \'({LETRA}|{NUM})\'
+STRING \"({LETRA})*\"
 ID {LETRA}({LETRA}|{NUM})*
 
 %%
@@ -38,6 +39,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "println"      {return TK_PRINTLN;}
 
+
 [(){}[\];,]	{ return *yytext; }
 
 [+\-*/]		{ return *yytext; }
@@ -59,6 +61,7 @@ ID {LETRA}({LETRA}|{NUM})*
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
 {CHAR}      {yylval.label = yytext; return TK_CHAR;}
+{STRING}    {yylval.label = yytext; return TK_STRING;}
 
 .			{ *yytext; }
 
