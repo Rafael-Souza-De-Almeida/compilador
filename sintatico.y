@@ -143,13 +143,10 @@ COMANDO     : E ';'
             | TK_PRINTLN '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
-<<<<<<< HEAD
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
-=======
->>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
-            ;
+
 
 E           : E '+' E
             {
