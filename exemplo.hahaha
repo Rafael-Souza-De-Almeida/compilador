@@ -1,17 +1,4 @@
 function main() 
 {   
-<<<<<<< HEAD
-    int x=5;
-    println(x);
-    {
-    int o=3;        
-    {
-        int l=2;
-         }
-    }
-=======
- boolean a;
- a = 1 > 2.0;
- println(a);
->>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
+ int o =1 ;
 }
