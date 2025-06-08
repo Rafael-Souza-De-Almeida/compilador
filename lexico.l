@@ -64,11 +64,6 @@ ID {LETRA}({LETRA}|{NUM})*
 "||"            {return TK_OU;}  
 
 "!"           {return TK_NEGATIVO;}
-<<<<<<< HEAD
-
-=======
->>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
-
 
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
