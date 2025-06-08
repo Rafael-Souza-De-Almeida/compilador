@@ -900,32 +900,56 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 71 "lexico.l"
+=======
+#line 70 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 { yylval.label = yytext; return TK_NUM; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 72 "lexico.l"
+=======
+#line 71 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 {yylval.label = yytext; return TK_REAL;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 73 "lexico.l"
+=======
+#line 72 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 { yylval.label = yytext; return TK_ID; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 74 "lexico.l"
+=======
+#line 73 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 {yylval.label = yytext;return TK_CHAR;} 
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 76 "lexico.l"
+=======
+#line 75 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 { *yytext; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
+<<<<<<< HEAD
 #line 79 "lexico.l"
+=======
+#line 78 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 ECHO;
 	YY_BREAK
 #line 932 "lex.yy.c"
@@ -1933,6 +1957,10 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
+<<<<<<< HEAD
 #line 79 "lexico.l"
+=======
+#line 78 "lexico.l"
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 
 

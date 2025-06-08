@@ -54,7 +54,10 @@ string getTempId(string);
 %token TK_MAIOR TK_MAIORIGUAL TK_MENOR TK_MENORIGUAL TK_IGUALDADE TK_DIFERENTE
 %token  TK_E TK_OU TK_NEGATIVO
 %token TK_PRINT TK_PRINTLN
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
 
 %start S
 
@@ -140,9 +143,12 @@ COMANDO     : E ';'
             | TK_PRINTLN '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
+<<<<<<< HEAD
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
+=======
+>>>>>>> 2a1f86ed9bc1698b613e15a7aabb98840543657e
             ;
 
 E           : E '+' E
