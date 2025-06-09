@@ -2017,7 +2017,7 @@ string getTipo(string nome_interno) {
             return it->at(nome_interno).tipo;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' não declarada.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' declarada em escopo local.");
     return "";
 }
 
@@ -2127,7 +2127,7 @@ string pega_variavel_na_tabela(string nome_variavel) {
             return it->at(nome_variavel).nome_interno;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não declarada.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' declarada em escopo local.");
     return "";
 }
 
