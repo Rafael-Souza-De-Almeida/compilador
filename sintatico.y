@@ -32,6 +32,7 @@ struct Simbolo {
 
 vector<map<string, Simbolo>> pilha_escopos;
 map<string, string> temporarias;
+vector<Simbolo> simbolos_declarados;
 int var_user_qnt;
 
 int yylex(void);
@@ -88,15 +89,14 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                     codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
                  }
 
-               for (auto it = pilha_escopos.begin(); it != pilha_escopos.end(); ++it) {
-                 for (auto& [chave, simbolo] : *it) {
-                    if(simbolo.tipo == "boolean") {
-            codigo += "\tint " + simbolo.nome_interno + ";\n";
-            continue;
-        }
-        codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
-    }
-}
+
+               for (auto& simbolo : simbolos_declarados) {
+                if (simbolo.tipo == "boolean") {
+                    codigo += "\tint " + simbolo.nome_interno + ";\n";
+                } else {
+                    codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
+                }
+            }
 
                 codigo += $5.traducao;
                 codigo += "\treturn 0;"
@@ -122,7 +122,7 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
 BLOCO       : '{' {entra_escopo();} COMANDOS '}'{ sai_escopo();
             
-                $$.traducao = $2.traducao;
+                $$.traducao = $3.traducao;
             }
             ;
 
@@ -525,15 +525,17 @@ void sai_escopo(){
     pilha_escopos.pop_back();
 }
 
-string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_associada) {
-  if (pilha_escopos.empty()) entra_escopo();
+string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada) {
+    if (pilha_escopos.empty()) entra_escopo();
     auto& escopo_atual = pilha_escopos.back();
     if (escopo_atual.count(variavel)) {
         return escopo_atual[variavel].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    escopo_atual[variavel] = {nome_interno, tipo, temp_associada};
+    Simbolo s = {nome_interno, tipo, temp_associada};
+    escopo_atual[variavel] = s;
+    simbolos_declarados.push_back(s); // <- adiciona aqui
     return nome_interno;
 }
 
