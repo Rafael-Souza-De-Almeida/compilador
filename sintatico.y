@@ -58,6 +58,7 @@ string getTempId(string);
 %token  TK_E TK_OU TK_NEGATIVO
 %token TK_PRINT TK_PRINTLN
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
+%token TK_CONTINUE TK_BREAK
 
 %start S
 
