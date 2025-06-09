@@ -2,13 +2,14 @@
 {   
   a = "string";
   b = "rafita";
-  c = "testando";
-  d = "";
-  f = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  e = a + b;
+  a = 'r' + 'a';
+  d = 'a' + 'b';
+  c = 10 + 10;
   a;
   b;
   c;
   d;
-  f;
+  e;
 
 }

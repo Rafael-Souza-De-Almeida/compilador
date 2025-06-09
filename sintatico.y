@@ -37,6 +37,7 @@ using namespace std;
 int var_temp_qnt;
 int linha = 0;
 
+
 struct atributos {
     string label;
     string traducao;
@@ -60,6 +61,7 @@ map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
+map<string, bool> realocar_var_interna;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -75,6 +77,7 @@ void verifica_tipo(string, string, string);
 void verifica_tipo_logico(string, string);
 string getTipo(string);
 string realizar_contagem(string, string);
+
 %}
 
 %token TK_NUM TK_REAL TK_TRUE TK_FALSE
@@ -134,9 +137,26 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
                 codigo += $5.traducao;
 
-                 for(auto iterador : tamanho_string) {
-                    codigo += "\tfree(" + iterador.first + ")" + ";\n";  
+              
+
+                for(auto iterador : tabela_simbolos) {
+
+                    if(iterador.second.tipo == "string" && iterador.second.tipo.length() > 1) {
+                        codigo += "\tfree(" + iterador.second.nome_interno + ")" + ";\n";
+                        continue;
+                    } 
+
                 }
+
+                 for(auto iterador : temporarias) {
+                    if(iterador.second == "string" && iterador.second.length() > 1) {
+                        codigo += "\tfree(" + iterador.first + ")" + ";\n";
+                        
+                    }
+
+                 }
+
+             
 
                 codigo += "\treturn 0;"
                           "\n}";
@@ -180,8 +200,9 @@ COMANDO     : E ';'
             }  
             |  TK_ID ';'
             {   
-                string temp_associada = getTempId($1.label);
-                $$.traducao =   "\t cout << "  + temp_associada + " << endl;\n";   
+                string tipo = getTipo($1.label);
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo);
+                $$.traducao =   "\t cout << "  + nome_interno + " << endl;\n";   
             } 
             | TK_PRINT '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + ";\n";
@@ -194,10 +215,45 @@ COMANDO     : E ';'
 E           : E '+' E
             {
             string tipo = resolve_tipo($1.tipo, $3.tipo);
-            auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-            $$.label = gentempcode(tipo);
-            $$.tipo = tipo;
-            $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " + " + t2 + ";\n";
+
+            if(tipo == "char") {
+                string var_1 = gentempcode("string");
+                string var_2 = gentempcode("string");
+                $$.tipo = "string";
+                $$.traducao = $1.traducao + $3.traducao;
+                $$.traducao += "\t" + var_1 + " = (char *) malloc(2);\n";
+                $$.traducao += "\t" + var_1 + "[0] = " + $1.label + ";\n";
+                $$.traducao += "\t" + var_1 + "[1] = '\\0';\n";
+                $$.traducao += "\t" + var_2 + " = (char *) malloc(2);\n";
+                $$.traducao += "\t" + var_2 + "[0] = " + $3.label + ";\n";
+                $$.traducao += "\t" + var_2 + "[1] = '\\0';\n";
+                string temp_tamanho = gentempcode("int");
+                $$.label = gentempcode("string");
+                $$.traducao += "\t" + temp_tamanho + " = 3;\n";
+                $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
+                $$.traducao += "\tstrcpy(" + $$.label + ", " + var_1 + ");\n";
+                $$.traducao += "\tstrcat(" + $$.label + ", " + var_2 + ");\n";
+                tamanho_string[$$.label] = temp_tamanho;
+
+            }
+
+            else if(tipo == "string") {
+                $$.label = gentempcode(tipo);
+                $$.tipo = tipo;
+                string temp_tamanho = gentempcode("int");
+                $$.traducao = $1.traducao + $3.traducao + "\t" + temp_tamanho + " = " + tamanho_string[$1.label] + " + " + tamanho_string[$3.label] + ";\n" ;
+                $$.traducao += "\t" + temp_tamanho + " = " + temp_tamanho + " + 1;\n";
+                $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
+                $$.traducao += "\tstrcpy(" + $$.label + ", " + $1.label + ");\n";
+                $$.traducao += "\tstrcat(" + $$.label + ", " + $3.label + ");\n";
+                tamanho_string[$$.label] = temp_tamanho;
+            } else {
+                $$.label = gentempcode(tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " + " + t2 + ";\n";
+            }
+            
 
             }
             | E '-' E 
@@ -303,10 +359,18 @@ E           : E '+' E
             |  TK_ID '=' E
             {
                 string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
-                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
+                
                 if($3.tipo == "string") {
-                    $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + "(char *) malloc(" + tamanho_string[$3.label] + ");\n";
+                    
+                    if(realocar_var_interna.count(nome_variavel)){
+                         $$.traducao = "\tfree(" + nome_variavel + ");\n";
+                    }
+                    
+                    realocar_var_interna[nome_variavel] = true;
+                    $$.traducao += $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + "(char *) malloc(" + tamanho_string[$3.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_variavel + "," + $3.label + ");\n";
+                } else {
+                    $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
                 }
             } 
             | TK_NUM
@@ -440,12 +504,18 @@ string resolve_tipo(string tipo1, string tipo2) {
         return "float";
     }
 
-    if(tipo1 == "char" || tipo2 == "char") {
-         yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações aritméticas entre tipos " + tipo1 +" e " + tipo2); 
+    // To-do: Aceitar operações entre char
+
+    if(tipo1 == "char" && tipo2 == "char") {
+         return "char";
     }
 
     if(tipo1 == "boolean" || tipo2 == "boolean") {
          yyerror("Erro na linha " + to_string(linha) + ": Não é possível realizar operações aritméticas entre tipos " + tipo1 +" e " + tipo2); 
+    }
+
+    if(tipo1 == "string" && tipo2 == "string") {
+        return "string";
     }
 
     return "int";
@@ -472,6 +542,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
     return {coercoes, t1, t2};
 
 }
+
 
 
 
