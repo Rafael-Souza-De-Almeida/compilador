@@ -77,7 +77,13 @@ extern int yydebug;
     TK_OU = 278,                   /* TK_OU  */
     TK_NEGATIVO = 279,             /* TK_NEGATIVO  */
     TK_PRINT = 280,                /* TK_PRINT  */
-    TK_PRINTLN = 281               /* TK_PRINTLN  */
+    TK_PRINTLN = 281,              /* TK_PRINTLN  */
+    TK_IF = 282,                   /* TK_IF  */
+    TK_ELSE = 283,                 /* TK_ELSE  */
+    TK_FOR = 284,                  /* TK_FOR  */
+    TK_WHILE = 285,                /* TK_WHILE  */
+    TK_DO = 286,                   /* TK_DO  */
+    TK_SWITCH = 287                /* TK_SWITCH  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -110,6 +116,12 @@ extern int yydebug;
 #define TK_NEGATIVO 279
 #define TK_PRINT 280
 #define TK_PRINTLN 281
+#define TK_IF 282
+#define TK_ELSE 283
+#define TK_FOR 284
+#define TK_WHILE 285
+#define TK_DO 286
+#define TK_SWITCH 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

@@ -57,6 +57,7 @@ string getTempId(string);
 %token TK_MAIOR TK_MAIORIGUAL TK_MENOR TK_MENORIGUAL TK_IGUALDADE TK_DIFERENTE
 %token  TK_E TK_OU TK_NEGATIVO
 %token TK_PRINT TK_PRINTLN
+%token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
 
 %start S
 
@@ -146,7 +147,15 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
+            /* | TK_IF '(' E ')' BLOCO{
+            verifica_tipo($3.tipo,"boolean","Condicao nao abordada");
+            }
+            |TK IF  '(' E ')' BLOCO TK_ELSE BLOCO{
+            
+            } 
+            |TK_FOR '(' E ';' E ';' E ')' BLOCO{
 
+            } */
 
 E           : E '+' E
             {

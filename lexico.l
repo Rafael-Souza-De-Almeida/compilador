@@ -65,6 +65,23 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "!"           {return TK_NEGATIVO;}
 
+"if"          {return TK_IF;}
+
+"else"        {return TK_ELSE;}
+
+"for"         {return TK_FOR;}
+
+"while"       {return TK_WHILE;}
+
+"do"          {return TK_DO;}
+
+"switch"      {return TK_SWITCH;}
+
+"break"        {return TK_BREAK;}
+
+"continue"    {return TK_CONTINUE;}
+
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
