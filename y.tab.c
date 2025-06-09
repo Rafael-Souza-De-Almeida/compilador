@@ -102,6 +102,7 @@ struct Simbolo {
 
 vector<map<string, Simbolo>> pilha_escopos;
 map<string, string> temporarias;
+vector<Simbolo> simbolos_declarados;
 int var_user_qnt;
 
 int yylex(void);
@@ -119,7 +120,7 @@ tuple<string, string, string> resolve_coercao(string, string, string);
 string getTipo(string);
 string getTempId(string);
 
-#line 123 "y.tab.c"
+#line 124 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -303,7 +304,7 @@ enum yysymbol_kind_t
   YYSYMBOL_YYACCEPT = 45,                  /* $accept  */
   YYSYMBOL_S = 46,                         /* S  */
   YYSYMBOL_BLOCO = 47,                     /* BLOCO  */
-  YYSYMBOL_48_1 = 48,                      /* @1  */
+  YYSYMBOL_48_1 = 48,                      /* $@1  */
   YYSYMBOL_COMANDOS = 49,                  /* COMANDOS  */
   YYSYMBOL_COMANDO = 50,                   /* COMANDO  */
   YYSYMBOL_E = 51                          /* E  */
@@ -695,7 +696,7 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    73,    73,   123,   123,   129,   134,   138,   142,   145,
+       0,    74,    74,   123,   123,   129,   134,   138,   142,   145,
      148,   161,   169,   178,   187,   196,   203,   213,   223,   233,
      243,   253,   263,   274,   285,   297,   304,   311,   317,   323,
      329,   335,   341,   347,   353,   361,   368,   373,   379,   385,
@@ -722,7 +723,7 @@ static const char *const yytname[] =
   "TK_DIFERENTE", "TK_E", "TK_OU", "TK_NEGATIVO", "TK_PRINT", "TK_PRINTLN",
   "TK_IF", "TK_ELSE", "TK_FOR", "TK_WHILE", "TK_DO", "TK_SWITCH",
   "TK_CONTINUE", "TK_BREAK", "'+'", "'-'", "'*'", "'/'", "'('", "')'",
-  "'{'", "'}'", "';'", "'='", "$accept", "S", "BLOCO", "@1", "COMANDOS",
+  "'{'", "'}'", "';'", "'='", "$accept", "S", "BLOCO", "$@1", "COMANDOS",
   "COMANDO", "E", YY_NULLPTR
 };
 
@@ -1333,7 +1334,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* S: TK_FUNCTION TK_MAIN '(' ')' BLOCO  */
-#line 74 "sintatico.y"
+#line 75 "sintatico.y"
             {
                 string codigo = "/* Compilador hahaha */\n"
                                 "#include <iostream>\n"
@@ -1351,15 +1352,14 @@ yyreduce:
                     codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
                  }
 
-               for (auto it = pilha_escopos.begin(); it != pilha_escopos.end(); ++it) {
-                 for (auto& [chave, simbolo] : *it) {
-                    if(simbolo.tipo == "boolean") {
-            codigo += "\tint " + simbolo.nome_interno + ";\n";
-            continue;
-        }
-        codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
-    }
-}
+
+               for (auto& simbolo : simbolos_declarados) {
+                if (simbolo.tipo == "boolean") {
+                    codigo += "\tint " + simbolo.nome_interno + ";\n";
+                } else {
+                    codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
+                }
+            }
 
                 codigo += yyvsp[0].traducao;
                 codigo += "\treturn 0;"
@@ -1384,17 +1384,17 @@ yyreduce:
 #line 1385 "y.tab.c"
     break;
 
-  case 3: /* @1: %empty  */
+  case 3: /* $@1: %empty  */
 #line 123 "sintatico.y"
                   {entra_escopo();}
 #line 1391 "y.tab.c"
     break;
 
-  case 4: /* BLOCO: '{' @1 COMANDOS '}'  */
+  case 4: /* BLOCO: '{' $@1 COMANDOS '}'  */
 #line 123 "sintatico.y"
                                                 { sai_escopo();
             
-                yyval.traducao = yyvsp[-2].traducao;
+                yyval.traducao = yyvsp[-1].traducao;
             }
 #line 1400 "y.tab.c"
     break;
@@ -2132,15 +2132,17 @@ void sai_escopo(){
     pilha_escopos.pop_back();
 }
 
-string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_associada) {
-  if (pilha_escopos.empty()) entra_escopo();
+string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada) {
+    if (pilha_escopos.empty()) entra_escopo();
     auto& escopo_atual = pilha_escopos.back();
     if (escopo_atual.count(variavel)) {
         return escopo_atual[variavel].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    escopo_atual[variavel] = {nome_interno, tipo, temp_associada};
+    Simbolo s = {nome_interno, tipo, temp_associada};
+    escopo_atual[variavel] = s;
+    simbolos_declarados.push_back(s); // <- adiciona aqui
     return nome_interno;
 }
 
