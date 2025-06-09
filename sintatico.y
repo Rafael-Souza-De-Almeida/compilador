@@ -149,7 +149,9 @@ COMANDO     : E ';'
                 $$.traducao = $1.traducao;
             }
             /* | TK_IF '(' E ')' BLOCO{
-            verifica_tipo($3.tipo,"boolean","Condicao nao abordada");
+            verifica_tipo($3.tipo,"boolean","Condicao nao abordada"); //Aqui pra permitir so booleanos
+
+            
             }
             |TK IF  '(' E ')' BLOCO TK_ELSE BLOCO{
             
