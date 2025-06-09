@@ -1,8 +1,6 @@
 
-int nu;
-
 function main() 
 
 {   
- int num1 = 2;
+ int num1;
 }
