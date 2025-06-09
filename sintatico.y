@@ -148,17 +148,16 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
-            /* | TK_IF '(' E ')' BLOCO{
-            verifica_tipo($3.tipo,"boolean","Condicao nao abordada"); //Aqui pra permitir so booleanos
-
+            //| TK_IF '(' E ')' BLOCO{
+            //verifica_tipo($3.tipo,"boolean","Condicao nao abordada"); //Aqui pra permitir so booleanos
             
-            }
-            |TK IF  '(' E ')' BLOCO TK_ELSE BLOCO{
+            //}
+            //|TK IF  '(' E ')' BLOCO TK_ELSE BLOCO{
             
-            } 
-            |TK_FOR '(' E ';' E ';' E ')' BLOCO{
+            //} 
+            //|TK_FOR '(' E ';' E ';' E ')' BLOCO{
 
-            } */
+            //}
 
 E           : E '+' E
             {
