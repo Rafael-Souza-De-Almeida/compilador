@@ -21,6 +21,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 {DELIM} 	{}
 
+
 "main"		{return TK_MAIN;}
 
 "function"	{return TK_FUNCTION;}
@@ -30,6 +31,8 @@ ID {LETRA}({LETRA}|{NUM})*
 "float"     {return TK_FLOAT;}
 
 "boolean"   {return TK_BOOLEAN;}
+
+"char"      {return TK_CHAR;}
 
 "true"      {return TK_TRUE;}
 
@@ -42,9 +45,26 @@ ID {LETRA}({LETRA}|{NUM})*
 
 [(){}[\];,]	{ return *yytext; }
 
-[+\-*/]		{ return *yytext; }
+[()+\-*/]    { return *yytext; }
 
-"="         {   return '='; }
+"="          {return '='; }
+
+"if"          {return TK_IF;}
+
+"else"        {return TK_ELSE;}
+
+"for"         {return TK_FOR;}
+
+"while"       {return TK_WHILE;}
+
+"do"          {return TK_DO;}
+
+"switch"      {return TK_SWITCH;}
+
+"break"        {return TK_BREAK;}
+
+"continue"    {return TK_CONTINUE;}
+
 
 ">"         {return GREATER_THAN;}
 "<"         {return LESS_THAN;}
@@ -64,5 +84,6 @@ ID {LETRA}({LETRA}|{NUM})*
 {STRING}    {yylval.label = yytext; return TK_STRING;}
 
 .			{ *yytext; }
+
 
 %%

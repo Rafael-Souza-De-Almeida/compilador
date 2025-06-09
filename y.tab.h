@@ -79,7 +79,15 @@ extern int yydebug;
     NOT_EQUAL = 280,               /* NOT_EQUAL  */
     NOT = 281,                     /* NOT  */
     AND = 282,                     /* AND  */
-    OR = 283                       /* OR  */
+    OR = 283,                      /* OR  */
+    TK_IF = 284,                   /* TK_IF  */
+    TK_ELSE = 285,                 /* TK_ELSE  */
+    TK_FOR = 286,                  /* TK_FOR  */
+    TK_WHILE = 287,                /* TK_WHILE  */
+    TK_DO = 288,                   /* TK_DO  */
+    TK_SWITCH = 289,               /* TK_SWITCH  */
+    TK_CONTINUE = 290,             /* TK_CONTINUE  */
+    TK_BREAK = 291                 /* TK_BREAK  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -114,6 +122,14 @@ extern int yydebug;
 #define NOT 281
 #define AND 282
 #define OR 283
+#define TK_IF 284
+#define TK_ELSE 285
+#define TK_FOR 286
+#define TK_WHILE 287
+#define TK_DO 288
+#define TK_SWITCH 289
+#define TK_CONTINUE 290
+#define TK_BREAK 291
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

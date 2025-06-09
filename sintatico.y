@@ -4,30 +4,9 @@
 #include <sstream>
 #include <map>
 #include <tuple>
+#include<vector>
 #include <fstream>
 
-// to-do: Gerar rótulos de saída para o if e guardar (Fim_1, fim_2)
-//bloco -> sumidoro "{ Comandos }"
-//sumidoro -> vazio {crie empilhe rotulos}
-//yacc possui uma variavel para isso
-// marcador ou tamanho da temp para string
-// colocar na tabela de simbolos da string,a string e o tamanho da string para quando passar b = a, fazer t2[3].
-// fazer malloc
-//strcat para concatenar
-/*
-    string a = 'oi'
-    string b = a;
-
-    char t1*;
-    strcpy(t1, 'oi')
-    contar(t1) //criar função no codigo intermediario com if t4 = t4 +1;
-
-    t2 = malloc(sizeof(t3))
-    strcpy(t2, t1)
-
-    char t1[3];
-    strcpy(t1, "oi");
-*/
 
 #define YYSTYPE atributos
 
@@ -62,11 +41,16 @@ map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
 map<string, bool> realocar_var_interna;
+vector<map<string, Simbolo>> pilha_escopos;
+vector<Simbolo> simbolos_declarados;
 int var_user_qnt;
 bool origem_declarada = false;
 
 int yylex(void);
 void yyerror(string);
+void entra_escopo();
+void sai_escopo();
+void verifica_tipo_relacional(string tipo1, string tipo2);
 string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string, string);
@@ -85,14 +69,16 @@ string realizar_contagem(string, string);
 %token TK_INT TK_FLOAT  TK_BOOLEAN TK_CHAR TK_STRING
 %token TK_FIM TK_ERROR TK_PRINT TK_PRINTLN TK_LINHA
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
+%token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
+%token TK_CONTINUE TK_BREAK
 
 %start S
 
-%left '+'
+%left '+' '-'
+%left '*' '/' 
 %left OR
 %left AND
 %right NOT
-
 
 %%
 
@@ -121,28 +107,29 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                     codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
                  }
 
-                for(auto iterador : tabela_simbolos) {
-                    if(iterador.second.tipo == "boolean") {
-                        codigo += "\tint " + iterador.second.nome_interno + ";\n";
-                        continue;
-                    }
 
-                    if(iterador.second.tipo == "string" && iterador.second.tipo.length() > 1) {
-                        codigo += "\tchar *" + iterador.second.nome_interno + ";\n";
-                        continue;
-                    }
-                    codigo += "\t" + iterador.second.tipo + " " + iterador.second.nome_interno + ";\n";
 
+               for (auto& simbolo : simbolos_declarados) {
+                if (simbolo.tipo == "boolean") {
+                    codigo += "\tint " + simbolo.nome_interno + ";\n";
                 }
+
+                else if(simbolo.tipo == "string") {
+                    codigo += "\tchar *" + simbolo.nome_interno + ";\n";
+                }
+                 else {
+                    codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
+                }
+            }
 
                 codigo += $5.traducao;
 
               
 
-                for(auto iterador : tabela_simbolos) {
+                for(auto iterador : simbolos_declarados) {
 
-                    if(iterador.second.tipo == "string" && iterador.second.tipo.length() > 1) {
-                        codigo += "\tfree(" + iterador.second.nome_interno + ")" + ";\n";
+                    if(iterador.tipo == "string") {
+                        codigo += "\tfree(" + iterador.nome_interno + ")" + ";\n";
                         continue;
                     } 
 
@@ -162,7 +149,7 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                           "\n}";
 
                 cout << codigo << endl;
-
+            
                 string nome_arquivo = "teste.cpp";
 
                 ofstream arquivo(nome_arquivo, ios::out | ios::trunc);
@@ -176,12 +163,13 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
                 arquivo.close();
 
+               
             }
             ;
 
-BLOCO       : '{' COMANDOS '}'
-            {
-                $$.traducao = $2.traducao;
+BLOCO       : '{' {entra_escopo();} COMANDOS '}'{ sai_escopo();
+            
+                $$.traducao = $3.traducao;
             }
             ;
 
@@ -210,7 +198,10 @@ COMANDO     : E ';'
             | TK_PRINTLN '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
-            ;
+            | BLOCO {
+                $$.traducao = $1.traducao;
+            }
+           
 
 E           : E '+' E
             {
@@ -356,6 +347,100 @@ E           : E '+' E
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " || " + $3.label + ";\n";
             }
+            /* |  E TK_MAIOR E
+            {
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MAIORIGUAL E
+            {
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MENOR E
+            {
+                verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo); 
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
+
+            }
+            |  E TK_MENORIGUAL E
+            {
+                  verifica_tipo_relacional($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
+
+            }
+            |  E TK_IGUALDADE E
+            {
+                ver_boolean($1.tipo,$3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
+
+            }
+            |  E TK_DIFERENTE E
+            {
+                ver_boolean($1.tipo,$3.tipo);
+                string tipo = resolve_tipo($1.tipo,$3.tipo);
+                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
+                $$.label=gentempcode(tipo);
+                $$.tipo = "boolean";
+                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
+
+            }
+            |  E  TK_OU E
+            {
+                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser do tipo boolean");
+                verifica_tipo($3.tipo,"boolean","Operando direita deve ser boolean");
+
+                string tipo = "boolean";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "||" +  $3.label + ";\n";  
+
+            }
+             |  E TK_E E
+            {
+                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser boolean");
+                verifica_tipo($3.tipo,"boolean","Operando direita deve ser boolean");
+
+                string tipo = "boolean";
+                $$.label=gentempcode(tipo);
+                $$.tipo = tipo;
+                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "&&" +  $3.label + ";\n";  
+
+            }
+            |   TK_NEGATIVO E
+            {
+                verifica_tipo($2.tipo,"boolean","Operando esquerdo deve ser boolean");
+                
+
+                string tipo = "boolean";
+                $$.label=gentempcode(tipo);
+                $$.tipo=tipo;
+                $$.traducao = $2.traducao + "\t" + $$.label + "= !" + $2.label + ";\n"; 
+
+            } */
+
             |  TK_ID '=' E
             {
                 string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
@@ -427,6 +512,7 @@ E           : E '+' E
             | TK_ID
             {   
                 string tipo = getTipo($1.label); 
+                $$.tipo=tipo;
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label, tipo);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
@@ -470,6 +556,7 @@ E           : E '+' E
 
 int yyparse();
 
+
 string gentempcode(string tipo) {
     var_temp_qnt++;
     string temp = "t" + to_string(var_temp_qnt); 
@@ -477,22 +564,32 @@ string gentempcode(string tipo) {
     return temp;
 }
 
-string getTempId(string variavel) {
-    return tipos_atuais[variavel].temp_associada;
-}
-
 string getTipo(string nome_interno) {
-    string tipo = tipos_atuais[nome_interno].tipo;
-
-    if(tipo == "") {
-        yyerror("Erro na linha " + to_string(linha) + 
-        ": Ao declarar uma variável é necessária atribuí-la \n" + 
-        "Dica: Atribua a variável com 0 se você não deseja definir um valor a ela ainda.");
+       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
+        if (it->count(nome_interno)) {
+            return it->at(nome_interno).tipo;
+        }
     }
-    string variavel_formatada = nome_interno + "_" + tipo;
-    return tabela_simbolos[variavel_formatada].tipo;
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' declarada em escopo local.");
+    return "";
 }
 
+string getTempId(string variavel) {
+       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
+        if (it->count(variavel)) {
+            return it->at(variavel).temp_associada;
+        }
+    }
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + variavel + "' não declarada.");
+    return "";
+}
+
+
+void verifica_tipo_relacional(string tipo1, string tipo2) {
+    if (tipo1 == "boolean" || tipo2 == "boolean") {
+        yyerror("Erro na linha " + to_string(linha) + ": não é permitido fazer operation com booleano , somente int e float!");
+    }
+}
 string resolve_tipo(string tipo1, string tipo2) {
 
 
@@ -543,33 +640,39 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 
 }
 
+void entra_escopo(){
+    pilha_escopos.push_back({});
+}
 
+void sai_escopo(){
+    pilha_escopos.pop_back();
+}
 
-
-string adiciona_variavel_na_tabela( string variavel, string tipo, string temp_associada) {
-
-    string variavel_formatada = variavel + "_" + tipo;
-
-    if(tabela_simbolos.count(variavel_formatada)) {
-        tabela_simbolos[variavel_formatada].temp_associada = temp_associada;
-        tipos_atuais[variavel].tipo = tipo;
-        tipos_atuais[variavel].temp_associada = temp_associada;
-        return tabela_simbolos[variavel_formatada].nome_interno;
+string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada) {
+    if (pilha_escopos.empty()) entra_escopo();
+    auto& escopo_atual = pilha_escopos.back();
+    if (escopo_atual.count(variavel)) {
+        return escopo_atual[variavel].nome_interno;
     }
 
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    tabela_simbolos[variavel_formatada] = { nome_interno, tipo, temp_associada};
-    tipos_atuais[variavel].tipo = tipo;
-    tipos_atuais[variavel].temp_associada = temp_associada;
+    Simbolo s = {nome_interno, tipo, temp_associada};
+    escopo_atual[variavel] = s;
+    simbolos_declarados.push_back(s); // <- adiciona aqui
     return nome_interno;
 }
 
 
+
 string pega_variavel_na_tabela(string nome_variavel, string tipo) {
 
-    string variavel_formatada = nome_variavel + "_" + tipo;
-
-    return tabela_simbolos[variavel_formatada].nome_interno;
+     for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
+        if (it->count(nome_variavel)) {
+            return it->at(nome_variavel).nome_interno;
+        }
+    }
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' declarada em escopo local.");
+    return "";
 
 }
 
@@ -605,7 +708,6 @@ string realizar_contagem(string palavra, string temp) {
                 
 }
 
-
 void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     if(tipo1 == "" || tipo2 == "") {
         yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
@@ -614,7 +716,6 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     else if( tipo1 != tipo2 ) {
         yyerror("Erro na linha " + to_string(linha) + ": "+ mensagem);
     }
-
 }
 
 void verifica_tipo_logico(string tipo1, string tipo2) {

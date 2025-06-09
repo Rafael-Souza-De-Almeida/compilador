@@ -3,10 +3,12 @@
   a = "string";
   b = "rafita";
   e = a + b;
-  a = 'r' + 'a';
   d = 'a' + 'b';
   c = 10 + 10;
-  a;
+  {
+    a = "rafael";
+    a;
+  }
   b;
   c;
   d;
