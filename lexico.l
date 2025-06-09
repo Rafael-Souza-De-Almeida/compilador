@@ -12,7 +12,7 @@ DELIM {ESPACO}+
 NUM {DIGITO}+
 REAL {NUM}+("."{NUM}+)?
 CHAR \'({LETRA}|{NUM})\'
-STRING \"({LETRA}|{NUM})*\"
+STRING \"([^"]*)\"
 ID {LETRA}({LETRA}|{NUM})*
 
 %%

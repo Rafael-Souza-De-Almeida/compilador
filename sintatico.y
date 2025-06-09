@@ -42,6 +42,7 @@ map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
+vector<map<string,Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
 int var_user_qnt;
 bool origem_declarada = false;
@@ -61,6 +62,7 @@ void verifica_tipo(string, string, string);
 void verifica_tipo_logico(string, string);
 string getTipo(string);
 string realizar_contagem(string, string);
+void verifica_operacao_string(string, string, string);
 
 %}
 
@@ -229,16 +231,46 @@ E           : E '+' E
             }
 
             else if(tipo == "string") {
-                $$.label = gentempcode(tipo);
-                $$.tipo = tipo;
-                string temp_tamanho = gentempcode("int");
-                $$.traducao = $1.traducao + $3.traducao + "\t" + temp_tamanho + " = " + tamanho_string[$1.label] + " + " + tamanho_string[$3.label] + ";\n" ;
-                $$.traducao += "\t" + temp_tamanho + " = " + temp_tamanho + " + 1;\n";
-                $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
-                $$.traducao += "\tstrcpy(" + $$.label + ", " + $1.label + ");\n";
-                $$.traducao += "\tstrcat(" + $$.label + ", " + $3.label + ");\n";
-                tamanho_string[$$.label] = temp_tamanho;
-            } else {
+            $$.label = gentempcode(tipo);
+            $$.tipo = tipo;
+
+           
+            bool left_is_char = $1.tipo == "char";
+            bool right_is_char = $3.tipo == "char";
+
+            string left_label = $1.label;
+            string right_label = $3.label;
+            string prep = "";
+
+            if(left_is_char) {
+                string var = gentempcode("string");
+                prep += "\t" + var + " = (char *) malloc(2);\n";
+                prep += "\t" + var + "[0] = " + $1.label + ";\n";
+                prep += "\t" + var + "[1] = '\\0';\n";
+                left_label = var;
+                tamanho_string[var] = "2";
+            }
+
+            if(right_is_char) {
+                string var = gentempcode("string");
+                prep += "\t" + var + " = (char *) malloc(2);\n";
+                prep += "\t" + var + "[0] = " + $3.label + ";\n";
+                prep += "\t" + var + "[1] = '\\0';\n";
+                right_label = var;
+                tamanho_string[var] = "2";
+            }
+
+            string temp_tamanho = gentempcode("int");
+            $$.traducao = $1.traducao + $3.traducao + prep;
+            $$.traducao += "\t" + temp_tamanho + " = " + tamanho_string[left_label] + " + " + tamanho_string[right_label] + ";\n";
+            $$.traducao += "\t" + temp_tamanho + " = " + temp_tamanho + " + 1;\n";
+            $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
+            $$.traducao += "\tstrcpy(" + $$.label + ", " + left_label + ");\n";
+            $$.traducao += "\tstrcat(" + $$.label + ", " + right_label + ");\n";
+
+            tamanho_string[$$.label] = temp_tamanho;
+        }
+        else {
                 $$.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.tipo = tipo;
@@ -248,7 +280,7 @@ E           : E '+' E
 
             }
             | E '-' E 
-            {   
+            {   verifica_operacao_string($1.tipo, $3.tipo, "-");
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
@@ -257,6 +289,7 @@ E           : E '+' E
             }
             | E '*' E
             {   
+                verifica_operacao_string($1.tipo, $3.tipo, "*");
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
@@ -265,6 +298,7 @@ E           : E '+' E
             }
             | E '/' E
             {   
+                verifica_operacao_string($1.tipo, $3.tipo, "/");
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.label = gentempcode(tipo);
@@ -570,7 +604,17 @@ string getTipo(string nome_interno) {
             return it->at(nome_interno).tipo;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' declarada em escopo local.");
+    for (auto it = escopos_passados.rbegin(); it != escopos_passados.rend(); ++it) {
+        if (it->count(nome_interno)) {
+            yyerror("Erro na linha " + to_string(linha) + 
+                    ": variável '" + nome_interno + "' foi declarada, mas está fora do escopo atual.");
+            return it->at(nome_interno).tipo; 
+        }
+    }
+
+   
+    yyerror("Erro na linha " + to_string(linha) + 
+            ": variável '" + nome_interno + "' não foi declarada.");
     return "";
 }
 
@@ -584,12 +628,6 @@ string getTempId(string variavel) {
     return "";
 }
 
-
-void verifica_tipo_relacional(string tipo1, string tipo2) {
-    if (tipo1 == "boolean" || tipo2 == "boolean") {
-        yyerror("Erro na linha " + to_string(linha) + ": não é permitido fazer operation com booleano , somente int e float!");
-    }
-}
 string resolve_tipo(string tipo1, string tipo2) {
 
 
@@ -601,7 +639,6 @@ string resolve_tipo(string tipo1, string tipo2) {
         return "float";
     }
 
-    // To-do: Aceitar operações entre char
 
     if(tipo1 == "char" && tipo2 == "char") {
          return "char";
@@ -612,6 +649,10 @@ string resolve_tipo(string tipo1, string tipo2) {
     }
 
     if(tipo1 == "string" && tipo2 == "string") {
+        return "string";
+    }
+
+    if((tipo1 == "string" && tipo2 == "char") || (tipo1 == "char" && tipo2 == "string")) {
         return "string";
     }
 
@@ -645,6 +686,7 @@ void entra_escopo(){
 }
 
 void sai_escopo(){
+    escopos_passados.push_back(pilha_escopos.back());
     pilha_escopos.pop_back();
 }
 
@@ -662,6 +704,13 @@ string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_ass
     return nome_interno;
 }
 
+void verifica_operacao_string(string tipo1, string tipo2, string operacao) {
+    if(tipo1 == "string" || tipo2 == "string") {
+        yyerror("Erro na linha " + to_string(linha) + " Não é possível realizar a operação '" + operacao + "' com o tipo string");
+    } else if((tipo1 == "char" || tipo2 == "char")) {
+        yyerror("Erro na linha " + to_string(linha) + " Não é possível realizar a operação '" + operacao + "' com o tipo char");
+    }
+}
 
 
 string pega_variavel_na_tabela(string nome_variavel, string tipo) {
@@ -671,9 +720,16 @@ string pega_variavel_na_tabela(string nome_variavel, string tipo) {
             return it->at(nome_variavel).nome_interno;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' declarada em escopo local.");
-    return "";
 
+   for (auto& escopo : escopos_passados) {
+        if (escopo.count(nome_variavel)) {
+            yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' está fora do escopo atual.");
+            return "";
+        }
+    }
+
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não foi declarada.");
+    return "";
 }
 
 string realizar_contagem(string palavra, string temp) {

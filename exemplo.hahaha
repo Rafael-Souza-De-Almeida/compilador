@@ -1,17 +1,19 @@
  function main() 
-{   
+{ 
   a = "string";
   b = "rafita";
-  e = a + b;
-  d = 'a' + 'b';
-  c = 10 + 10;
+  d = "Hello world" + 'b';
+  c = 10 + 10.5;
   {
-    a = "rafael";
-    a;
+    h = "leo e genio do escopo";
+    h;
   }
+  e = a + b;
+  f = "hello world" + "rafita" + "hello";
   b;
   c;
   d;
   e;
+  f;
 
 }

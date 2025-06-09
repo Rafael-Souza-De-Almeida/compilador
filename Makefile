@@ -1,3 +1,5 @@
+#comandos
+
 SCANNER := lex
 SCANNER_PARAMS := lexico.l
 PARSER := yacc
