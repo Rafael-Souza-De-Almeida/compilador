@@ -15,6 +15,8 @@ using namespace std;
 
 int var_temp_qnt;
 int linha = 0;
+int label_inicio = 0;
+int label_fim = 0;
 
 
 struct atributos {
@@ -63,6 +65,7 @@ void verifica_tipo_logico(string, string);
 string getTipo(string);
 string realizar_contagem(string, string);
 void verifica_operacao_string(string, string, string);
+string nova_label(string, string);
 
 %}
 
@@ -202,9 +205,65 @@ COMANDO     : E ';'
             }
             | BLOCO {
                 $$.traducao = $1.traducao;
-            }
-           
+            } 
+            | TK_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO {
+                
+                if ($4.tipo != "int") {
+                    yyerror("Início do for deve ser numérico (int)");
+                }
 
+                if ($6.tipo != "int") {
+                    yyerror("Fim do for deve ser numérico (int)");
+                }
+                
+                
+                string label_inicio = nova_label("for", "inicio");
+                string label_fim = nova_label("for", "fim");
+
+                string nome_variavel = pega_variavel_na_tabela($2.label, "int");
+
+                $$.traducao = ""; 
+               
+                $$.traducao += $4.traducao + $6.traducao;
+
+                $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
+
+                string pre_condicao = gentempcode("boolean");
+                string condicao = gentempcode("boolean");
+                $$.traducao += "\t" + pre_condicao + " = " + $6.label + " - 1;\n"; 
+                $$.traducao += label_inicio + ":\n";
+
+                $$.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
+
+                // Condição de saída do loop
+                $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+
+                // Corpo do for
+                $$.traducao += $7.traducao;
+
+                // Incrementa variável do loop
+                $$.traducao += "\t" + nome_variavel + " = " + nome_variavel + " + 1;\n";
+
+                // Volta para o início do loop
+                $$.traducao += "\tgoto " + label_inicio + ";\n";
+
+                // Label do fim do loop
+                $$.traducao += label_fim + ":\n";
+
+           
+            } 
+            ;
+
+IDENTIFICADOR_FOR : TK_ID 
+                    {
+                        string indice_for = gentempcode("int");
+                        string nome_variavel = adiciona_variavel_na_tabela($1.label, "int", indice_for);
+                        $$.label = $1.label;
+                        
+                    }
+                    ;
+                    
+           
 E           : E '+' E
             {
             string tipo = resolve_tipo($1.tipo, $3.tipo);
@@ -710,6 +769,21 @@ void verifica_operacao_string(string tipo1, string tipo2, string operacao) {
     } else if((tipo1 == "char" || tipo2 == "char")) {
         yyerror("Erro na linha " + to_string(linha) + " Não é possível realizar a operação '" + operacao + "' com o tipo char");
     }
+}
+
+string nova_label(string comando, string tipo) {
+
+    if(tipo == "inicio") {
+        label_inicio++;
+        return comando + "_" + tipo + "_" + to_string(label_inicio);
+    }
+
+    else if(tipo == "fim") {
+        label_fim++;
+        return comando + "_" + tipo + "_" + to_string(label_fim);
+    }
+
+    return "";
 }
 
 
