@@ -49,6 +49,8 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "="          {return '='; }
 
+":"          {return ':';}
+
 "if"          {return TK_IF;}
 
 "else"        {return TK_ELSE;}
@@ -64,6 +66,7 @@ ID {LETRA}({LETRA}|{NUM})*
 "break"        {return TK_BREAK;}
 
 "continue"    {return TK_CONTINUE;}
+
 
 
 ">"         {return GREATER_THAN;}
