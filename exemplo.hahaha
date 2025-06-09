@@ -1,9 +1,19 @@
-function main() 
-{   
-   int a = 5;
-   int b = a + 5;
-   float c = 2.0 + 5.0;
-   boolean d = true;
-   a = 7 * b;
-   b = a + 1;
+ function main() 
+{ 
+  a = "string";
+  b = "rafita";
+  d = "Hello world" + 'b';
+  c = 10 + 10.5;
+  {
+    h = "leo e genio do escopo";
+    h;
+  }
+  e = a + b;
+  f = "hello world" + "rafita" + "hello";
+  b;
+  c;
+  d;
+  e;
+  f;
+
 }
