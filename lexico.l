@@ -65,7 +65,6 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "!"           {return TK_NEGATIVO;}
 
-
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
