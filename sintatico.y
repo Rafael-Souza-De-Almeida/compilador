@@ -29,7 +29,7 @@ struct Simbolo {
     string nome_interno;
     string tipo;
     string temp_associada;
-    // string escopo;
+
 };
 
 struct Simbolos_atuais {
@@ -42,10 +42,13 @@ map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
+
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
 vector<map<string,Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
+// stack<string> pilha_loop_inicio;
+// stack<string> pilha_loop_fim;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -252,6 +255,7 @@ COMANDO     : E ';'
 
            
             } 
+            | TK_WHILE
             ;
 
 IDENTIFICADOR_FOR : TK_ID 
@@ -330,6 +334,7 @@ E           : E '+' E
             tamanho_string[$$.label] = temp_tamanho;
         }
         else {
+                cout << tipo << endl;
                 $$.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.tipo = tipo;
@@ -658,33 +663,38 @@ string gentempcode(string tipo) {
 }
 
 string getTipo(string nome_interno) {
-       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(nome_interno)) {
-            return it->at(nome_interno).tipo;
+
+    if (tipos_atuais.count(nome_interno)) {
+        string tipo = tipos_atuais[nome_interno].tipo;
+
+        if (tipo == "") {
+            yyerror("Erro na linha " + to_string(linha) + 
+                    ": Ao declarar a variável '" + nome_interno + "', é necessário atribuir um valor inicial.\n" +
+                    "Dica: use algo como `a = 0;` para inicializá-la.");
         }
+
+        return tipo;
     }
+
+
     for (auto it = escopos_passados.rbegin(); it != escopos_passados.rend(); ++it) {
         if (it->count(nome_interno)) {
             yyerror("Erro na linha " + to_string(linha) + 
                     ": variável '" + nome_interno + "' foi declarada, mas está fora do escopo atual.");
-            return it->at(nome_interno).tipo; 
+            return it->at(nome_interno).tipo;
         }
     }
 
-   
+
     yyerror("Erro na linha " + to_string(linha) + 
             ": variável '" + nome_interno + "' não foi declarada.");
     return "";
 }
 
 string getTempId(string variavel) {
-       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(variavel)) {
-            return it->at(variavel).temp_associada;
-        }
-    }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + variavel + "' não declarada.");
-    return "";
+      
+    return tipos_atuais[variavel].temp_associada;
+    
 }
 
 string resolve_tipo(string tipo1, string tipo2) {
@@ -694,7 +704,7 @@ string resolve_tipo(string tipo1, string tipo2) {
         return "float";
     }
 
-    if(tipo1 == "int" && tipo2 == "float" || tipo1 == "float" && tipo2 == "int") {
+    if((tipo1 == "int" && tipo2 == "float") || (tipo1 == "float" && tipo2 == "int")) {
         return "float";
     }
 
@@ -740,6 +750,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 
 }
 
+
 void entra_escopo(){
     pilha_escopos.push_back({});
 }
@@ -750,18 +761,37 @@ void sai_escopo(){
 }
 
 string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada) {
-    if (pilha_escopos.empty()) entra_escopo();
-    auto& escopo_atual = pilha_escopos.back();
-    if (escopo_atual.count(variavel)) {
-        return escopo_atual[variavel].nome_interno;
-    }
 
+    string variavel_formatada = variavel + "_" + tipo;
+    
+    if (pilha_escopos.empty()) entra_escopo();
+
+    auto& escopo_atual = pilha_escopos.back();
+
+  if (escopo_atual.count(variavel_formatada)) {
+  
+    escopo_atual[variavel_formatada].temp_associada = temp_associada;
+    tipos_atuais[variavel].tipo = tipo;
+    tipos_atuais[variavel].temp_associada = temp_associada;
+    return escopo_atual[variavel_formatada].nome_interno;
+}
+
+   
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    Simbolo s = {nome_interno, tipo, temp_associada};
-    escopo_atual[variavel] = s;
-    simbolos_declarados.push_back(s); // <- adiciona aqui
+
+    Simbolo simbolo = { nome_interno, tipo, temp_associada };
+
+    escopo_atual[variavel_formatada] = simbolo;
+    simbolos_declarados.push_back(simbolo);  
+
+   
+    tipos_atuais[variavel].tipo = tipo;
+    tipos_atuais[variavel].temp_associada = temp_associada;
+
+
     return nome_interno;
 }
+
 
 void verifica_operacao_string(string tipo1, string tipo2, string operacao) {
     if(tipo1 == "string" || tipo2 == "string") {
@@ -789,14 +819,16 @@ string nova_label(string comando, string tipo) {
 
 string pega_variavel_na_tabela(string nome_variavel, string tipo) {
 
+    string variavel_formatada = nome_variavel + "_" + tipo;
+
      for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(nome_variavel)) {
-            return it->at(nome_variavel).nome_interno;
+        if (it->count(variavel_formatada)) {
+            return it->at(variavel_formatada).nome_interno;
         }
     }
 
    for (auto& escopo : escopos_passados) {
-        if (escopo.count(nome_variavel)) {
+        if (escopo.count(variavel_formatada)) {
             yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' está fora do escopo atual.");
             return "";
         }
