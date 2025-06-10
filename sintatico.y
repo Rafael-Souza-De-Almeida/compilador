@@ -46,6 +46,7 @@ string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string);
 string resolve_tipo(string, string);
 string fim_if();
+string fim_else();
 void ver_boolean(string ,string);
 void verifica_tipo(string, string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
@@ -151,15 +152,36 @@ COMANDO     : E ';'
                 $$.traducao = $1.traducao;
             }
             | TK_IF '(' E ')' BLOCO{
-                verifica_tipo($3.tipo,"boolean","Deve ser boolean");
+                if($3.tipo!="boolean"){
+                    
+                    yyerror("No If deve ser operador boolean");
+                }
+                else {
+                string rotulo_if = fim_if();
 
-                string rotulo = fim_if();
+                $$.traducao = $3.traducao;  
+                $$.traducao += "if (!" + $3.label + ") goto " + rotulo_if + ";\n";
+                $$.traducao += $5.traducao; 
+                $$.traducao += rotulo_if + ":\n";
+                }
+            }
+            | TK_IF '(' E ')' BLOCO TK_ELSE BLOCO{
+                if($3.tipo!="boolean"){
+                    yyerror("No if-else deve ser operador boolean");
+                }
+                else {
+                    string rotulo_if = fim_if();
+                    string rotulo_else = fim_else();
 
-                $$.traducao = $3.traducao;  // código da expressão condicional
-                $$.traducao += "if (!" + $3.label + ") goto " + rotulo + ";\n";
-                $$.traducao += $5.traducao; // bloco do if
-                $$.traducao += rotulo + ":\n";
+                    $$.traducao = $3.traducao;
+                    $$.traducao += "if (!" + $3.label + ") goto "+ rotulo_else + ";\n";
+                    $$.traducao+= $5.traducao;
+                    $$.traducao += "goto " + rotulo_if +";\n";
+                    $$.traducao += rotulo_else + ":\n";
+                    $$.traducao += $7.traducao;
+                    $$.traducao += rotulo_if + ":\n";
 
+                }
             }
 
 E           : E '+' E
@@ -436,7 +458,7 @@ string getTipo(string nome_interno) {
             return it->at(nome_interno).tipo;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' declarada em escopo local.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' fora do escopo.");
     return "";
 }
 
@@ -520,9 +542,13 @@ int main(int argc, char* argv[]) {
 }
 
 int contador_if = 0;
+int contador_else=0;
 
 string fim_if(){
 return "fim_if_" + to_string(++contador_if);
+}
+string fim_else(){
+    return "fim_else_" + to_string(++contador_else);
 
 }
 
@@ -563,7 +589,7 @@ string pega_variavel_na_tabela(string nome_variavel) {
 
 void verifica_tipo(string tipo1, string tipo2, string mensagem) {
     if(tipo1 == "" || tipo2 == "") {
-        yyerror("Erro na linha " + to_string(linha) + ": variável não declarada!");
+        yyerror("Erro na linha " + to_string(linha) + ": variável não declaradaaaaa!");
     }
 
     else if( tipo1 != tipo2 ) {
