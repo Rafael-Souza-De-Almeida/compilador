@@ -158,7 +158,7 @@ COMANDO     : E ';'
             | TK_IF '(' E ')' BLOCO{
                 if($3.tipo!="boolean"){
                     
-                    yyerror("No If deve ser operador boolean");
+                    yyerror("No If deve ser operando boolean");
                     $$.traducao = "";
                     exit(1);
                 }
@@ -173,7 +173,7 @@ COMANDO     : E ';'
             }
             | TK_IF '(' E ')' BLOCO TK_ELSE BLOCO{
                 if($3.tipo!="boolean"){
-                    yyerror("No if-else deve ser operador boolean");
+                    yyerror("No if-else deve ser operando boolean");
                     $$.traducao = "";
                 }
                 else {
@@ -190,19 +190,6 @@ COMANDO     : E ';'
 
                 }
             }
-           /*  | TK_SWITCH '(' E ')'  {
-                if($3.tipo!="int"){
-                    yyerror("Valor deve ser inteiro");
-                    $$.traducao = "";
-                }
-                else {
-
-
-
-
-                }
-
-            } */
 
 E           : E '+' E
             {
@@ -478,7 +465,7 @@ string getTipo(string nome_interno) {
             return it->at(nome_interno).tipo;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' fora do escopo.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' não declarada ");
     return "";
 }
 

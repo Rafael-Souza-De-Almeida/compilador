@@ -700,10 +700,10 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    77,    77,   126,   126,   132,   137,   141,   145,   148,
-     155,   158,   174,   207,   215,   224,   233,   242,   249,   259,
-     269,   279,   289,   299,   309,   320,   331,   343,   350,   357,
-     363,   369,   375,   381,   387,   393,   399,   407,   414,   419,
-     425,   431,   437,   446,   455
+     155,   158,   174,   194,   202,   211,   220,   229,   236,   246,
+     256,   266,   276,   286,   296,   307,   318,   330,   337,   344,
+     350,   356,   362,   368,   374,   380,   386,   394,   401,   406,
+     412,   418,   424,   433,   442
 };
 #endif
 
@@ -1468,7 +1468,7 @@ yyreduce:
                                    {
                 if(yyvsp[-2].tipo!="boolean"){
                     
-                    yyerror("No If deve ser operador boolean");
+                    yyerror("No If deve ser operando boolean");
                     yyval.traducao = "";
                     exit(1);
                 }
@@ -1488,7 +1488,7 @@ yyreduce:
 #line 174 "sintatico.y"
                                                  {
                 if(yyvsp[-4].tipo!="boolean"){
-                    yyerror("No if-else deve ser operador boolean");
+                    yyerror("No if-else deve ser operando boolean");
                     yyval.traducao = "";
                 }
                 else {
@@ -1509,7 +1509,7 @@ yyreduce:
     break;
 
   case 13: /* E: E '+' E  */
-#line 208 "sintatico.y"
+#line 195 "sintatico.y"
             {
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
@@ -1521,7 +1521,7 @@ yyreduce:
     break;
 
   case 14: /* E: E '-' E  */
-#line 216 "sintatico.y"
+#line 203 "sintatico.y"
             {   
                 /* cout<<"Operation subtraction"<<endl; */
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
@@ -1534,7 +1534,7 @@ yyreduce:
     break;
 
   case 15: /* E: E '*' E  */
-#line 225 "sintatico.y"
+#line 212 "sintatico.y"
             {   
                /*  cout <<"Operation multiplication"<<endl; */
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
@@ -1547,7 +1547,7 @@ yyreduce:
     break;
 
   case 16: /* E: E '/' E  */
-#line 234 "sintatico.y"
+#line 221 "sintatico.y"
             {   
               /*   cout <<"Operation division"<<endl; */
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
@@ -1560,7 +1560,7 @@ yyreduce:
     break;
 
   case 17: /* E: '(' E ')'  */
-#line 243 "sintatico.y"
+#line 230 "sintatico.y"
             {
                 /* cout <<"Operation parenteses"<<endl; */
                 yyval.label = yyvsp[-1].label;
@@ -1571,7 +1571,7 @@ yyreduce:
     break;
 
   case 18: /* E: E TK_MAIOR E  */
-#line 250 "sintatico.y"
+#line 237 "sintatico.y"
             {
                 verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1585,7 +1585,7 @@ yyreduce:
     break;
 
   case 19: /* E: E TK_MAIORIGUAL E  */
-#line 260 "sintatico.y"
+#line 247 "sintatico.y"
             {
                 verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1599,7 +1599,7 @@ yyreduce:
     break;
 
   case 20: /* E: E TK_MENOR E  */
-#line 270 "sintatico.y"
+#line 257 "sintatico.y"
             {
                 verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1613,7 +1613,7 @@ yyreduce:
     break;
 
   case 21: /* E: E TK_MENORIGUAL E  */
-#line 280 "sintatico.y"
+#line 267 "sintatico.y"
             {
                   verifica_tipo_relacional(yyvsp[-2].tipo, yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1627,7 +1627,7 @@ yyreduce:
     break;
 
   case 22: /* E: E TK_IGUALDADE E  */
-#line 290 "sintatico.y"
+#line 277 "sintatico.y"
             {
                 ver_boolean(yyvsp[-2].tipo,yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1641,7 +1641,7 @@ yyreduce:
     break;
 
   case 23: /* E: E TK_DIFERENTE E  */
-#line 300 "sintatico.y"
+#line 287 "sintatico.y"
             {
                 ver_boolean(yyvsp[-2].tipo,yyvsp[0].tipo);
                 string tipo = resolve_tipo(yyvsp[-2].tipo,yyvsp[0].tipo);
@@ -1655,7 +1655,7 @@ yyreduce:
     break;
 
   case 24: /* E: E TK_OU E  */
-#line 310 "sintatico.y"
+#line 297 "sintatico.y"
             {
                 verifica_tipo(yyvsp[-2].tipo,"boolean","Operando esquerdo deve ser do tipo boolean");
                 verifica_tipo(yyvsp[0].tipo,"boolean","Operando direita deve ser boolean");
@@ -1670,7 +1670,7 @@ yyreduce:
     break;
 
   case 25: /* E: E TK_E E  */
-#line 321 "sintatico.y"
+#line 308 "sintatico.y"
             {
                 verifica_tipo(yyvsp[-2].tipo,"boolean","Operando esquerdo deve ser boolean");
                 verifica_tipo(yyvsp[0].tipo,"boolean","Operando direita deve ser boolean");
@@ -1685,7 +1685,7 @@ yyreduce:
     break;
 
   case 26: /* E: TK_NEGATIVO E  */
-#line 332 "sintatico.y"
+#line 319 "sintatico.y"
             {
                 verifica_tipo(yyvsp[0].tipo,"boolean","Operando esquerdo deve ser boolean");
                 
@@ -1700,7 +1700,7 @@ yyreduce:
     break;
 
   case 27: /* E: TK_ID '=' E  */
-#line 344 "sintatico.y"
+#line 331 "sintatico.y"
             {
                 string nome_variavel = pega_variavel_na_tabela(yyvsp[-2].label);
                 string tipo_var = getTipo(yyvsp[-2].label);
@@ -1711,7 +1711,7 @@ yyreduce:
     break;
 
   case 28: /* E: TK_INT TK_ID '=' E  */
-#line 351 "sintatico.y"
+#line 338 "sintatico.y"
             {
 
                 
@@ -1722,7 +1722,7 @@ yyreduce:
     break;
 
   case 29: /* E: TK_FLOAT TK_ID '=' E  */
-#line 358 "sintatico.y"
+#line 345 "sintatico.y"
             {   
                 
                 string nome_interno = adiciona_variavel_na_tabela( yyvsp[-2].label, "float", yyvsp[0].label);
@@ -1732,7 +1732,7 @@ yyreduce:
     break;
 
   case 30: /* E: TK_CHAR TK_ID '=' E  */
-#line 364 "sintatico.y"
+#line 351 "sintatico.y"
             {
                 
                 string nome_interno = adiciona_variavel_na_tabela(yyvsp[-2].label,"char", yyvsp[0].label);
@@ -1742,7 +1742,7 @@ yyreduce:
     break;
 
   case 31: /* E: TK_BOOLEAN TK_ID '=' E  */
-#line 370 "sintatico.y"
+#line 357 "sintatico.y"
             {
                 string nome_interno = adiciona_variavel_na_tabela( yyvsp[-2].label, "boolean", yyvsp[0].label);
 
@@ -1752,7 +1752,7 @@ yyreduce:
     break;
 
   case 32: /* E: TK_NUM  */
-#line 376 "sintatico.y"
+#line 363 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
@@ -1762,7 +1762,7 @@ yyreduce:
     break;
 
   case 33: /* E: TK_REAL  */
-#line 382 "sintatico.y"
+#line 369 "sintatico.y"
             {
                 yyval.label = gentempcode("float");
                 yyval.tipo = "float";
@@ -1772,7 +1772,7 @@ yyreduce:
     break;
 
   case 34: /* E: TK_TRUE  */
-#line 388 "sintatico.y"
+#line 375 "sintatico.y"
             {
                 yyval.label = gentempcode("boolean");
                 yyval.tipo = "boolean";
@@ -1782,7 +1782,7 @@ yyreduce:
     break;
 
   case 35: /* E: TK_FALSE  */
-#line 394 "sintatico.y"
+#line 381 "sintatico.y"
             {
                 yyval.label = gentempcode("boolean");
                 yyval.tipo = "boolean";
@@ -1792,7 +1792,7 @@ yyreduce:
     break;
 
   case 36: /* E: TK_ID  */
-#line 400 "sintatico.y"
+#line 387 "sintatico.y"
             {   
                 string tipo = getTipo(yyvsp[0].label); 
                 yyval.tipo=tipo;
@@ -1804,7 +1804,7 @@ yyreduce:
     break;
 
   case 37: /* E: TK_CHAR  */
-#line 408 "sintatico.y"
+#line 395 "sintatico.y"
             {
                 yyval.label = gentempcode("char");
                 yyval.tipo = "char";
@@ -1815,7 +1815,7 @@ yyreduce:
     break;
 
   case 38: /* E: TK_INT TK_ID  */
-#line 415 "sintatico.y"
+#line 402 "sintatico.y"
             {   
                 string nome_interno = adiciona_variavel_na_tabela(yyvsp[0].label, "int", "");
                 yyval.traducao = "";
@@ -1824,7 +1824,7 @@ yyreduce:
     break;
 
   case 39: /* E: TK_FLOAT TK_ID  */
-#line 420 "sintatico.y"
+#line 407 "sintatico.y"
             {   
                
                 string nome_interno = adiciona_variavel_na_tabela( yyvsp[0].label, "float", "");
@@ -1834,7 +1834,7 @@ yyreduce:
     break;
 
   case 40: /* E: TK_CHAR TK_ID  */
-#line 426 "sintatico.y"
+#line 413 "sintatico.y"
             {
                 string nome_interno = adiciona_variavel_na_tabela(yyvsp[0].label,"char", "");
                 yyval.traducao = "";
@@ -1844,7 +1844,7 @@ yyreduce:
     break;
 
   case 41: /* E: TK_BOOLEAN TK_ID  */
-#line 432 "sintatico.y"
+#line 419 "sintatico.y"
             {   
                 string nome_interno = adiciona_variavel_na_tabela(yyvsp[0].label, "boolean", "");
 
@@ -1854,7 +1854,7 @@ yyreduce:
     break;
 
   case 42: /* E: '(' TK_INT ')' TK_ID  */
-#line 438 "sintatico.y"
+#line 425 "sintatico.y"
             {  
                 string tipo_atual = getTipo(yyvsp[0].label);
                 string novo_tipo = "int";
@@ -1867,7 +1867,7 @@ yyreduce:
     break;
 
   case 43: /* E: '(' TK_FLOAT ')' TK_ID  */
-#line 447 "sintatico.y"
+#line 434 "sintatico.y"
             {  
                 string tipo_atual = getTipo(yyvsp[0].label);
                 string novo_tipo = "float";
@@ -1880,7 +1880,7 @@ yyreduce:
     break;
 
   case 44: /* E: '(' TK_BOOLEAN ')' TK_ID  */
-#line 456 "sintatico.y"
+#line 443 "sintatico.y"
             {  
                 yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
             }
@@ -2081,7 +2081,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 461 "sintatico.y"
+#line 448 "sintatico.y"
 
 
 #include "lex.yy.c"
@@ -2102,7 +2102,7 @@ string getTipo(string nome_interno) {
             return it->at(nome_interno).tipo;
         }
     }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' fora do escopo.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_interno + "' não declarada ");
     return "";
 }
 
