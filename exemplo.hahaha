@@ -6,12 +6,12 @@ int num1=1;
 int num2 =2;
 int num3 =3;
 
-if(num1 == 2){
-    int n1 = 2;
-    else {
+if(2){
+    int n1 = 3;
+    println(n1);    } else {
         int n2 = 3;
         println(n2);
-    }
+    
 }
 
 }

@@ -148,6 +148,10 @@ COMANDO     : E ';'
             | TK_PRINTLN '(' E ')' ';' {
                 $$.traducao = $1.traducao + $3.traducao +  "\t cout << "  + $3.label + " << endl;\n";
             }
+           /*  | TK_BREAK{
+                string rotulo = get_rotulo_fim_laco();
+                $$.traducao = "\tgoto " + rotulo + ";\n";
+            }  */
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
@@ -155,6 +159,8 @@ COMANDO     : E ';'
                 if($3.tipo!="boolean"){
                     
                     yyerror("No If deve ser operador boolean");
+                    $$.traducao = "";
+                    exit(1);
                 }
                 else {
                 string rotulo_if = fim_if();
@@ -168,6 +174,7 @@ COMANDO     : E ';'
             | TK_IF '(' E ')' BLOCO TK_ELSE BLOCO{
                 if($3.tipo!="boolean"){
                     yyerror("No if-else deve ser operador boolean");
+                    $$.traducao = "";
                 }
                 else {
                     string rotulo_if = fim_if();
@@ -183,6 +190,19 @@ COMANDO     : E ';'
 
                 }
             }
+           /*  | TK_SWITCH '(' E ')'  {
+                if($3.tipo!="int"){
+                    yyerror("Valor deve ser inteiro");
+                    $$.traducao = "";
+                }
+                else {
+
+
+
+
+                }
+
+            } */
 
 E           : E '+' E
             {
