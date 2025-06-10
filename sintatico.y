@@ -32,6 +32,7 @@ struct Simbolo {
 
 vector<map<string, Simbolo>> pilha_escopos;
 map<string, string> temporarias;
+
 vector<Simbolo> simbolos_declarados;
 int var_user_qnt;
 
@@ -44,6 +45,7 @@ string gentempcode(string);
 string adiciona_variavel_na_tabela(string, string, string);
 string pega_variavel_na_tabela(string);
 string resolve_tipo(string, string);
+string fim_if();
 void ver_boolean(string ,string);
 void verifica_tipo(string, string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
@@ -148,16 +150,17 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
-            //| TK_IF '(' E ')' BLOCO{
-            //verifica_tipo($3.tipo,"boolean","Condicao nao abordada"); //Aqui pra permitir so booleanos
-            
-            //}
-            //|TK IF  '(' E ')' BLOCO TK_ELSE BLOCO{
-            
-            //} 
-            //|TK_FOR '(' E ';' E ';' E ')' BLOCO{
+            | TK_IF '(' E ')' BLOCO{
+                verifica_tipo($3.tipo,"boolean","Deve ser boolean");
 
-            //}
+                string rotulo = fim_if();
+
+                $$.traducao = $3.traducao;  // código da expressão condicional
+                $$.traducao += "if (!" + $3.label + ") goto " + rotulo + ";\n";
+                $$.traducao += $5.traducao; // bloco do if
+                $$.traducao += rotulo + ":\n";
+
+            }
 
 E           : E '+' E
             {
@@ -516,6 +519,13 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+int contador_if = 0;
+
+string fim_if(){
+return "fim_if_" + to_string(++contador_if);
+
+}
+
 void entra_escopo(){
     pilha_escopos.push_back({});
 }
@@ -545,6 +555,7 @@ string pega_variavel_na_tabela(string nome_variavel) {
             return it->at(nome_variavel).nome_interno;
         }
     }
+    
     yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' declarada em escopo local.");
     return "";
 }

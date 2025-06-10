@@ -3,13 +3,16 @@ function main()
 
 {   
 int num1=1;
+int num2 =2;
+int num3 =3;
 
-{
-  
-int num2 = 2;
+if(num1 =2){
+    println(num1);
+    if(num2 ==3){
+        println(num2);
+      if(num3 == 3){
+        println(num3);
+      }
+    }
 }
-int num4 = num5;
-
-
-
 }
