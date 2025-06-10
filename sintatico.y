@@ -23,6 +23,7 @@ struct atributos {
     string label;
     string traducao;
     string tipo;
+    string var_original;
 };
 
 struct Simbolo {
@@ -38,17 +39,20 @@ struct Simbolos_atuais {
     
 };
 
+
 map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
+map<string, string> variavel_escopo;
+bool esta_no_while = false;
 
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
 vector<map<string,Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
-// stack<string> pilha_loop_inicio;
-// stack<string> pilha_loop_fim;
+vector<string> pilha_loop_inicio;
+vector<string> pilha_loop_fim;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -229,12 +233,12 @@ COMANDO     : E ';'
                
                 $$.traducao += $4.traducao + $6.traducao;
 
-                $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
 
+                $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
+                $$.traducao += label_inicio + ":\n";
                 string pre_condicao = gentempcode("boolean");
                 string condicao = gentempcode("boolean");
                 $$.traducao += "\t" + pre_condicao + " = " + $6.label + " - 1;\n"; 
-                $$.traducao += label_inicio + ":\n";
 
                 $$.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
 
@@ -255,13 +259,54 @@ COMANDO     : E ';'
 
            
             } 
-            | TK_WHILE
+            | BEGIN_WHILE '(' E ')' BLOCO {
+
+                
+                if($3.tipo != "boolean") {
+                    yyerror("Erro na linha " + to_string(linha) + "É necessária uma operação lógica ao utilizar o while");
+                }
+
+                string label_inicio = nova_label("while", "inicio");
+                string label_fim = nova_label("while", "fim");
+
+                pilha_loop_inicio.push_back(label_inicio);
+                pilha_loop_fim.push_back(label_fim);
+
+                $$.traducao = "";
+                $$.traducao += label_inicio + ":\n";
+                $$.traducao += $3.traducao;
+                string condicao = gentempcode("boolean");
+
+                $$.traducao += "\t" + condicao + " = !" + $3.label + ";\n";
+                $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+                $$.traducao += $5.traducao;
+                
+         
+                $$.traducao +=  "\tgoto " + label_inicio + ";\n";
+                $$.traducao += label_fim + ":\n";
+
+                esta_no_while = false;
+
+                
+
+                pilha_loop_inicio.pop_back();
+                pilha_loop_fim.pop_back();
+                
+            }
             ;
 
 IDENTIFICADOR_FOR : TK_ID 
                     {
                         string indice_for = gentempcode("int");
                         string nome_variavel = adiciona_variavel_na_tabela($1.label, "int", indice_for);
+                        $$.label = $1.label;
+                        
+                    }
+                    ;
+
+BEGIN_WHILE : TK_WHILE 
+                    {
+                        esta_no_while = true;
                         $$.label = $1.label;
                         
                     }
@@ -334,7 +379,7 @@ E           : E '+' E
             tamanho_string[$$.label] = temp_tamanho;
         }
         else {
-                cout << tipo << endl;
+                
                 $$.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.tipo = tipo;
@@ -373,6 +418,7 @@ E           : E '+' E
             {   
                 $$.label = $2.label;
                 $$.traducao = $2.traducao;
+                $$.tipo = $2.tipo;
             }
             |   E GREATER_THAN E 
             {   
@@ -381,14 +427,18 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " > " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E LESS_THAN E 
             {   
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label = gentempcode(tipo);
+                $$.label = gentempcode("boolean");
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " < " + t2 + ";\n";
+                  if ($1.var_original != "") $$.var_original = $1.var_original;
+                  else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E GREATER_OR_EQUAL E 
             {   
@@ -397,6 +447,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " >= " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E LESS_OR_EQUAL E 
             {   
@@ -405,6 +457,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " <= " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E EQUAL E 
             {   
@@ -413,6 +467,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E NOT_EQUAL E 
             {   
@@ -421,6 +477,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " != " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   NOT E
             {   
@@ -440,6 +498,7 @@ E           : E '+' E
             }
             |   E OR E
             {   
+                
                 verifica_tipo_logico($1.tipo, $3.tipo);
                 $$.label = gentempcode("int");
                 $$.tipo = "boolean";
@@ -541,7 +600,23 @@ E           : E '+' E
 
             |  TK_ID '=' E
             {
-                string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+
+                string nome_variavel = "";
+
+                if(!esta_no_while) {
+                    nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+                    string formata_variavel_escopo = $1.label + "_global";
+                    variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                } else {
+                    cout << $1.label <<endl;
+                    cout << $3.tipo <<endl;
+                    nome_variavel = pega_variavel_na_tabela($1.label, $3.tipo);
+                    if(nome_variavel == "") {
+                        nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+                    }
+                    string formata_variavel_escopo = $1.label + "_while";
+                    variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                }
                 
                 if($3.tipo == "string") {
                     
@@ -553,6 +628,12 @@ E           : E '+' E
                     $$.traducao += $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + "(char *) malloc(" + tamanho_string[$3.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_variavel + "," + $3.label + ");\n";
                 } else {
+                    if(esta_no_while) {
+                        if((variavel_escopo.count($1.label + "_global")) && (variavel_escopo.count($1.label + "_while"))) {
+                            $$.traducao = $1.traducao + $3.traducao + "\t" + variavel_escopo[$1.label + "_global"] + " = " + $3.label + ";\n";
+                        }
+                    }
+
                     $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
                 }
             } 
@@ -614,6 +695,7 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label, tipo);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
+                $$.var_original = nome_interno;
 
                 if(tipo == "string") {
                     $$.traducao = realizar_contagem(nome_interno, $$.label);
@@ -834,6 +916,10 @@ string pega_variavel_na_tabela(string nome_variavel, string tipo) {
         }
     }
 
+    if(esta_no_while) {
+        return "";
+    }
+
     yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não foi declarada.");
     return "";
 }
@@ -881,6 +967,7 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
 }
 
 void verifica_tipo_logico(string tipo1, string tipo2) {
+   
     if(tipo1 != "boolean" || tipo2 != "boolean") {
          yyerror("Erro na linha " + to_string(linha) + ": "+ "Não é possível realizar o operador && entre variáveis não booleanas");
     }

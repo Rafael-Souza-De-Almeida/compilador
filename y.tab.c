@@ -93,6 +93,7 @@ struct atributos {
     string label;
     string traducao;
     string tipo;
+    string var_original;
 };
 
 struct Simbolo {
@@ -108,17 +109,20 @@ struct Simbolos_atuais {
     
 };
 
+
 map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
+map<string, string> variavel_escopo;
+bool esta_no_while = false;
 
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
 vector<map<string,Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
-// stack<string> pilha_loop_inicio;
-// stack<string> pilha_loop_fim;
+vector<string> pilha_loop_inicio;
+vector<string> pilha_loop_fim;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -141,7 +145,7 @@ void verifica_operacao_string(string, string, string);
 string nova_label(string, string);
 
 
-#line 145 "y.tab.c"
+#line 149 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -336,7 +340,8 @@ enum yysymbol_kind_t
   YYSYMBOL_COMANDOS = 52,                  /* COMANDOS  */
   YYSYMBOL_COMANDO = 53,                   /* COMANDO  */
   YYSYMBOL_IDENTIFICADOR_FOR = 54,         /* IDENTIFICADOR_FOR  */
-  YYSYMBOL_E = 55                          /* E  */
+  YYSYMBOL_BEGIN_WHILE = 55,               /* BEGIN_WHILE  */
+  YYSYMBOL_E = 56                          /* E  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -664,16 +669,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   283
+#define YYLAST   321
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  48
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  8
+#define YYNNTS  9
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  39
+#define YYNRULES  40
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  85
+#define YYNSTATES  90
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   291
@@ -726,10 +731,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    93,    93,   178,   178,   184,   189,   193,   197,   203,
-     206,   209,   212,   258,   261,   271,   346,   354,   363,   372,
-     377,   385,   393,   401,   409,   417,   425,   434,   441,   542,
-     559,   565,   571,   592,   598,   604,   610,   628,   637,   646
+       0,    97,    97,   182,   182,   188,   193,   197,   201,   207,
+     210,   213,   216,   262,   298,   307,   316,   391,   399,   408,
+     417,   423,   433,   443,   453,   463,   473,   483,   492,   499,
+     601,   640,   646,   652,   673,   679,   685,   691,   710,   719,
+     728
 };
 #endif
 
@@ -753,7 +759,7 @@ static const char *const yytname[] =
   "OR", "TK_IF", "TK_ELSE", "TK_FOR", "TK_WHILE", "TK_DO", "TK_SWITCH",
   "TK_CONTINUE", "TK_BREAK", "'+'", "'-'", "'*'", "'/'", "'('", "')'",
   "'{'", "'}'", "';'", "'='", "':'", "$accept", "S", "BLOCO", "$@1",
-  "COMANDOS", "COMANDO", "IDENTIFICADOR_FOR", "E", YY_NULLPTR
+  "COMANDOS", "COMANDO", "IDENTIFICADOR_FOR", "BEGIN_WHILE", "E", YY_NULLPTR
 };
 
 static const char *
@@ -777,15 +783,15 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      -4,    -1,     7,   -33,   -44,   -23,   -34,   -44,   -44,    37,
-     -44,   -44,   -44,   -44,   -43,   -44,   -44,   -19,    -5,    53,
-      27,   -44,    78,   -44,     0,    37,   103,   -44,    53,    53,
-      53,    -9,    50,   -44,    -8,     4,     5,     6,   153,   -44,
-     -44,    53,    53,    53,    53,    53,    53,    53,    53,    53,
-      53,    53,    53,   -44,   222,   176,   199,    53,    41,    44,
-      45,   -44,   222,   222,   222,   222,   222,   222,    50,   112,
-     243,   243,    -7,    -7,    15,    17,    75,   -44,   -44,   -44,
-     -44,   -44,    53,   129,   -44
+       5,    14,    37,    -3,   -44,    -2,    -4,   -44,   -44,    40,
+     -44,   -44,   -44,   -44,   -43,   -44,   -44,     1,     6,    95,
+      41,   -44,    81,   -44,     7,    40,     9,   118,   -44,    95,
+      95,    95,    10,   -15,   -44,    13,    18,    19,    20,   168,
+     -44,   -44,    95,    95,    95,    95,    95,    95,    95,    95,
+      95,    95,    95,    95,    95,   -44,   260,   191,   214,    95,
+      44,    47,    55,   -44,   237,   260,   260,   260,   260,   260,
+     260,   -15,   127,   281,   281,    -5,    -5,    22,    24,    90,
+     -44,   -44,   -44,    -4,   -44,   -44,    95,   -44,   144,   -44
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -794,26 +800,26 @@ static const yytype_int16 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     0,     0,     0,     1,     0,     0,     3,     2,     6,
-      30,    31,    33,    34,    36,    35,    32,     0,     0,     0,
-       0,    13,     0,    11,     0,     6,     0,     8,     0,     0,
-       0,    36,    26,    14,     0,     0,     0,     0,     0,     4,
-       5,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     7,    29,     0,     0,     0,     0,     0,
-       0,    19,    20,    21,    22,    23,    24,    25,    27,    28,
-      15,    16,    17,    18,     0,     0,     0,    37,    38,    39,
-       9,    10,     0,     0,    12
+      31,    32,    34,    35,    37,    36,    33,     0,     0,     0,
+       0,    15,     0,    11,     0,     6,     0,     0,     8,     0,
+       0,     0,    37,    27,    14,     0,     0,     0,     0,     0,
+       4,     5,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     7,    30,     0,     0,     0,
+       0,     0,     0,    20,     0,    21,    22,    23,    24,    25,
+      26,    28,    29,    16,    17,    18,    19,     0,     0,     0,
+      38,    39,    40,     0,     9,    10,     0,    13,     0,    12
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -44,   -44,    -6,   -44,    40,   -44,   -44,   -18
+     -44,   -44,    -6,   -44,    39,   -44,   -44,   -44,   -18
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,    23,     9,    24,    25,    34,    26
+       0,     2,    23,     9,    24,    25,    35,    26,    27
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -821,68 +827,76 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       8,    32,    27,    28,    38,     1,     3,     4,     5,     7,
-      54,    55,    56,    41,    42,    43,    44,    45,    46,     6,
-      47,    48,    29,    62,    63,    64,    65,    66,    67,    68,
-      69,    70,    71,    72,    73,    33,    30,    28,    57,    76,
-      10,    11,    12,    13,    39,    14,    58,    59,    60,    77,
-      15,    16,    78,    79,    17,    18,    10,    11,    12,    13,
-      80,    31,    81,    19,    83,    40,    15,    16,    20,    21,
-      41,    42,    43,    44,    45,    46,     0,    84,    22,    19,
-       7,    10,    11,    12,    13,     0,    31,     0,    35,    36,
-      37,    15,    16,     0,    22,    41,    42,    43,    44,    45,
-      46,     0,    47,    48,    19,     0,     0,     0,     0,     0,
-       0,     0,    49,    50,    51,    52,     0,     0,     0,    22,
-       0,     0,    82,    41,    42,    43,    44,    45,    46,     0,
-      47,    48,    41,    42,    43,    44,    45,    46,     0,    47,
-      49,    50,    51,    52,     0,     0,     0,     0,    53,    41,
-      42,    43,    44,    45,    46,     0,    47,    48,     0,     0,
-       0,     0,     0,     0,     0,     0,    49,    50,    51,    52,
-       0,     0,     7,    41,    42,    43,    44,    45,    46,     0,
-      47,    48,     0,     0,     0,     0,     0,     0,     0,     0,
-      49,    50,    51,    52,     0,    61,    41,    42,    43,    44,
-      45,    46,     0,    47,    48,     0,     0,     0,     0,     0,
-       0,     0,     0,    49,    50,    51,    52,     0,    74,    41,
-      42,    43,    44,    45,    46,     0,    47,    48,     0,     0,
-       0,     0,     0,     0,     0,     0,    49,    50,    51,    52,
-       0,    75,    41,    42,    43,    44,    45,    46,     0,    47,
-      48,     0,     0,     0,     0,     0,     0,     0,     0,    49,
-      50,    51,    52,    41,    42,    43,    44,    45,    46,     0,
-      47,    48,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    51,    52
+       8,    33,    28,    29,    39,    43,    44,    45,    46,    47,
+      48,    56,    57,    58,     1,    43,    44,    45,    46,    47,
+      48,     3,    49,    50,    64,    65,    66,    67,    68,    69,
+      70,    71,    72,    73,    74,    75,    76,     4,     5,     7,
+       6,    79,    30,    10,    11,    12,    13,    31,    14,    34,
+      42,    40,    80,    15,    16,    81,    29,    17,    18,    59,
+      60,    61,    62,    82,    41,     0,    19,    84,    88,    85,
+       0,    20,    21,     0,     0,     0,     0,    87,     0,     0,
+       0,    22,    89,     7,    10,    11,    12,    13,     0,    32,
+       0,    36,    37,    38,    15,    16,     0,     0,    10,    11,
+      12,    13,     0,    32,     0,     0,     0,    19,    15,    16,
+      43,    44,    45,    46,    47,    48,     0,    49,    50,     0,
+       0,    19,    22,     0,     0,     0,     0,    51,    52,    53,
+      54,     0,     0,     0,     0,     0,    22,    86,    43,    44,
+      45,    46,    47,    48,     0,    49,    50,    43,    44,    45,
+      46,    47,    48,     0,    49,    51,    52,    53,    54,     0,
+       0,     0,     0,    55,    43,    44,    45,    46,    47,    48,
+       0,    49,    50,     0,     0,     0,     0,     0,     0,     0,
+       0,    51,    52,    53,    54,     0,     0,     7,    43,    44,
+      45,    46,    47,    48,     0,    49,    50,     0,     0,     0,
+       0,     0,     0,     0,     0,    51,    52,    53,    54,     0,
+      63,    43,    44,    45,    46,    47,    48,     0,    49,    50,
+       0,     0,     0,     0,     0,     0,     0,     0,    51,    52,
+      53,    54,     0,    77,    43,    44,    45,    46,    47,    48,
+       0,    49,    50,     0,     0,     0,     0,     0,     0,     0,
+       0,    51,    52,    53,    54,     0,    78,    43,    44,    45,
+      46,    47,    48,     0,    49,    50,     0,     0,     0,     0,
+       0,     0,     0,     0,    51,    52,    53,    54,     0,    83,
+      43,    44,    45,    46,    47,    48,     0,    49,    50,     0,
+       0,     0,     0,     0,     0,     0,     0,    51,    52,    53,
+      54,    43,    44,    45,    46,    47,    48,     0,    49,    50,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      53,    54
 };
 
 static const yytype_int8 yycheck[] =
 {
-       6,    19,    45,    46,    22,     9,     7,     0,    41,    43,
-      28,    29,    30,    20,    21,    22,    23,    24,    25,    42,
-      27,    28,    41,    41,    42,    43,    44,    45,    46,    47,
-      48,    49,    50,    51,    52,     8,    41,    46,    46,    57,
-       3,     4,     5,     6,    44,     8,    42,    42,    42,     8,
-      13,    14,     8,     8,    17,    18,     3,     4,     5,     6,
-      45,     8,    45,    26,    82,    25,    13,    14,    31,    32,
-      20,    21,    22,    23,    24,    25,    -1,    83,    41,    26,
-      43,     3,     4,     5,     6,    -1,     8,    -1,    10,    11,
-      12,    13,    14,    -1,    41,    20,    21,    22,    23,    24,
-      25,    -1,    27,    28,    26,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    37,    38,    39,    40,    -1,    -1,    -1,    41,
-      -1,    -1,    47,    20,    21,    22,    23,    24,    25,    -1,
-      27,    28,    20,    21,    22,    23,    24,    25,    -1,    27,
-      37,    38,    39,    40,    -1,    -1,    -1,    -1,    45,    20,
-      21,    22,    23,    24,    25,    -1,    27,    28,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    37,    38,    39,    40,
-      -1,    -1,    43,    20,    21,    22,    23,    24,    25,    -1,
-      27,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      37,    38,    39,    40,    -1,    42,    20,    21,    22,    23,
-      24,    25,    -1,    27,    28,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    37,    38,    39,    40,    -1,    42,    20,
-      21,    22,    23,    24,    25,    -1,    27,    28,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    37,    38,    39,    40,
-      -1,    42,    20,    21,    22,    23,    24,    25,    -1,    27,
-      28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    37,
-      38,    39,    40,    20,    21,    22,    23,    24,    25,    -1,
-      27,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    39,    40
+       6,    19,    45,    46,    22,    20,    21,    22,    23,    24,
+      25,    29,    30,    31,     9,    20,    21,    22,    23,    24,
+      25,     7,    27,    28,    42,    43,    44,    45,    46,    47,
+      48,    49,    50,    51,    52,    53,    54,     0,    41,    43,
+      42,    59,    41,     3,     4,     5,     6,    41,     8,     8,
+      41,    44,     8,    13,    14,     8,    46,    17,    18,    46,
+      42,    42,    42,     8,    25,    -1,    26,    45,    86,    45,
+      -1,    31,    32,    -1,    -1,    -1,    -1,    83,    -1,    -1,
+      -1,    41,    88,    43,     3,     4,     5,     6,    -1,     8,
+      -1,    10,    11,    12,    13,    14,    -1,    -1,     3,     4,
+       5,     6,    -1,     8,    -1,    -1,    -1,    26,    13,    14,
+      20,    21,    22,    23,    24,    25,    -1,    27,    28,    -1,
+      -1,    26,    41,    -1,    -1,    -1,    -1,    37,    38,    39,
+      40,    -1,    -1,    -1,    -1,    -1,    41,    47,    20,    21,
+      22,    23,    24,    25,    -1,    27,    28,    20,    21,    22,
+      23,    24,    25,    -1,    27,    37,    38,    39,    40,    -1,
+      -1,    -1,    -1,    45,    20,    21,    22,    23,    24,    25,
+      -1,    27,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    37,    38,    39,    40,    -1,    -1,    43,    20,    21,
+      22,    23,    24,    25,    -1,    27,    28,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    37,    38,    39,    40,    -1,
+      42,    20,    21,    22,    23,    24,    25,    -1,    27,    28,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    37,    38,
+      39,    40,    -1,    42,    20,    21,    22,    23,    24,    25,
+      -1,    27,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    37,    38,    39,    40,    -1,    42,    20,    21,    22,
+      23,    24,    25,    -1,    27,    28,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    37,    38,    39,    40,    -1,    42,
+      20,    21,    22,    23,    24,    25,    -1,    27,    28,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    37,    38,    39,
+      40,    20,    21,    22,    23,    24,    25,    -1,    27,    28,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      39,    40
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -891,31 +905,33 @@ static const yytype_int8 yystos[] =
 {
        0,     9,    49,     7,     0,    41,    42,    43,    50,    51,
        3,     4,     5,     6,     8,    13,    14,    17,    18,    26,
-      31,    32,    41,    50,    52,    53,    55,    45,    46,    41,
-      41,     8,    55,     8,    54,    10,    11,    12,    55,    44,
-      52,    20,    21,    22,    23,    24,    25,    27,    28,    37,
-      38,    39,    40,    45,    55,    55,    55,    46,    42,    42,
-      42,    42,    55,    55,    55,    55,    55,    55,    55,    55,
-      55,    55,    55,    55,    42,    42,    55,     8,     8,     8,
-      45,    45,    47,    55,    50
+      31,    32,    41,    50,    52,    53,    55,    56,    45,    46,
+      41,    41,     8,    56,     8,    54,    10,    11,    12,    56,
+      44,    52,    41,    20,    21,    22,    23,    24,    25,    27,
+      28,    37,    38,    39,    40,    45,    56,    56,    56,    46,
+      42,    42,    42,    42,    56,    56,    56,    56,    56,    56,
+      56,    56,    56,    56,    56,    56,    56,    42,    42,    56,
+       8,     8,     8,    42,    45,    45,    47,    50,    56,    50
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    48,    49,    51,    50,    52,    52,    53,    53,    53,
-      53,    53,    53,    53,    54,    55,    55,    55,    55,    55,
-      55,    55,    55,    55,    55,    55,    55,    55,    55,    55,
-      55,    55,    55,    55,    55,    55,    55,    55,    55,    55
+      53,    53,    53,    53,    54,    55,    56,    56,    56,    56,
+      56,    56,    56,    56,    56,    56,    56,    56,    56,    56,
+      56,    56,    56,    56,    56,    56,    56,    56,    56,    56,
+      56
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     5,     0,     4,     2,     0,     2,     2,     5,
-       5,     1,     7,     1,     1,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     3,     3,     2,     3,     3,     3,
-       1,     1,     1,     1,     1,     1,     1,     4,     4,     4
+       5,     1,     7,     5,     1,     1,     3,     3,     3,     3,
+       3,     3,     3,     3,     3,     3,     3,     2,     3,     3,
+       3,     1,     1,     1,     1,     1,     1,     1,     4,     4,
+       4
 };
 
 
@@ -1379,7 +1395,7 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* S: TK_FUNCTION TK_MAIN '(' ')' BLOCO  */
-#line 94 "sintatico.y"
+#line 98 "sintatico.y"
             {
                 string codigo = "/* Compilador hahaha */\n"
                                 "#include <iostream>\n"
@@ -1462,84 +1478,84 @@ yyreduce:
 
                
             }
-#line 1466 "y.tab.c"
+#line 1482 "y.tab.c"
     break;
 
   case 3: /* $@1: %empty  */
-#line 178 "sintatico.y"
+#line 182 "sintatico.y"
                   {entra_escopo();}
-#line 1472 "y.tab.c"
+#line 1488 "y.tab.c"
     break;
 
   case 4: /* BLOCO: '{' $@1 COMANDOS '}'  */
-#line 178 "sintatico.y"
+#line 182 "sintatico.y"
                                                 { sai_escopo();
             
                 yyval.traducao = yyvsp[-1].traducao;
             }
-#line 1481 "y.tab.c"
-    break;
-
-  case 5: /* COMANDOS: COMANDO COMANDOS  */
-#line 185 "sintatico.y"
-            {
-                yyval.traducao = yyvsp[-1].traducao + yyvsp[0].traducao;
-            }
-#line 1489 "y.tab.c"
-    break;
-
-  case 6: /* COMANDOS: %empty  */
-#line 189 "sintatico.y"
-            {
-                yyval.traducao = "";
-            }
 #line 1497 "y.tab.c"
     break;
 
-  case 7: /* COMANDO: E ';'  */
-#line 194 "sintatico.y"
+  case 5: /* COMANDOS: COMANDO COMANDOS  */
+#line 189 "sintatico.y"
             {
-                yyval = yyvsp[-1];
+                yyval.traducao = yyvsp[-1].traducao + yyvsp[0].traducao;
             }
 #line 1505 "y.tab.c"
     break;
 
-  case 8: /* COMANDO: TK_ID ';'  */
+  case 6: /* COMANDOS: %empty  */
+#line 193 "sintatico.y"
+            {
+                yyval.traducao = "";
+            }
+#line 1513 "y.tab.c"
+    break;
+
+  case 7: /* COMANDO: E ';'  */
 #line 198 "sintatico.y"
+            {
+                yyval = yyvsp[-1];
+            }
+#line 1521 "y.tab.c"
+    break;
+
+  case 8: /* COMANDO: TK_ID ';'  */
+#line 202 "sintatico.y"
             {   
                 string tipo = getTipo(yyvsp[-1].label);
                 string nome_interno = pega_variavel_na_tabela(yyvsp[-1].label, tipo);
                 yyval.traducao =   "\t cout << "  + nome_interno + " << endl;\n";   
             }
-#line 1515 "y.tab.c"
-    break;
-
-  case 9: /* COMANDO: TK_PRINT '(' E ')' ';'  */
-#line 203 "sintatico.y"
-                                     {
-                yyval.traducao = yyvsp[-4].traducao + yyvsp[-2].traducao +  "\t cout << "  + yyvsp[-2].label + ";\n";
-            }
-#line 1523 "y.tab.c"
-    break;
-
-  case 10: /* COMANDO: TK_PRINTLN '(' E ')' ';'  */
-#line 206 "sintatico.y"
-                                       {
-                yyval.traducao = yyvsp[-4].traducao + yyvsp[-2].traducao +  "\t cout << "  + yyvsp[-2].label + " << endl;\n";
-            }
 #line 1531 "y.tab.c"
     break;
 
-  case 11: /* COMANDO: BLOCO  */
-#line 209 "sintatico.y"
-                    {
-                yyval.traducao = yyvsp[0].traducao;
+  case 9: /* COMANDO: TK_PRINT '(' E ')' ';'  */
+#line 207 "sintatico.y"
+                                     {
+                yyval.traducao = yyvsp[-4].traducao + yyvsp[-2].traducao +  "\t cout << "  + yyvsp[-2].label + ";\n";
             }
 #line 1539 "y.tab.c"
     break;
 
+  case 10: /* COMANDO: TK_PRINTLN '(' E ')' ';'  */
+#line 210 "sintatico.y"
+                                       {
+                yyval.traducao = yyvsp[-4].traducao + yyvsp[-2].traducao +  "\t cout << "  + yyvsp[-2].label + " << endl;\n";
+            }
+#line 1547 "y.tab.c"
+    break;
+
+  case 11: /* COMANDO: BLOCO  */
+#line 213 "sintatico.y"
+                    {
+                yyval.traducao = yyvsp[0].traducao;
+            }
+#line 1555 "y.tab.c"
+    break;
+
   case 12: /* COMANDO: TK_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO  */
-#line 212 "sintatico.y"
+#line 216 "sintatico.y"
                                                          {
                 
                 if (yyvsp[-3].tipo != "int") {
@@ -1560,12 +1576,12 @@ yyreduce:
                
                 yyval.traducao += yyvsp[-3].traducao + yyvsp[-1].traducao;
 
-                yyval.traducao += "\t" + nome_variavel + " = " + yyvsp[-3].label + ";\n";
 
+                yyval.traducao += "\t" + nome_variavel + " = " + yyvsp[-3].label + ";\n";
+                yyval.traducao += label_inicio + ":\n";
                 string pre_condicao = gentempcode("boolean");
                 string condicao = gentempcode("boolean");
                 yyval.traducao += "\t" + pre_condicao + " = " + yyvsp[-1].label + " - 1;\n"; 
-                yyval.traducao += label_inicio + ":\n";
 
                 yyval.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
 
@@ -1586,22 +1602,71 @@ yyreduce:
 
            
             }
-#line 1590 "y.tab.c"
+#line 1606 "y.tab.c"
+    break;
+
+  case 13: /* COMANDO: BEGIN_WHILE '(' E ')' BLOCO  */
+#line 262 "sintatico.y"
+                                          {
+
+                
+                if(yyvsp[-2].tipo != "boolean") {
+                    yyerror("Erro na linha " + to_string(linha) + "É necessária uma operação lógica ao utilizar o while");
+                }
+
+                string label_inicio = nova_label("while", "inicio");
+                string label_fim = nova_label("while", "fim");
+
+                pilha_loop_inicio.push_back(label_inicio);
+                pilha_loop_fim.push_back(label_fim);
+
+                yyval.traducao = "";
+                yyval.traducao += label_inicio + ":\n";
+                yyval.traducao += yyvsp[-2].traducao;
+                string condicao = gentempcode("boolean");
+
+                yyval.traducao += "\t" + condicao + " = !" + yyvsp[-2].label + ";\n";
+                yyval.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+                yyval.traducao += yyvsp[0].traducao;
+                
+         
+                yyval.traducao +=  "\tgoto " + label_inicio + ";\n";
+                yyval.traducao += label_fim + ":\n";
+
+                esta_no_while = false;
+
+                
+
+                pilha_loop_inicio.pop_back();
+                pilha_loop_fim.pop_back();
+                
+            }
+#line 1645 "y.tab.c"
     break;
 
   case 14: /* IDENTIFICADOR_FOR: TK_ID  */
-#line 262 "sintatico.y"
+#line 299 "sintatico.y"
                     {
                         string indice_for = gentempcode("int");
                         string nome_variavel = adiciona_variavel_na_tabela(yyvsp[0].label, "int", indice_for);
                         yyval.label = yyvsp[0].label;
                         
                     }
-#line 1601 "y.tab.c"
+#line 1656 "y.tab.c"
     break;
 
-  case 15: /* E: E '+' E  */
-#line 272 "sintatico.y"
+  case 15: /* BEGIN_WHILE: TK_WHILE  */
+#line 308 "sintatico.y"
+                    {
+                        esta_no_while = true;
+                        yyval.label = yyvsp[0].label;
+                        
+                    }
+#line 1666 "y.tab.c"
+    break;
+
+  case 16: /* E: E '+' E  */
+#line 317 "sintatico.y"
             {
             string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
 
@@ -1667,7 +1732,7 @@ yyreduce:
             tamanho_string[yyval.label] = temp_tamanho;
         }
         else {
-                cout << tipo << endl;
+                
                 yyval.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.tipo = tipo;
@@ -1676,11 +1741,11 @@ yyreduce:
             
 
             }
-#line 1680 "y.tab.c"
+#line 1745 "y.tab.c"
     break;
 
-  case 16: /* E: E '-' E  */
-#line 347 "sintatico.y"
+  case 17: /* E: E '-' E  */
+#line 392 "sintatico.y"
             {   verifica_operacao_string(yyvsp[-2].tipo, yyvsp[0].tipo, "-");
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
@@ -1688,11 +1753,11 @@ yyreduce:
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " - " + t2 + ";\n";
             }
-#line 1692 "y.tab.c"
+#line 1757 "y.tab.c"
     break;
 
-  case 17: /* E: E '*' E  */
-#line 355 "sintatico.y"
+  case 18: /* E: E '*' E  */
+#line 400 "sintatico.y"
             {   
                 verifica_operacao_string(yyvsp[-2].tipo, yyvsp[0].tipo, "*");
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
@@ -1701,11 +1766,11 @@ yyreduce:
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " * " + t2 + ";\n";
             }
-#line 1705 "y.tab.c"
+#line 1770 "y.tab.c"
     break;
 
-  case 18: /* E: E '/' E  */
-#line 364 "sintatico.y"
+  case 19: /* E: E '/' E  */
+#line 409 "sintatico.y"
             {   
                 verifica_operacao_string(yyvsp[-2].tipo, yyvsp[0].tipo, "/");
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
@@ -1714,92 +1779,105 @@ yyreduce:
                 yyval.tipo = tipo;
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " / " + t2 + ";\n";
             }
-#line 1718 "y.tab.c"
+#line 1783 "y.tab.c"
     break;
 
-  case 19: /* E: '(' E ')'  */
-#line 373 "sintatico.y"
+  case 20: /* E: '(' E ')'  */
+#line 418 "sintatico.y"
             {   
                 yyval.label = yyvsp[-1].label;
                 yyval.traducao = yyvsp[-1].traducao;
+                yyval.tipo = yyvsp[-1].tipo;
             }
-#line 1727 "y.tab.c"
+#line 1793 "y.tab.c"
     break;
 
-  case 20: /* E: E GREATER_THAN E  */
-#line 378 "sintatico.y"
+  case 21: /* E: E GREATER_THAN E  */
+#line 424 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " > " + t2 + ";\n";
+                if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1739 "y.tab.c"
+#line 1807 "y.tab.c"
     break;
 
-  case 21: /* E: E LESS_THAN E  */
-#line 386 "sintatico.y"
+  case 22: /* E: E LESS_THAN E  */
+#line 434 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
-                yyval.label = gentempcode(tipo);
+                yyval.label = gentempcode("boolean");
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " < " + t2 + ";\n";
+                  if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                  else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1751 "y.tab.c"
+#line 1821 "y.tab.c"
     break;
 
-  case 22: /* E: E GREATER_OR_EQUAL E  */
-#line 394 "sintatico.y"
+  case 23: /* E: E GREATER_OR_EQUAL E  */
+#line 444 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " >= " + t2 + ";\n";
+                if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1763 "y.tab.c"
+#line 1835 "y.tab.c"
     break;
 
-  case 23: /* E: E LESS_OR_EQUAL E  */
-#line 402 "sintatico.y"
+  case 24: /* E: E LESS_OR_EQUAL E  */
+#line 454 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " <= " + t2 + ";\n";
+                if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1775 "y.tab.c"
+#line 1849 "y.tab.c"
     break;
 
-  case 24: /* E: E EQUAL E  */
-#line 410 "sintatico.y"
+  case 25: /* E: E EQUAL E  */
+#line 464 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " == " + t2 + ";\n";
+                if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1787 "y.tab.c"
+#line 1863 "y.tab.c"
     break;
 
-  case 25: /* E: E NOT_EQUAL E  */
-#line 418 "sintatico.y"
+  case 26: /* E: E NOT_EQUAL E  */
+#line 474 "sintatico.y"
             {   
                 string tipo = resolve_tipo(yyvsp[-2].tipo, yyvsp[0].tipo);
                 auto [coercoes, t1, t2] = resolve_coercao(yyvsp[-2].label, yyvsp[0].label, tipo);
                 yyval.label = gentempcode(tipo);
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + coercoes + "\t" + yyval.label + " = " + t1 + " != " + t2 + ";\n";
+                if (yyvsp[-2].var_original != "") yyval.var_original = yyvsp[-2].var_original;
+                else if (yyvsp[0].var_original != "") yyval.var_original = yyvsp[0].var_original;
             }
-#line 1799 "y.tab.c"
+#line 1877 "y.tab.c"
     break;
 
-  case 26: /* E: NOT E  */
-#line 426 "sintatico.y"
+  case 27: /* E: NOT E  */
+#line 484 "sintatico.y"
             {   
                 if(yyvsp[0].tipo != "boolean") {
                     yyerror("Erro na linha " + to_string(linha) + ": não é possível usar o operador '!' em uma variável não booleana!");
@@ -1808,35 +1886,52 @@ yyreduce:
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[0].traducao + "\t" + yyval.label + " = " "!" + yyvsp[0].label + ";\n";
             }
-#line 1812 "y.tab.c"
+#line 1890 "y.tab.c"
     break;
 
-  case 27: /* E: E AND E  */
-#line 435 "sintatico.y"
+  case 28: /* E: E AND E  */
+#line 493 "sintatico.y"
             {   
                 verifica_tipo_logico(yyvsp[-2].tipo, yyvsp[0].tipo);
                 yyval.label = gentempcode("int");
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " && " + yyvsp[0].label + ";\n";
             }
-#line 1823 "y.tab.c"
+#line 1901 "y.tab.c"
     break;
 
-  case 28: /* E: E OR E  */
-#line 442 "sintatico.y"
+  case 29: /* E: E OR E  */
+#line 500 "sintatico.y"
             {   
+                
                 verifica_tipo_logico(yyvsp[-2].tipo, yyvsp[0].tipo);
                 yyval.label = gentempcode("int");
                 yyval.tipo = "boolean";
                 yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + yyval.label + " = " + yyvsp[-2].label + " || " + yyvsp[0].label + ";\n";
             }
-#line 1834 "y.tab.c"
+#line 1913 "y.tab.c"
     break;
 
-  case 29: /* E: TK_ID '=' E  */
-#line 543 "sintatico.y"
+  case 30: /* E: TK_ID '=' E  */
+#line 602 "sintatico.y"
             {
-                string nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo, yyvsp[0].label);
+
+                string nome_variavel = "";
+
+                if(!esta_no_while) {
+                    nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo, yyvsp[0].label);
+                    string formata_variavel_escopo = yyvsp[-2].label + "_global";
+                    variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                } else {
+                    cout << yyvsp[-2].label <<endl;
+                    cout << yyvsp[0].tipo <<endl;
+                    nome_variavel = pega_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo);
+                    if(nome_variavel == "") {
+                        nome_variavel = adiciona_variavel_na_tabela(yyvsp[-2].label, yyvsp[0].tipo, yyvsp[0].label);
+                    }
+                    string formata_variavel_escopo = yyvsp[-2].label + "_while";
+                    variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                }
                 
                 if(yyvsp[0].tipo == "string") {
                     
@@ -1848,34 +1943,40 @@ yyreduce:
                     yyval.traducao += yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + nome_variavel + " = " + "(char *) malloc(" + tamanho_string[yyvsp[0].label] + ");\n";
                     yyval.traducao += "\tstrcpy(" + nome_variavel + "," + yyvsp[0].label + ");\n";
                 } else {
+                    if(esta_no_while) {
+                        if((variavel_escopo.count(yyvsp[-2].label + "_global")) && (variavel_escopo.count(yyvsp[-2].label + "_while"))) {
+                            yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + variavel_escopo[yyvsp[-2].label + "_global"] + " = " + yyvsp[0].label + ";\n";
+                        }
+                    }
+
                     yyval.traducao = yyvsp[-2].traducao + yyvsp[0].traducao + "\t" + nome_variavel + " = " + yyvsp[0].label + ";\n";
                 }
             }
-#line 1855 "y.tab.c"
+#line 1956 "y.tab.c"
     break;
 
-  case 30: /* E: TK_NUM  */
-#line 560 "sintatico.y"
+  case 31: /* E: TK_NUM  */
+#line 641 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "int";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1865 "y.tab.c"
+#line 1966 "y.tab.c"
     break;
 
-  case 31: /* E: TK_REAL  */
-#line 566 "sintatico.y"
+  case 32: /* E: TK_REAL  */
+#line 647 "sintatico.y"
             {
                 yyval.label = gentempcode("float");
                 yyval.tipo = "float";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1875 "y.tab.c"
+#line 1976 "y.tab.c"
     break;
 
-  case 32: /* E: TK_STRING  */
-#line 571 "sintatico.y"
+  case 33: /* E: TK_STRING  */
+#line 652 "sintatico.y"
                         {
 
                 
@@ -1897,47 +1998,48 @@ yyreduce:
                 yyval.traducao += "\t" + yyval.label + " = " + "(char *) malloc(" + tamanho + ");\n";
                 yyval.traducao += "\tstrcpy(" + yyval.label + "," + yyvsp[0].label + ");\n";
             }
-#line 1901 "y.tab.c"
+#line 2002 "y.tab.c"
     break;
 
-  case 33: /* E: TK_TRUE  */
-#line 593 "sintatico.y"
+  case 34: /* E: TK_TRUE  */
+#line 674 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "boolean";
                 yyval.traducao = "\t" + yyval.label + " = " + "1" + ";\n";
             }
-#line 1911 "y.tab.c"
+#line 2012 "y.tab.c"
     break;
 
-  case 34: /* E: TK_FALSE  */
-#line 599 "sintatico.y"
+  case 35: /* E: TK_FALSE  */
+#line 680 "sintatico.y"
             {
                 yyval.label = gentempcode("int");
                 yyval.tipo = "boolean";
                 yyval.traducao = "\t" + yyval.label + " = " + "0" + ";\n";
             }
-#line 1921 "y.tab.c"
+#line 2022 "y.tab.c"
     break;
 
-  case 35: /* E: TK_CHAR  */
-#line 605 "sintatico.y"
+  case 36: /* E: TK_CHAR  */
+#line 686 "sintatico.y"
             {
                 yyval.label = gentempcode("char");
                 yyval.tipo = "char";
                 yyval.traducao = "\t" + yyval.label + " = " + yyvsp[0].label + ";\n";
             }
-#line 1931 "y.tab.c"
+#line 2032 "y.tab.c"
     break;
 
-  case 36: /* E: TK_ID  */
-#line 611 "sintatico.y"
+  case 37: /* E: TK_ID  */
+#line 692 "sintatico.y"
             {   
                 string tipo = getTipo(yyvsp[0].label); 
                 yyval.tipo=tipo;
                 yyval.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo);
                 yyval.traducao = "\t" + yyval.label + " = " + nome_interno + ";\n";
+                yyval.var_original = nome_interno;
 
                 if(tipo == "string") {
                     yyval.traducao = realizar_contagem(nome_interno, yyval.label);
@@ -1949,11 +2051,11 @@ yyreduce:
 
                 
             }
-#line 1953 "y.tab.c"
+#line 2055 "y.tab.c"
     break;
 
-  case 37: /* E: '(' TK_INT ')' TK_ID  */
-#line 629 "sintatico.y"
+  case 38: /* E: '(' TK_INT ')' TK_ID  */
+#line 711 "sintatico.y"
             {  
                 string tipo_atual = getTipo(yyvsp[0].label);
                 string novo_tipo = "int";
@@ -1962,11 +2064,11 @@ yyreduce:
                 string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo_atual);
                 yyval.traducao = "\t" + yyval.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
             }
-#line 1966 "y.tab.c"
+#line 2068 "y.tab.c"
     break;
 
-  case 38: /* E: '(' TK_FLOAT ')' TK_ID  */
-#line 638 "sintatico.y"
+  case 39: /* E: '(' TK_FLOAT ')' TK_ID  */
+#line 720 "sintatico.y"
             {  
                 string tipo_atual = getTipo(yyvsp[0].label);
                 string novo_tipo = "float";
@@ -1975,19 +2077,19 @@ yyreduce:
                 string nome_interno = pega_variavel_na_tabela(yyvsp[0].label, tipo_atual);
                 yyval.traducao = "\t" + yyval.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
             }
-#line 1979 "y.tab.c"
+#line 2081 "y.tab.c"
     break;
 
-  case 39: /* E: '(' TK_BOOLEAN ')' TK_ID  */
-#line 647 "sintatico.y"
+  case 40: /* E: '(' TK_BOOLEAN ')' TK_ID  */
+#line 729 "sintatico.y"
             {  
                 yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
             }
-#line 1987 "y.tab.c"
+#line 2089 "y.tab.c"
     break;
 
 
-#line 1991 "y.tab.c"
+#line 2093 "y.tab.c"
 
       default: break;
     }
@@ -2180,7 +2282,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 651 "sintatico.y"
+#line 733 "sintatico.y"
 
 
 #include "lex.yy.c"
@@ -2367,6 +2469,10 @@ string pega_variavel_na_tabela(string nome_variavel, string tipo) {
         }
     }
 
+    if(esta_no_while) {
+        return "";
+    }
+
     yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não foi declarada.");
     return "";
 }
@@ -2414,6 +2520,7 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
 }
 
 void verifica_tipo_logico(string tipo1, string tipo2) {
+   
     if(tipo1 != "boolean" || tipo2 != "boolean") {
          yyerror("Erro na linha " + to_string(linha) + ": "+ "Não é possível realizar o operador && entre variáveis não booleanas");
     }

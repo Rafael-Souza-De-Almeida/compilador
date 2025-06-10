@@ -1,14 +1,15 @@
 function main() {
 
   a = 10;
+  b = 40;
+  c = false;
 
-  for i = 0:a {
-    c = i * 5.5;
-    a = "rafael";
-    a = 3.6;
-
+  while(c || (a < 40)) {
+    while(b <= 50) {
+      b = b + 10;
+      b;
+    }
+    a = a + 10;
   }
-  c = i + 2;
-  c;
    
 }
