@@ -5,10 +5,12 @@ b = 10;
 c = true;
 d = "olá";
 
-char type(a);
-
-d = a + "rafael";
-d;
+for i = 0:4 {
+  int type(x);
+  if(x == 0) {
+    break;
+  }
+}
 
 }
 

@@ -7,15 +7,14 @@
 using namespace std; 
 int main(void) {
 	int t1;
-	char t10;
-	char *t11;
+	int t10;
+	int t11;
 	int t12;
 	int t13;
 	int t14;
 	int t15;
-	char *t16;
-	char *t17;
-	int t18;
+	int t16;
+	int t17;
 	int t2;
 	int t3;
 	char *t4;
@@ -23,12 +22,13 @@ int main(void) {
 	int t6;
 	int t7;
 	int t8;
-	char t9;
+	int t9;
 	int __v0;
 	int __v1;
 	int __v2;
 	char *__v3;
-	char __v4;
+	int __v4;
+	int __v5;
 	t1 = 0;
 	__v0 = t1;
 	t2 = 10;
@@ -53,43 +53,29 @@ label_fim_0:
 	strcpy(t4,"olá");
 	__v3 = (char *) malloc(t8);
 	strcpy(__v3,t4);
-	cin >> __v4;
+	t10 = 0;
+	t11 = 4;
+	__v4 = t10;
+for_inicio_1:
+	t16 = t11 - 1;
+	t17 = __v4 > t16;
+	if (t17) goto for_fim_1;
+	cin >> __v5;
 	if (cin.fail()) {
-		cerr << "Entrada inválida para tipo char!" << endl;
+		cerr << "Entrada inválida para tipo int!" << endl;
 		exit(1);
 	}
+	t13 = __v5;
+	t14 = 0;
+	t15 = t13 == t14;
+if (!t15) goto fim_if_1;
+	goto for_fim_1;
+fim_if_1:
+for_incremento_1:
+	__v4 = __v4 + 1;
+	goto for_inicio_1;
+for_fim_1:
 	free(__v3);
-	t10 = __v4;
-	origem = (char *) malloc(300); 
-	strcpy(origem, "rafael");
-	t12 = 0;
-	t13 = 0;
-label_inicio_1:
-	t14 = origem[t12] == '\0';
-	if (t14) goto label_fim_1;
-	t13 = t13 + 1;
-	t12 = t12 + 1;
-	goto label_inicio_1;
-label_fim_1:
-	free(origem);
-	t15 = t13 + 1;
-	t11 = (char *) malloc(t15);
-	strcpy(t11,"rafael");
-	t17 = (char *) malloc(2);
-	t17[0] = t10;
-	t17[1] = '\0';
-	t18 = 2 + t15;
-	t18 = t18 + 1;
-	t16 = (char *) malloc(t18);
-	strcpy(t16, t17);
-	strcat(t16, t11);
-	__v3 = (char *) malloc(t18);
-	strcpy(__v3,t16);
-	 cout << __v3 << endl;
-	free(__v3);
-	free(t11);
-	free(t16);
-	free(t17);
 	free(t4);
 	return 0;
 }
