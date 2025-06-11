@@ -4,9 +4,13 @@ function main()
 
 {   
 
-
-   boolean b = 'false';
-    if(1){
-        println(b);
-    }
+ 
+ int n1;
+ type(n1);
+   int n2 = 1;
+   if(n1 == 3){
+    println(n1);
+   } else {
+    println(n2);
+   }
 }

@@ -622,7 +622,7 @@ string pega_variavel_na_tabela(string nome_variavel) {
         }
     }
     
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' declarada em escopo local.");
+    yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não declarada.");
     return "";
 }
 
