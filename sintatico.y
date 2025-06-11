@@ -54,6 +54,9 @@ bool esta_no_do_while = false;
 int qtdWhile = 0;
 int qtdFor = 0;
 int qtdDoWhile = 0;
+int contador_if = 0;
+int contador_else=0;
+
 
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
@@ -76,6 +79,8 @@ string pega_variavel_na_tabela(string, string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
 string getTempId(string variavel);
+string fim_if();
+string fim_else();
 void verifica_tipo(string, string, string);
 void verifica_tipo_logico(string, string);
 string getTipo(string);
@@ -92,6 +97,8 @@ string nova_label(string, string);
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
 %token TK_CONTINUE TK_BREAK
+%token TK_TYPE
+%token TOKEN_STRING_TYPE
 
 %start S
 
@@ -221,7 +228,113 @@ COMANDO     : E ';'
             }
             | BLOCO {
                 $$.traducao = $1.traducao;
-            } 
+
+            } | TK_INT TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("int");
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "int" , temp_associada);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+            comando_leitura += "\tif (cin.fail()) {\n";
+            comando_leitura += "\t\tcerr << \"Entrada inválida para tipo int!\" << endl;\n";
+            comando_leitura += "\t\texit(1);\n\t}\n";
+        
+                    $$.traducao = comando_leitura;
+            }
+             | TK_FLOAT TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("float");
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "float" , temp_associada);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+            comando_leitura += "\tif (cin.fail()) {\n";
+            comando_leitura += "\t\tcerr << \"Entrada inválida para tipo float!\" << endl;\n";
+            comando_leitura += "\t\texit(1);\n\t}\n";
+        
+            $$.traducao = comando_leitura;
+            }
+            | TK_BOOLEAN TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("boolean");
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "boolean" , temp_associada);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+            comando_leitura += "\tif (cin.fail()) {\n";
+            comando_leitura += "\t\tcerr << \"Entrada inválida para tipo boolean!\" << endl;\n";
+            comando_leitura += "\t\texit(1);\n\t}\n";
+        
+            $$.traducao = comando_leitura;
+            }
+            | TK_CHAR TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("char");
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "char" , temp_associada);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+            comando_leitura += "\tif (cin.fail()) {\n";
+            comando_leitura += "\t\tcerr << \"Entrada inválida para tipo char!\" << endl;\n";
+            comando_leitura += "\t\texit(1);\n\t}\n";
+        
+            $$.traducao = comando_leitura;
+            }
+            | TOKEN_STRING_TYPE TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("string");
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "string" , temp_associada);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+            comando_leitura += "\tif (cin.fail()) {\n";
+            comando_leitura += "\t\tcerr << \"Entrada inválida para tipo string!\" << endl;\n";
+            comando_leitura += "\t\texit(1);\n\t}\n";
+        
+            $$.traducao = comando_leitura;
+            }
+
+            | TK_IF '(' E ')' BLOCO{
+                if($3.tipo!="boolean"){
+                    
+                    yyerror("No If deve ser operando boolean");
+                    $$.traducao = "";
+                    exit(1);
+                }
+                else {
+                string rotulo_if = fim_if();
+
+                $$.traducao = $3.traducao;  
+                $$.traducao += "if (!" + $3.label + ") goto " + rotulo_if + ";\n";
+                $$.traducao += $5.traducao; 
+                $$.traducao += rotulo_if + ":\n";
+                }
+            }
+            | TK_IF '(' E ')' BLOCO TK_ELSE BLOCO{
+                if($3.tipo!="boolean"){
+                    yyerror("No if-else deve ser operando boolean");
+                    $$.traducao = "";
+                }
+                else {
+                    string rotulo_if = fim_if();
+                    string rotulo_else = fim_else();
+
+                    $$.traducao = $3.traducao;
+                    $$.traducao += "if (!" + $3.label + ") goto "+ rotulo_else + ";\n";
+                    $$.traducao+= $5.traducao;
+                    $$.traducao += "goto " + rotulo_if +";\n";
+                    $$.traducao += rotulo_else + ":\n";
+                    $$.traducao += $7.traducao;
+                    $$.traducao += rotulo_if + ":\n";
+
+                }
+            }
             | BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR {
 
                     if ($4.tipo != "int") {
@@ -1003,6 +1116,14 @@ void verifica_tipo_logico(string tipo1, string tipo2) {
          yyerror("Erro na linha " + to_string(linha) + ": "+ "Não é possível realizar o operador && entre variáveis não booleanas");
     }
     
+}
+
+string fim_if(){
+    return "fim_if_" + to_string(++contador_if);
+}
+
+string fim_else(){
+    return "fim_else_" + to_string(++contador_else);
 }
 
 void yyerror(string MSG) {
