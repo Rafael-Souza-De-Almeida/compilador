@@ -81,6 +81,7 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "continue"    {return TK_CONTINUE;}
 
+"type"       {return TK_TYPE;}
 
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}

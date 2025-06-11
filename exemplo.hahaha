@@ -3,11 +3,10 @@
 function main() 
 
 {   
-int num1=1;
-int num2 =2;
-int num3 =3;
 
-if(num1 == num2){
-    println(num3);
-}
+
+   boolean b = 'false';
+    if(1){
+        println(b);
+    }
 }

@@ -85,7 +85,8 @@ extern int yydebug;
     TK_DO = 286,                   /* TK_DO  */
     TK_SWITCH = 287,               /* TK_SWITCH  */
     TK_CONTINUE = 288,             /* TK_CONTINUE  */
-    TK_BREAK = 289                 /* TK_BREAK  */
+    TK_BREAK = 289,                /* TK_BREAK  */
+    TK_TYPE = 290                  /* TK_TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -126,6 +127,7 @@ extern int yydebug;
 #define TK_SWITCH 287
 #define TK_CONTINUE 288
 #define TK_BREAK 289
+#define TK_TYPE 290
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

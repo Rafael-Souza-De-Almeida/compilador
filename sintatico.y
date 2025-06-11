@@ -63,6 +63,7 @@ string getTempId(string);
 %token TK_PRINT TK_PRINTLN
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
 %token TK_CONTINUE TK_BREAK
+%token TK_TYPE
 
 %start S
 
@@ -74,7 +75,7 @@ string getTempId(string);
 
 %%
 
-S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
+S           :   TK_FUNCTION TK_MAIN '(' ')' BLOCO
             {
                 string codigo = "/* Compilador hahaha */\n"
                                 "#include <iostream>\n"
@@ -123,6 +124,7 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
             }
             ;
 
+
 BLOCO       : '{' {entra_escopo();} COMANDOS '}'{ sai_escopo();
             
                 $$.traducao = $3.traducao;
@@ -155,6 +157,37 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             }
+            | TK_TYPE '(' TK_ID ')' ';'
+            {
+            string nome_interno = pega_variavel_na_tabela($3.label);
+            string tipo_var = getTipo($3.label);
+
+                string comando_leitura;
+
+            if(tipo_var == "int" || tipo_var == "boolean"){
+                    comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+                    comando_leitura += "\tif (cin.fail()) {\n";
+                    comando_leitura += "\t\tcerr << \"Entrada inválida para tipo " + tipo_var + "!\" << endl;\n";
+                    comando_leitura += "\t\texit(1);\n\t}\n";
+                } 
+                else if (tipo_var == "float") {
+                    comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+                    comando_leitura += "\tif (cin.fail()) {\n";
+                    comando_leitura += "\t\tcerr << \"Entrada inválida para tipo float!\" << endl;\n";
+                    comando_leitura += "\t\texit(1);\n\t}\n";
+                } 
+                else if (tipo_var == "char") {
+                    comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+                    comando_leitura += "\tif (cin.fail()) {\n";
+                    comando_leitura += "\t\tcerr << \"Entrada inválida para tipo char!\" << endl;\n";
+                    comando_leitura += "\t\texit(1);\n\t}\n";
+                } 
+                else {
+                    yyerror("Tipo não suportado para leitura!");
+                    comando_leitura = "";
+                }
+                    $$.traducao = comando_leitura;
+}
             | TK_IF '(' E ')' BLOCO{
                 if($3.tipo!="boolean"){
                     
@@ -443,7 +476,7 @@ E           : E '+' E
             {  
                 yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
             }
-            ;             
+            ;              
             ;
 %%
 
