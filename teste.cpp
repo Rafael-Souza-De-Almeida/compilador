@@ -7,88 +7,89 @@
 using namespace std; 
 int main(void) {
 	int t1;
-	int t10;
-	int t11;
-	char *t12;
+	char t10;
+	char *t11;
+	int t12;
 	int t13;
 	int t14;
 	int t15;
-	int t16;
-	int t17;
+	char *t16;
+	char *t17;
 	int t18;
-	int t19;
 	int t2;
-	int t20;
-	int t21;
-	int t22;
-	int t23;
 	int t3;
-	int t4;
+	char *t4;
 	int t5;
 	int t6;
 	int t7;
 	int t8;
-	int t9;
+	char t9;
 	int __v0;
 	int __v1;
 	int __v2;
-	int __v3;
-	char *__v4;
+	char *__v3;
+	char __v4;
 	t1 = 0;
 	__v0 = t1;
 	t2 = 10;
 	__v1 = t2;
-	t4 = 0;
-	t5 = 10;
-	__v2 = t4;
-for_inicio_1:
-	t22 = t5 - 1;
-	t23 = __v2 > t22;
-	if (t23) goto for_fim_1;
-	t7 = 1;
-	t8 = 5;
-	__v3 = t7;
-for_inicio_2:
-	t17 = t8 - 1;
-	t18 = __v3 > t17;
-	if (t18) goto for_fim_2;
-	t9 = __v3;
-	t10 = 1;
-	t11 = t9 + t10;
-	__v0 = t11;
-	 cout << __v0 << endl;
+	t3 = 1;
+	__v2 = t3;
 	char *origem;
 	origem = (char *) malloc(300); 
-	strcpy(origem, "rafael");
-	t13 = 0;
-	t14 = 0;
+	strcpy(origem, "olá");
+	t5 = 0;
+	t6 = 0;
 label_inicio_0:
-	t15 = origem[t13] == '\0';
-	if (t15) goto label_fim_0;
-	t14 = t14 + 1;
-	t13 = t13 + 1;
+	t7 = origem[t5] == '\0';
+	if (t7) goto label_fim_0;
+	t6 = t6 + 1;
+	t5 = t5 + 1;
 	goto label_inicio_0;
 label_fim_0:
 	free(origem);
-	t16 = t14 + 1;
-	t12 = (char *) malloc(t16);
-	strcpy(t12,"rafael");
-	__v4 = (char *) malloc(t16);
-	strcpy(__v4,t12);
-	 cout << __v4 << endl;
-for_incremento_2:
-	__v3 = __v3 + 1;
-	goto for_inicio_2;
-for_fim_2:
-	t19 = __v1;
-	t20 = 10;
-	t21 = t19 + t20;
-	__v1 = t21;
-for_incremento_1:
-	__v2 = __v2 + 1;
-	goto for_inicio_1;
-for_fim_1:
-	free(__v4);
-	free(t12);
+	t8 = t6 + 1;
+	t4 = (char *) malloc(t8);
+	strcpy(t4,"olá");
+	__v3 = (char *) malloc(t8);
+	strcpy(__v3,t4);
+	cin >> __v4;
+	if (cin.fail()) {
+		cerr << "Entrada inválida para tipo char!" << endl;
+		exit(1);
+	}
+	free(__v3);
+	t10 = __v4;
+	origem = (char *) malloc(300); 
+	strcpy(origem, "rafael");
+	t12 = 0;
+	t13 = 0;
+label_inicio_1:
+	t14 = origem[t12] == '\0';
+	if (t14) goto label_fim_1;
+	t13 = t13 + 1;
+	t12 = t12 + 1;
+	goto label_inicio_1;
+label_fim_1:
+	free(origem);
+	t15 = t13 + 1;
+	t11 = (char *) malloc(t15);
+	strcpy(t11,"rafael");
+	t17 = (char *) malloc(2);
+	t17[0] = t10;
+	t17[1] = '\0';
+	t18 = 2 + t15;
+	t18 = t18 + 1;
+	t16 = (char *) malloc(t18);
+	strcpy(t16, t17);
+	strcat(t16, t11);
+	__v3 = (char *) malloc(t18);
+	strcpy(__v3,t16);
+	 cout << __v3 << endl;
+	free(__v3);
+	free(t11);
+	free(t16);
+	free(t17);
+	free(t4);
 	return 0;
 }
