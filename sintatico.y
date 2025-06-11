@@ -6,6 +6,7 @@
 #include <tuple>
 #include<vector>
 #include <fstream>
+#include<stack>
 
 
 #define YYSTYPE atributos
@@ -17,35 +18,50 @@ int var_temp_qnt;
 int linha = 0;
 int label_inicio = 0;
 int label_fim = 0;
+int label_incremento = 0;
 
 
 struct atributos {
     string label;
     string traducao;
     string tipo;
+    string var_original;
 };
 
 struct Simbolo {
     string nome_interno;
     string tipo;
     string temp_associada;
-    // string escopo;
+
 };
 
 struct Simbolos_atuais {
     string tipo;
     string temp_associada;
+    string nome_interno;
     
 };
+
 
 map<string, Simbolo> tabela_simbolos;
 map<string, string> temporarias;
 map<string, Simbolos_atuais> tipos_atuais;
 map<string, string> tamanho_string;
+map<string, string> variavel_escopo;
+bool esta_no_while = false;
+bool esta_no_for = false;
+bool esta_no_do_while = false;
+int qtdWhile = 0;
+int qtdFor = 0;
+int qtdDoWhile = 0;
+
 map<string, bool> realocar_var_interna;
 vector<map<string, Simbolo>> pilha_escopos;
 vector<map<string,Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
+stack<string> pilha_loop_inicio;
+stack<string> pilha_loop_fim;
+stack<string> pilha_loop_continue;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -206,53 +222,135 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             } 
-            | TK_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO {
-                
-                if ($4.tipo != "int") {
-                    yyerror("Início do for deve ser numérico (int)");
+            | BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR {
+
+                    if ($4.tipo != "int") {
+                        yyerror("Início do for deve ser numérico (int)");
+                    }
+
+                    if ($6.tipo != "int") {
+                        yyerror("Fim do for deve ser numérico (int)");
+                    }
+
+                    string label_inicio = pilha_loop_inicio.top();
+                    string label_fim = pilha_loop_fim.top();
+                    string label_incremento = pilha_loop_continue.top();
+
+                    string nome_variavel = pega_variavel_na_tabela($2.label, "int");
+
+                    $$.traducao = ""; 
+                    $$.traducao += $4.traducao + $6.traducao;
+                    $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
+                    $$.traducao += label_inicio + ":\n";
+
+                    string pre_condicao = gentempcode("boolean");
+                    string condicao = gentempcode("boolean");
+
+                    $$.traducao += "\t" + pre_condicao + " = " + $6.label + " - 1;\n"; 
+                    $$.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
+                    $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+
+                    $$.traducao += $7.traducao;  
+
+                    $$.traducao += label_incremento + ":\n";
+                    $$.traducao += "\t" + nome_variavel + " = " + nome_variavel + " + 1;\n";
+                    $$.traducao += "\tgoto " + label_inicio + ";\n";
+
+                    $$.traducao += label_fim + ":\n";
+
+                     if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
+                    if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
+                    if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
+
+
+                } | BEGIN_WHILE '(' E ')' LOOP_START_WHILE BLOCO CLOSE_WHILE {
+
+                if($3.tipo != "boolean") {
+                    yyerror("Erro na linha " + to_string(linha) + ": é necessária uma operação lógica ao utilizar o while");
                 }
 
-                if ($6.tipo != "int") {
-                    yyerror("Fim do for deve ser numérico (int)");
-                }
-                
-                
-                string label_inicio = nova_label("for", "inicio");
-                string label_fim = nova_label("for", "fim");
+                string label_inicio = pilha_loop_inicio.top();
+                string label_fim = pilha_loop_fim.top();
 
-                string nome_variavel = pega_variavel_na_tabela($2.label, "int");
 
-                $$.traducao = ""; 
-               
-                $$.traducao += $4.traducao + $6.traducao;
-
-                $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
-
-                string pre_condicao = gentempcode("boolean");
-                string condicao = gentempcode("boolean");
-                $$.traducao += "\t" + pre_condicao + " = " + $6.label + " - 1;\n"; 
+                $$.traducao = "";
                 $$.traducao += label_inicio + ":\n";
-
-                $$.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
-
-                // Condição de saída do loop
+                $$.traducao += $3.traducao;
+                string condicao = gentempcode("boolean");
+                $$.traducao += "\t" + condicao + " = !" + $3.label + ";\n";
                 $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+                $$.traducao += $6.traducao;  // $6 é o BLOCO
 
-                // Corpo do for
-                $$.traducao += $7.traducao;
-
-                // Incrementa variável do loop
-                $$.traducao += "\t" + nome_variavel + " = " + nome_variavel + " + 1;\n";
-
-                // Volta para o início do loop
                 $$.traducao += "\tgoto " + label_inicio + ";\n";
-
-                // Label do fim do loop
                 $$.traducao += label_fim + ":\n";
 
-           
+                pilha_loop_inicio.pop();
+                pilha_loop_fim.pop();
+            }
+            | BEGIN_DO BLOCO TK_WHILE '(' E ')' ';' CLOSE_DO
+                {
+                    if($5.tipo != "boolean") {
+                        yyerror("Erro: condição do 'do while' deve ser booleana");
+                    }
+
+                    string label_inicio = pilha_loop_inicio.top();
+                    string label_fim = pilha_loop_fim.top();
+
+                    string condicao = gentempcode("boolean");
+
+                    $$.traducao = "";
+                    $$.traducao += label_inicio + ":\n";
+                    $$.traducao += $2.traducao;         // BLOCO
+                    $$.traducao += $5.traducao;         // condição
+                    $$.traducao += "\t" + condicao + " = !" + $5.label + ";\n";
+                    $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
+                    $$.traducao += "\tgoto " + label_inicio + ";\n";
+                    $$.traducao += label_fim + ":\n";
+
+                       if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
+                        if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
+                        if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
+                }
+
+            | TK_BREAK ';' {
+
+            if (pilha_loop_fim.empty()) {
+                yyerror("Comando 'break' fora de um loop.");
+            }
+
+            $$.traducao = "\tgoto " + pilha_loop_fim.top() + ";\n";
             } 
+            | TK_CONTINUE ';' {
+               if (pilha_loop_continue.empty()) {
+                    yyerror("Comando 'continue' fora de um loop.");
+                } else {
+                    cout << "DEBUG pilha continue top: " << pilha_loop_continue.top() << endl;
+                    $$.traducao = "\tgoto " + pilha_loop_continue.top() + ";\n";
+                }
+
+            }
             ;
+
+
+BEGIN_WHILE : TK_WHILE
+                    {
+                        esta_no_while = true;
+                        qtdWhile++;
+                        $$.label = "";
+                        
+                    }
+                    ;
+
+CLOSE_WHILE:
+                    {
+                        qtdWhile--;
+                        if(qtdWhile == 0) {
+                            esta_no_while = false;
+                        }
+                        $$.label = "";
+                        
+                    }
+                    ;
 
 IDENTIFICADOR_FOR : TK_ID 
                     {
@@ -262,6 +360,74 @@ IDENTIFICADOR_FOR : TK_ID
                         
                     }
                     ;
+BEGIN_FOR : TK_FOR
+                    {
+                        string label_inicio = nova_label("for", "inicio");
+                        string label_fim = nova_label("for", "fim");
+                        string label_incremento = nova_label("for", "incremento");
+
+                        pilha_loop_inicio.push(label_inicio);
+                        pilha_loop_fim.push(label_fim);
+                        pilha_loop_continue.push(label_incremento);
+
+                        esta_no_for = true;
+                        qtdFor++;
+                       
+                       $$.label = label_inicio + "|" + label_fim + "|" + label_incremento;
+                        
+                    }
+                    ;
+CLOSE_FOR:
+                    {
+                        qtdFor--;
+                        if(qtdFor == 0) {
+                            esta_no_for = false;
+                        }
+                        $$.label = "";
+                        
+                    }
+                    ;
+LOOP_START_WHILE:
+                    {
+                        string label_inicio = nova_label("while", "inicio");
+                        string label_fim = nova_label("while", "fim");
+
+                        pilha_loop_inicio.push(label_inicio);
+                        pilha_loop_fim.push(label_fim);
+
+                        $$.label = label_inicio + "|" + label_fim;
+                        
+                    }
+                    ;
+BEGIN_DO: TK_DO
+{
+    string label_inicio = nova_label("do", "inicio");
+    string label_fim = nova_label("do", "fim");
+
+    pilha_loop_inicio.push(label_inicio);
+    pilha_loop_fim.push(label_fim);
+    pilha_loop_continue.push(label_inicio); 
+
+    esta_no_do_while = true;
+    qtdDoWhile++;
+
+    $$.label = label_inicio + "|" + label_fim;
+}
+;
+
+CLOSE_DO:
+{
+  
+    qtdDoWhile--;
+    if(qtdDoWhile == 0) {
+
+        esta_no_do_while = false;
+    }
+
+    $$.label = "";
+}
+;
+
                     
            
 E           : E '+' E
@@ -330,6 +496,7 @@ E           : E '+' E
             tamanho_string[$$.label] = temp_tamanho;
         }
         else {
+                
                 $$.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.tipo = tipo;
@@ -368,6 +535,7 @@ E           : E '+' E
             {   
                 $$.label = $2.label;
                 $$.traducao = $2.traducao;
+                $$.tipo = $2.tipo;
             }
             |   E GREATER_THAN E 
             {   
@@ -376,14 +544,18 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " > " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E LESS_THAN E 
             {   
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label = gentempcode(tipo);
+                $$.label = gentempcode("boolean");
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " < " + t2 + ";\n";
+                  if ($1.var_original != "") $$.var_original = $1.var_original;
+                  else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E GREATER_OR_EQUAL E 
             {   
@@ -392,6 +564,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " >= " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E LESS_OR_EQUAL E 
             {   
@@ -400,6 +574,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " <= " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E EQUAL E 
             {   
@@ -408,6 +584,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   E NOT_EQUAL E 
             {   
@@ -416,6 +594,8 @@ E           : E '+' E
                 $$.label = gentempcode(tipo);
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " != " + t2 + ";\n";
+                if ($1.var_original != "") $$.var_original = $1.var_original;
+                else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
             |   NOT E
             {   
@@ -435,108 +615,30 @@ E           : E '+' E
             }
             |   E OR E
             {   
+                
                 verifica_tipo_logico($1.tipo, $3.tipo);
                 $$.label = gentempcode("int");
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " || " + $3.label + ";\n";
             }
-            /* |  E TK_MAIOR E
-            {
-                verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">" +  $3.label + ";\n";  
-
-            }
-            |  E TK_MAIORIGUAL E
-            {
-                verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + ">=" +  $3.label + ";\n";  
-
-            }
-            |  E TK_MENOR E
-            {
-                verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo); 
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<" +  $3.label + ";\n";  
-
-            }
-            |  E TK_MENORIGUAL E
-            {
-                  verifica_tipo_relacional($1.tipo, $3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "<=" +  $3.label + ";\n";  
-
-            }
-            |  E TK_IGUALDADE E
-            {
-                ver_boolean($1.tipo,$3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "==" +  $3.label + ";\n";  
-
-            }
-            |  E TK_DIFERENTE E
-            {
-                ver_boolean($1.tipo,$3.tipo);
-                string tipo = resolve_tipo($1.tipo,$3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label=gentempcode(tipo);
-                $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + "= " + $1.label + "!=" +  $3.label + ";\n";  
-
-            }
-            |  E  TK_OU E
-            {
-                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser do tipo boolean");
-                verifica_tipo($3.tipo,"boolean","Operando direita deve ser boolean");
-
-                string tipo = "boolean";
-                $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "||" +  $3.label + ";\n";  
-
-            }
-             |  E TK_E E
-            {
-                verifica_tipo($1.tipo,"boolean","Operando esquerdo deve ser boolean");
-                verifica_tipo($3.tipo,"boolean","Operando direita deve ser boolean");
-
-                string tipo = "boolean";
-                $$.label=gentempcode(tipo);
-                $$.tipo = tipo;
-                $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + "= " + $1.label + "&&" +  $3.label + ";\n";  
-
-            }
-            |   TK_NEGATIVO E
-            {
-                verifica_tipo($2.tipo,"boolean","Operando esquerdo deve ser boolean");
-                
-
-                string tipo = "boolean";
-                $$.label=gentempcode(tipo);
-                $$.tipo=tipo;
-                $$.traducao = $2.traducao + "\t" + $$.label + "= !" + $2.label + ";\n"; 
-
-            } */
 
             |  TK_ID '=' E
             {
-                string nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+
+                string nome_variavel = "";
+
+                if(!esta_no_while && !esta_no_for && !esta_no_do_while) {
+                    nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+                    string formata_variavel_escopo = $1.label + "_global";
+                    variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                } else {
+                    nome_variavel = pega_variavel_na_tabela($1.label, $3.tipo);
+                    if(nome_variavel == "") {
+                        nome_variavel = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label);
+                    } 
+                        string formata_variavel_escopo = $1.label + "_local";
+                        variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                }
                 
                 if($3.tipo == "string") {
                     
@@ -547,7 +649,14 @@ E           : E '+' E
                     realocar_var_interna[nome_variavel] = true;
                     $$.traducao += $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + "(char *) malloc(" + tamanho_string[$3.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_variavel + "," + $3.label + ");\n";
+                    
                 } else {
+                    if(esta_no_while || esta_no_for || esta_no_do_while) {
+                        if((variavel_escopo.count($1.label + "_global")) && (variavel_escopo.count($1.label + "_local"))) {
+                            $$.traducao = $1.traducao + $3.traducao + "\t" + variavel_escopo[$1.label + "_global"] + " = " + $3.label + ";\n";
+                        }
+                    }
+
                     $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
                 }
             } 
@@ -605,10 +714,11 @@ E           : E '+' E
             | TK_ID
             {   
                 string tipo = getTipo($1.label); 
-                $$.tipo=tipo;
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label, tipo);
-                $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
+                $$.traducao = "\t" + $$.label + " = " + tipos_atuais[$1.label].nome_interno + ";\n";
+                $$.var_original = nome_interno;
+                $$.tipo=tipos_atuais[$1.label].tipo;
 
                 if(tipo == "string") {
                     $$.traducao = realizar_contagem(nome_interno, $$.label);
@@ -616,7 +726,7 @@ E           : E '+' E
                     $$.traducao += "\tstrcpy(" + $$.label + "," + nome_interno + ");\n";
                 }
 
-                $$.tipo = tipo;
+            
 
                 
             }
@@ -658,33 +768,38 @@ string gentempcode(string tipo) {
 }
 
 string getTipo(string nome_interno) {
-       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(nome_interno)) {
-            return it->at(nome_interno).tipo;
+
+    if (tipos_atuais.count(nome_interno)) {
+        string tipo = tipos_atuais[nome_interno].tipo;
+
+        if (tipo == "") {
+            yyerror("Erro na linha " + to_string(linha) + 
+                    ": Ao declarar a variável '" + nome_interno + "', é necessário atribuir um valor inicial.\n" +
+                    "Dica: use algo como `a = 0;` para inicializá-la.");
         }
+
+        return tipo;
     }
+
+
     for (auto it = escopos_passados.rbegin(); it != escopos_passados.rend(); ++it) {
         if (it->count(nome_interno)) {
             yyerror("Erro na linha " + to_string(linha) + 
                     ": variável '" + nome_interno + "' foi declarada, mas está fora do escopo atual.");
-            return it->at(nome_interno).tipo; 
+            return it->at(nome_interno).tipo;
         }
     }
 
-   
+
     yyerror("Erro na linha " + to_string(linha) + 
             ": variável '" + nome_interno + "' não foi declarada.");
     return "";
 }
 
 string getTempId(string variavel) {
-       for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(variavel)) {
-            return it->at(variavel).temp_associada;
-        }
-    }
-    yyerror("Erro na linha " + to_string(linha) + ": variável '" + variavel + "' não declarada.");
-    return "";
+      
+    return tipos_atuais[variavel].temp_associada;
+    
 }
 
 string resolve_tipo(string tipo1, string tipo2) {
@@ -694,7 +809,7 @@ string resolve_tipo(string tipo1, string tipo2) {
         return "float";
     }
 
-    if(tipo1 == "int" && tipo2 == "float" || tipo1 == "float" && tipo2 == "int") {
+    if((tipo1 == "int" && tipo2 == "float") || (tipo1 == "float" && tipo2 == "int")) {
         return "float";
     }
 
@@ -740,6 +855,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 
 }
 
+
 void entra_escopo(){
     pilha_escopos.push_back({});
 }
@@ -750,18 +866,38 @@ void sai_escopo(){
 }
 
 string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada) {
-    if (pilha_escopos.empty()) entra_escopo();
-    auto& escopo_atual = pilha_escopos.back();
-    if (escopo_atual.count(variavel)) {
-        return escopo_atual[variavel].nome_interno;
-    }
 
+    string variavel_formatada = variavel + "_" + tipo;
+    
+    if (pilha_escopos.empty()) entra_escopo();
+
+    auto& escopo_atual = pilha_escopos.back();
+
+  if (escopo_atual.count(variavel_formatada)) {
+  
+    escopo_atual[variavel_formatada].temp_associada = temp_associada;
+    tipos_atuais[variavel].tipo = tipo;
+    tipos_atuais[variavel].temp_associada = temp_associada;
+    return escopo_atual[variavel_formatada].nome_interno;
+}
+
+   
     string nome_interno = "__v" + to_string(var_user_qnt++);
-    Simbolo s = {nome_interno, tipo, temp_associada};
-    escopo_atual[variavel] = s;
-    simbolos_declarados.push_back(s); // <- adiciona aqui
+
+    Simbolo simbolo = { nome_interno, tipo, temp_associada };
+
+    escopo_atual[variavel_formatada] = simbolo;
+    simbolos_declarados.push_back(simbolo);  
+
+   
+    tipos_atuais[variavel].tipo = tipo;
+    tipos_atuais[variavel].temp_associada = temp_associada;
+    tipos_atuais[variavel].nome_interno = nome_interno;
+
+
     return nome_interno;
 }
+
 
 void verifica_operacao_string(string tipo1, string tipo2, string operacao) {
     if(tipo1 == "string" || tipo2 == "string") {
@@ -783,23 +919,36 @@ string nova_label(string comando, string tipo) {
         return comando + "_" + tipo + "_" + to_string(label_fim);
     }
 
+    else if(tipo == "incremento") {
+        label_incremento++;
+        return comando + "_" + tipo + "_" + to_string(label_incremento);
+    }
+
     return "";
 }
 
 
 string pega_variavel_na_tabela(string nome_variavel, string tipo) {
 
+    string variavel_formatada = nome_variavel + "_" + tipo;
+
      for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (it->count(nome_variavel)) {
-            return it->at(nome_variavel).nome_interno;
+        if (it->count(variavel_formatada)) {
+            return it->at(variavel_formatada).nome_interno;
         }
     }
 
    for (auto& escopo : escopos_passados) {
-        if (escopo.count(nome_variavel)) {
-            yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' está fora do escopo atual.");
-            return "";
+        if (escopo.count(variavel_formatada)) {
+            if(variavel_escopo.count(nome_variavel + "_global")) {
+                return escopo[variavel_formatada].nome_interno;
+            }
+            yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' está fora do escopo previamente declarado");
         }
+    }
+
+    if(esta_no_while || esta_no_for || esta_no_do_while) {
+        return "";
     }
 
     yyerror("Erro na linha " + to_string(linha) + ": variável '" + nome_variavel + "' não foi declarada.");
@@ -849,6 +998,7 @@ void verifica_tipo(string tipo1, string tipo2, string mensagem) {
 }
 
 void verifica_tipo_logico(string tipo1, string tipo2) {
+   
     if(tipo1 != "boolean" || tipo2 != "boolean") {
          yyerror("Erro na linha " + to_string(linha) + ": "+ "Não é possível realizar o operador && entre variáveis não booleanas");
     }
@@ -866,4 +1016,3 @@ int main(int argc, char* argv[]) {
     yyparse();
     return 0;
 }
-
