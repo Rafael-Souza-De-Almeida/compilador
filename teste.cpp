@@ -9,7 +9,7 @@ int main(void) {
 	int t1;
 	int t10;
 	int t11;
-	int t12;
+	char *t12;
 	int t13;
 	int t14;
 	int t15;
@@ -18,6 +18,10 @@ int main(void) {
 	int t18;
 	int t19;
 	int t2;
+	int t20;
+	int t21;
+	int t22;
+	int t23;
 	int t3;
 	int t4;
 	int t5;
@@ -29,38 +33,62 @@ int main(void) {
 	int __v1;
 	int __v2;
 	int __v3;
-	t1 = 10;
+	char *__v4;
+	t1 = 0;
 	__v0 = t1;
-	t2 = 40;
+	t2 = 10;
 	__v1 = t2;
-	t3 = 0;
-	__v2 = t3;
-while_inicio_2:
-	t4 = __v2;
-	t5 = __v0;
-	t6 = 40;
-	t7 = t5 < t6;
-	t8 = t4 || t7;
-	t19 = !t8;
-	if (t19) goto while_fim_2;
-while_inicio_1:
-	t9 = __v1;
-	t10 = 50;
-	t11 = t9 <= t10;
-	t15 = !t11;
-	if (t15) goto while_fim_1;
-	t12 = __v1;
-	t13 = 10;
-	t14 = t12 + t13;
-	__v1 = t14;
-	 cout << __v1 << endl;
-	goto while_inicio_1;
-while_fim_1:
-	t16 = __v0;
-	t17 = 10;
-	t18 = t16 + t17;
-	__v3 = t18;
-	goto while_inicio_2;
-while_fim_2:
+	t4 = 0;
+	t5 = 10;
+	__v2 = t4;
+for_inicio_1:
+	t22 = t5 - 1;
+	t23 = __v2 > t22;
+	if (t23) goto for_fim_1;
+	t7 = 1;
+	t8 = 5;
+	__v3 = t7;
+for_inicio_2:
+	t17 = t8 - 1;
+	t18 = __v3 > t17;
+	if (t18) goto for_fim_2;
+	t9 = __v3;
+	t10 = 1;
+	t11 = t9 + t10;
+	__v0 = t11;
+	 cout << __v0 << endl;
+	char *origem;
+	origem = (char *) malloc(300); 
+	strcpy(origem, "rafael");
+	t13 = 0;
+	t14 = 0;
+label_inicio_0:
+	t15 = origem[t13] == '\0';
+	if (t15) goto label_fim_0;
+	t14 = t14 + 1;
+	t13 = t13 + 1;
+	goto label_inicio_0;
+label_fim_0:
+	free(origem);
+	t16 = t14 + 1;
+	t12 = (char *) malloc(t16);
+	strcpy(t12,"rafael");
+	__v4 = (char *) malloc(t16);
+	strcpy(__v4,t12);
+	 cout << __v4 << endl;
+for_incremento_2:
+	__v3 = __v3 + 1;
+	goto for_inicio_2;
+for_fim_2:
+	t19 = __v1;
+	t20 = 10;
+	t21 = t19 + t20;
+	__v1 = t21;
+for_incremento_1:
+	__v2 = __v2 + 1;
+	goto for_inicio_1;
+for_fim_1:
+	free(__v4);
+	free(t12);
 	return 0;
 }
