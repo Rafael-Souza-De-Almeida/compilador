@@ -1,16 +1,24 @@
 function main() {
 
-c = 0;
-b = 10;
-c = true;
-d = "olá";
+a = 20;
+b = 20.5;
 
-for i = 0:4 {
-  int type(x);
-  if(x == 0) {
-    break;
+
+while(a < 50) {
+  while(b < 30) {
+    b = b + a;
+    b;
   }
+  a = a + b;
 }
 
+a;
+d = "rafeize";
+d;
+
+
 }
+
+
+
 
