@@ -5,14 +5,14 @@ b = 20.5;
 
 
 while(a < 50) {
-  while(b < 30) {
-    b = b + a;
-    b;
-  }
-  a = a + b;
+  
+  a = a + 20.2;
+  b = "rafael" + 'c'; 
+  a;
 }
 
 a;
+b;
 d = "rafeize";
 d;
 
