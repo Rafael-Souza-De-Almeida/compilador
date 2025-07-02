@@ -1,20 +1,14 @@
 function main() {
 
-c = 0;
-a = 10;
+a = 10;          
 
 for i = 0:10 {
-  for j = 1:5 {
-    c = j + 1;
-    c;
-    d = "rafael";
-    d;
-  } 
-  a = a + 10;
-
+  a = "rafinha";
+  println(a);
 }
 
-
+a = "rafael";
+a;   
 
 }
 

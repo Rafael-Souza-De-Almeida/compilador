@@ -86,8 +86,10 @@ extern int yydebug;
     TK_WHILE = 287,                /* TK_WHILE  */
     TK_DO = 288,                   /* TK_DO  */
     TK_SWITCH = 289,               /* TK_SWITCH  */
-    TK_CONTINUE = 290,             /* TK_CONTINUE  */
-    TK_BREAK = 291                 /* TK_BREAK  */
+    TK_LOCAL = 290,                /* TK_LOCAL  */
+    TK_DYNAMIC = 291,              /* TK_DYNAMIC  */
+    TK_CONTINUE = 292,             /* TK_CONTINUE  */
+    TK_BREAK = 293                 /* TK_BREAK  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -128,8 +130,10 @@ extern int yydebug;
 #define TK_WHILE 287
 #define TK_DO 288
 #define TK_SWITCH 289
-#define TK_CONTINUE 290
-#define TK_BREAK 291
+#define TK_LOCAL 290
+#define TK_DYNAMIC 291
+#define TK_CONTINUE 292
+#define TK_BREAK 293
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

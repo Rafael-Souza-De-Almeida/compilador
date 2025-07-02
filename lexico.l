@@ -42,6 +42,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "println"      {return TK_PRINTLN;}
 
+"local"         {return TK_LOCAL;}
+
+"dynamic"       {return TK_DYNAMIC;}
+
 
 [(){}[\];,]	{ return *yytext; }
 
