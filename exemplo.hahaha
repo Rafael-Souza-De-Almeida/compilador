@@ -1,20 +1,17 @@
 function main() {
 
-a = 20;
-b = 20.5;
+a = 30;
+b = "touh";
+c = "pericles";
 
 
-while(a < 50) {
-  
-  a = a + 20.2;
-  b = "rafael" + 'c'; 
-  a;
+
+for i = 0:10 {
+  a = a + i;
 }
-
 a;
 b;
-d = "rafeize";
-d;
+
 
 
 }

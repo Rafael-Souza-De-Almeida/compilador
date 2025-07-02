@@ -94,6 +94,11 @@ string getTipo(string);
 string realizar_contagem(string, string);
 void verifica_operacao_string(string, string, string);
 string nova_label(string, string);
+string gerar_traducao_soma_var(
+    string, string , string ,
+    string , string , string , string
+);
+
 
 %}
 
@@ -179,13 +184,6 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
 
                 }
 
-                 for(auto iterador : temporarias) {
-                    if(iterador.second == "string" && iterador.second.length() > 1) {
-                        codigo += "\tfree(" + iterador.first + ")" + ";\n";
-                        
-                    }
-
-                 }
 
                   for(auto iterador : simbolos_declarados) {
 
@@ -390,20 +388,22 @@ COMANDO     : E ';'
 
                     $$.traducao = ""; 
                     $$.traducao += $4.traducao + $6.traducao;
-                    $$.traducao += "\t" + nome_variavel + " = " + $4.label + ";\n";
+                    $$.traducao += "\t" + nome_variavel + " = " + "(Var *) malloc(sizeof(Var));\n";
+                    $$.traducao += "\t" + nome_variavel + "->tipo" + " = 1;\n";
+                    $$.traducao += "\t" + nome_variavel + "->i" + " = " + $4.label + ";\n";
                     $$.traducao += label_inicio + ":\n";
 
                     string pre_condicao = gentempcode("boolean");
                     string condicao = gentempcode("boolean");
 
                     $$.traducao += "\t" + pre_condicao + " = " + $6.label + " - 1;\n"; 
-                    $$.traducao += "\t" + condicao + " = " + nome_variavel + " > " + pre_condicao + ";\n"; 
+                    $$.traducao += "\t" + condicao + " = " + nome_variavel + "->i" + " > " + pre_condicao + ";\n"; 
                     $$.traducao += "\tif (" + condicao + ") goto " + label_fim + ";\n";
 
                     $$.traducao += $7.traducao;  
 
                     $$.traducao += label_incremento + ":\n";
-                    $$.traducao += "\t" + nome_variavel + " = " + nome_variavel + " + 1;\n";
+                    $$.traducao += "\t" + nome_variavel + "->i" + " = " + nome_variavel + "->i" + " + 1;\n";
                     $$.traducao += "\tgoto " + label_inicio + ";\n";
 
                     $$.traducao += label_fim + ":\n";
@@ -651,97 +651,7 @@ E           : E '+' E
                 
                 if($1.tipo == "Var" || $3.tipo == "Var") {
 
-                if($1.tipo == "Var" && $3.tipo != "Var") {
-                    
-    
-                    int label_tipo_int = label_tipo++;
-                    int label_tipo_float = label_tipo++;
-                    int label_tipo_default = label_tipo++;
-                    int fim_tipo = label_tipo++;
-
-                    string tipo_var_direita = gentempcode("Var");
-                    int tipo_var = tipo_var_dinamica($3.tipo);
-
-                    $$.traducao =  $1.traducao +$3.traducao;
-                    $$.traducao +=  "\t" + tipo_var_direita + " = (Var *) malloc(sizeof(Var));\n";
-                    $$.traducao +=  "\t" + tipo_var_direita + "->tipo = " + to_string(tipo_var) + ";\n";
-                    
-
-                    switch (tipo_var) {
-                        case 1:
-                            $$.traducao += "\t" + tipo_var_direita + "->i = " + $3.label + ";\n";
-                            break;
-                        case 2:
-                            $$.traducao += "\t" + tipo_var_direita + "->f = " + $3.label + ";\n";
-                            break;
-                        case 3:
-                            $$.traducao += "\t" + tipo_var_direita + "->b = " + $3.label + ";\n";
-                            break;
-                        case 4:
-                            $$.traducao += "\t" + tipo_var_direita + "->c = " + $3.label + ";\n";
-                            break;
-                        case 5:
-                            $$.traducao += "\t" + tipo_var_direita + "->s = " + $3.label + ";\n";
-                            break;
-                    }
-                    
-                        // INT + INT
-                        string cmp_int_1 = gentempcode("boolean");
-                        string cmp_int_2 = gentempcode("boolean");
-                        string both_int = gentempcode("boolean");
-                        string temp1_int = gentempcode("int");
-                        string temp2_int = gentempcode("int");
-
-                        // FLOAT + FLOAT
-                        string temp1_float = gentempcode("float");
-                        string temp2_float = gentempcode("float");
-
-                        // FLOAT + INT
-                        string temp1_float_int = gentempcode("float");
-                        string temp2_float_int = gentempcode("float");
-
-                        // INT + FLOAT
-                        string temp1_int_float = gentempcode("float");
-                        string temp2_int_float = gentempcode("float");
-
-                        $$.traducao += "\t" + cmp_int_1 + " = " + $1.label + "->tipo == 1;\n";
-                        $$.traducao += "\t" + cmp_int_2 + " = " + tipo_var_direita + "->tipo == 1;\n";
-                        $$.traducao += "\t" + both_int + " = 0;\n";
-                        $$.traducao += "\tif (" + cmp_int_1 + ") if (" + cmp_int_2 + ") " + both_int + " = 1;\n";
-                        $$.traducao += "\tif (" + both_int + ") goto operacao_int_" + to_string(label_tipo_int) + ";\n";
-
-                        // FLOAT + FLOAT
-                        string cmp_float_1 = gentempcode("boolean");
-                        string cmp_float_2 = gentempcode("boolean");
-                        string both_float = gentempcode("boolean");
-
-                        $$.traducao += "\t" + cmp_float_1 + " = " + $1.label + "->tipo == 2;\n";
-                        $$.traducao += "\t" + cmp_float_2 + " = " + tipo_var_direita + "->tipo == 2;\n";
-                        $$.traducao += "\t" + both_float + " = 0;\n";
-                        $$.traducao += "\tif (" + cmp_float_1 + ") if (" + cmp_float_2 + ") " + both_float + " = 1;\n";
-                        $$.traducao += "\tif (" + both_float + ") goto operacao_float_float_" + to_string(label_tipo_float) + ";\n";
-
-                        // INT + FLOAT
-                        string cmp_int_float_1 = gentempcode("boolean");
-                        string cmp_int_float_2 = gentempcode("boolean");
-                        string int_float = gentempcode("boolean");
-
-                        $$.traducao += "\t" + cmp_int_float_1 + " = " + $1.label + "->tipo == 1;\n";
-                        $$.traducao += "\t" + cmp_int_float_2 + " = " + tipo_var_direita + "->tipo == 2;\n";
-                        $$.traducao += "\t" + int_float + " = 0;\n";
-                        $$.traducao += "\tif (" + cmp_int_float_1 + ") if (" + cmp_int_float_2 + ") " + int_float + " = 1;\n";
-                        $$.traducao += "\tif (" + int_float + ") goto operacao_int_float_" + to_string(label_tipo_float) + ";\n";
-
-                        // FLOAT + INT
-                        string cmp_float_int_1 = gentempcode("boolean");
-                        string cmp_float_int_2 = gentempcode("boolean");
-                        string float_int = gentempcode("boolean");
-
-                        $$.traducao += "\t" + cmp_float_int_1 + " = " + $1.label + "->tipo == 2;\n";
-                        $$.traducao += "\t" + cmp_float_int_2 + " = " + tipo_var_direita + "->tipo == 1;\n";
-                        $$.traducao += "\t" + float_int + " = 0;\n";
-                        $$.traducao += "\tif (" + cmp_float_int_1 + ") if (" + cmp_float_int_2 + ") " + float_int + " = 1;\n";
-                        $$.traducao += "\tif (" + float_int + ") goto operacao_float_int_" + to_string(label_tipo_float) + ";\n";
+                    if($1.tipo == "Var" && $3.tipo != "Var") {
 
                         // // CHAR + CHAR → string
                         // string cmp_char_1 = gentempcode("boolean");
@@ -777,46 +687,12 @@ E           : E '+' E
                         // $$.traducao += "\tif (" + str_char + ") goto operacao_string_" + to_string(label_tipo_string) + ";\n";
 
                         // DEFAULT (erro de tipo)
-                        $$.traducao += "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n";
+                        // $$.traducao += "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n";
 
-                    $$.traducao += 
-                    "operacao_int_" + to_string(label_tipo_int) + ":\n" +
-                    "\t" + $1.label + "->tipo = 1;\n" +
-                    "\t" + temp1_int + " = " + $1.label + "->i" + ";\n" +
-                    "\t" + temp2_int + " = " + tipo_var_direita + "->i" + ";\n" +
-                    "\t" + $1.label + "-> i" + " = " + temp1_int + " + " + temp2_int + ";\n" +
-                    "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                   "operacao_float_float_" + to_string(label_tipo_float) + ":\n" +
-                    "\t" + $1.label + "->tipo = 2;\n" +
-                    "\t" + temp1_float + " = " + $1.label + "->f;\n" +
-                    "\t" + temp2_float + " = " + tipo_var_direita + "->f;\n" +
-                    "\t" + $1.label + "->f = " + temp1_float + " + " + temp2_float + ";\n" +
-                    "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
-
-                    "operacao_float_int_" + to_string(label_tipo_float) + ":\n" +
-                    "\t" + $1.label + "->tipo = 2;\n" +
-                    "\t" + temp1_float_int + " = " + $1.label + "->f;\n" +
-                    "\t" + temp2_float_int + " = (float)" + tipo_var_direita + "->i;\n" +
-                    "\t" + $1.label + "->f = " + temp1_float_int + " + " + temp2_float_int + ";\n" +
-                    "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
-
-
-                   "operacao_int_float_" + to_string(label_tipo_float) + ":\n" +
-                    "\t" + $1.label + "->tipo = 2;\n" +
-                    "\t" + temp1_int_float + " = (float)" + $1.label + "->i;\n" +
-                    "\t" + temp2_int_float + " = " + tipo_var_direita + "->f;\n" +
-                    "\t" + $1.label + "->f = " + temp1_int_float + " + " + temp2_int_float + ";\n" +
-                    "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
-
-                   
-
-                   "tipo_default_" + to_string(label_tipo_default) + ":\n" +
-                    "\tprintf(\"Erro: Tipos incompatíveis na soma\\n\");\n" +
-                    "\texit(1);\n\n"
-
-    
-                    "fim_tipo_" + to_string(fim_tipo) + ":\n";
+                  
+                    $$.traducao = gerar_traducao_soma_var($1.label, $1.tipo, $1.traducao, $3.label, $3.tipo, $3.traducao, "esquerda");
+                    $$.label = $1.label;
+                    $$.tipo = "Var";
     
                     // $$.label = gentempcode("Var");
                     // auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, "float");
@@ -825,125 +701,23 @@ E           : E '+' E
 
                 }
     
-                 if($3.tipo == "Var" && $1.tipo != "Var") {
-                        string pega_tipo = gentempcode("int");
-                        string compara_tipo_int = gentempcode("int");
-                        string compara_tipo_float = gentempcode("float");
-                       
-                        string t_extra = gentempcode("float");
-                        
-    
-                        int label_tipo_int = label_tipo++;
-                        int label_tipo_float = label_tipo++;
-                        
-                        int label_tipo_default = label_tipo++;
-                        int fim_tipo = label_tipo++;
+               if($3.tipo == "Var" && $1.tipo != "Var") {
 
-                        
-                        $$.traducao = $1.traducao + $3.traducao;
-                        $$.traducao += 
-                        "\t" + pega_tipo + " = " + $3.label + "->tipo;\n" +
-                        "\t" + compara_tipo_int + " = " + pega_tipo + " == 1;\n" +
-                        "\tif (" + compara_tipo_int + ") goto tipo_int_" + to_string(label_tipo_int) + ";\n" +
-                        "\t" + compara_tipo_float + " = " + pega_tipo + " == 2;\n" +
-                        "\tif (" + compara_tipo_float + ") goto tipo_float_" + to_string(label_tipo_float) + ";\n" +
-                        "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n\n" +
-    
-                        "tipo_int_" + to_string(label_tipo_int) + ":\n" +
-                        "\t" + t_extra  + " = (float)" +  $3.label + "->i;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "tipo_float_" + to_string(label_tipo_float) + ":\n" +
-                        "\t" + t_extra  + " = " +  $3.label + "->f;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
-                        "\t" + t_extra + " = 0.0;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "fim_tipo_" + to_string(fim_tipo) + ":\n";
-    
-                        $$.label = gentempcode("float");
-                        auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, "float");
-                        $$.tipo = "float";
-                        $$.traducao += "\t" + $$.label + " = " + $1.label + " + " + t_extra + ";\n";
+
+                    $$.traducao = gerar_traducao_soma_var($1.label, $1.tipo, $1.traducao, $3.label, $3.tipo, $3.traducao, "direita");
+                    $$.label = $3.label;
+                    $$.tipo = "Var";
+
+
+
     
                  } else if ($1.tipo == "Var" && $3.tipo == "Var") {
-                    // Gera labels e temporários para o primeiro operando
-                    int label_tipo_int_1 = label_tipo++;
-                    int label_tipo_float_1 = label_tipo++;
-                    int label_tipo_default_1 = label_tipo++;
-                    int fim_tipo_1 = label_tipo++;
 
-                    string pega_tipo_1 = gentempcode("int");
-                    string compara_tipo_int_1 = gentempcode("int");
-                    string compara_tipo_float_1 = gentempcode("float");
-                    string t_extra_1 = gentempcode("float");
-
-                    // Gera labels e temporários para o segundo operando
-                    int label_tipo_int_2 = label_tipo++;
-                    int label_tipo_float_2 = label_tipo++;
-                    int label_tipo_default_2 = label_tipo++;
-                    int fim_tipo_2 = label_tipo++;
-
-                    string pega_tipo_2 = gentempcode("int");
-                    string compara_tipo_int_2 = gentempcode("int");
-                    string compara_tipo_float_2 = gentempcode("float");
-                    string t_extra_2 = gentempcode("float");
-
-                    // Tradução do primeiro operando
-                    $$.traducao = $1.traducao;
-                    $$.traducao +=
-                        "\t" + pega_tipo_1 + " = " + $1.label + "->tipo;\n" +
-                        "\t" + compara_tipo_int_1 + " = " + pega_tipo_1 + " == 1;\n" +
-                        "\tif (" + compara_tipo_int_1 + ") goto tipo_int_" + to_string(label_tipo_int_1) + ";\n" +
-                        "\t" + compara_tipo_float_1 + " = " + pega_tipo_1 + " == 2;\n" +
-                        "\tif (" + compara_tipo_float_1 + ") goto tipo_float_" + to_string(label_tipo_float_1) + ";\n" +
-                        "\tgoto tipo_default_" + to_string(label_tipo_default_1) + ";\n\n" +
-
-                        "tipo_int_" + to_string(label_tipo_int_1) + ":\n" +
-                        "\t" + t_extra_1 + " = (float)" + $1.label + "->i;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_1) + ";\n\n" +
-
-                        "tipo_float_" + to_string(label_tipo_float_1) + ":\n" +
-                        "\t" + t_extra_1 + " = " + $1.label + "->f;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_1) + ";\n\n" +
-
-                        "tipo_default_" + to_string(label_tipo_default_1) + ":\n" +
-                        "\t" + t_extra_1 + " = 0.0;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_1) + ";\n\n" +
-
-                        "fim_tipo_" + to_string(fim_tipo_1) + ":\n";
-
-                    // Tradução do segundo operando
-                    $$.traducao += $3.traducao;
-                    $$.traducao +=
-                        "\t" + pega_tipo_2 + " = " + $3.label + "->tipo;\n" +
-                        "\t" + compara_tipo_int_2 + " = " + pega_tipo_2 + " == 1;\n" +
-                        "\tif (" + compara_tipo_int_2 + ") goto tipo_int_" + to_string(label_tipo_int_2) + ";\n" +
-                        "\t" + compara_tipo_float_2 + " = " + pega_tipo_2 + " == 2;\n" +
-                        "\tif (" + compara_tipo_float_2 + ") goto tipo_float_" + to_string(label_tipo_float_2) + ";\n" +
-                        "\tgoto tipo_default_" + to_string(label_tipo_default_2) + ";\n\n" +
-
-                        "tipo_int_" + to_string(label_tipo_int_2) + ":\n" +
-                        "\t" + t_extra_2 + " = (float)" + $3.label + "->i;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_2) + ";\n\n" +
-
-                        "tipo_float_" + to_string(label_tipo_float_2) + ":\n" +
-                        "\t" + t_extra_2 + " = " + $3.label + "->f;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_2) + ";\n\n" +
-
-                        "tipo_default_" + to_string(label_tipo_default_2) + ":\n" +
-                        "\t" + t_extra_2 + " = 0.0;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo_2) + ";\n\n" +
-
-                        "fim_tipo_" + to_string(fim_tipo_2) + ":\n";
-
-                    // Soma dos dois valores
-                    $$.label = gentempcode("float");
-                    $$.tipo = "float";
-                    $$.traducao += "\t" + $$.label + " = " + t_extra_1 + " + " + t_extra_2 + ";\n";
+                    $$.traducao = gerar_traducao_soma_var($1.label, $1.tipo, $1.traducao, $3.label, $3.tipo, $3.traducao, "ambos");
+                    $$.label = $1.label;
+                    $$.tipo = "Var";
                 }
+
 
                  } else {
 
@@ -1125,11 +899,103 @@ E           : E '+' E
             }
             |   E EQUAL E 
             {   
+
                 string tipo = resolve_tipo($1.tipo, $3.tipo);
-                auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
-                $$.label = gentempcode(tipo);
+                $$.label = gentempcode("boolean");
                 $$.tipo = "boolean";
-                $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
+
+                string t1 = $1.label;
+                string t2 = $3.label;
+                string coercoes;
+
+                string bloco1 = "", bloco2 = "";
+
+                
+                if ($1.tipo == "Var") {
+                    string t_extra1 = gentempcode("float");
+                    string pega_tipo = gentempcode("int");
+                    string compara_tipo_int = gentempcode("int");
+                    string compara_tipo_float = gentempcode("float");
+                    string compara_tipo_bool = gentempcode("bool");
+
+                    int label_tipo_int = label_tipo++;
+                    int label_tipo_float = label_tipo++;
+                    int label_tipo_boolean = label_tipo++;
+                    int label_tipo_default = label_tipo++;
+                    int fim_tipo = label_tipo++;
+
+                    bloco1 += 
+                        "\t" + pega_tipo + " = " + $1.label + "->tipo;\n" +
+                        "\t" + compara_tipo_int + " = " + pega_tipo + " == 1;\n" +
+                        "\tif (" + compara_tipo_int + ") goto tipo_int_" + to_string(label_tipo_int) + ";\n" +
+                        "\t" + compara_tipo_float + " = " + pega_tipo + " == 2;\n" +
+                        "\tif (" + compara_tipo_float + ") goto tipo_float_" + to_string(label_tipo_float) + ";\n" +
+                        "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n\n" +
+
+                        "tipo_int_" + to_string(label_tipo_int) + ":\n" +
+                        "\t" + t_extra1  + " = (float)" +  $1.label + "->i;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "tipo_float_" + to_string(label_tipo_float) + ":\n" +
+                        "\t" + t_extra1  + " = " +  $1.label + "->f;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
+                        "\t" + t_extra1 + " = 0.0;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "fim_tipo_" + to_string(fim_tipo) + ":\n";
+
+                    t1 = t_extra1;
+                }
+
+                
+                if ($3.tipo == "Var") {
+                    string t_extra2 = gentempcode("float");
+                    string pega_tipo = gentempcode("int");
+                    string compara_tipo_int = gentempcode("int");
+                    string compara_tipo_float = gentempcode("float");
+                    string compara_tipo_bool = gentempcode("bool");
+
+                    int label_tipo_int = label_tipo++;
+                    int label_tipo_float = label_tipo++;
+                    int label_tipo_boolean = label_tipo++;
+                    int label_tipo_default = label_tipo++;
+                    int fim_tipo = label_tipo++;
+
+                    bloco2 += 
+                        "\t" + pega_tipo + " = " + $3.label + "->tipo;\n" +
+                        "\t" + compara_tipo_int + " = " + pega_tipo + " == 1;\n" +
+                        "\tif (" + compara_tipo_int + ") goto tipo_int_" + to_string(label_tipo_int) + ";\n" +
+                        "\t" + compara_tipo_float + " = " + pega_tipo + " == 2;\n" +
+                        "\tif (" + compara_tipo_float + ") goto tipo_float_" + to_string(label_tipo_float) + ";\n" +
+                        "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n\n" +
+
+                        "tipo_int_" + to_string(label_tipo_int) + ":\n" +
+                        "\t" + t_extra2  + " = (float)" +  $3.label + "->i;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "tipo_float_" + to_string(label_tipo_float) + ":\n" +
+                        "\t" + t_extra2  + " = " +  $3.label + "->f;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
+                        "\t" + t_extra2 + " = 0.0;\n" +
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+                        "fim_tipo_" + to_string(fim_tipo) + ":\n";
+
+                    t2 = t_extra2;
+                }
+
+                // Se nenhum for Var, faz coerção normalmente
+                if ($1.tipo != "Var" && $3.tipo != "Var") {
+                    tie(coercoes, t1, t2) = resolve_coercao($1.label, $3.label, tipo);
+                }
+
+                $$.traducao = $1.traducao + $3.traducao + bloco1 + bloco2 + coercoes;
+                $$.traducao += "\t" + $$.label + " = " + t1 + " == " + t2 + ";\n";
+
                 if ($1.var_original != "") $$.var_original = $1.var_original;
                 else if ($3.var_original != "") $$.var_original = $3.var_original;
             }
@@ -1170,7 +1036,6 @@ E           : E '+' E
 
             |  TK_ID '=' E
             {
-
                 string nome_variavel = "";
 
                 if(!esta_no_while && !esta_no_for && !esta_no_do_while) {
@@ -1181,6 +1046,7 @@ E           : E '+' E
                             string formata_variavel_escopo = $1.label + "_global";
                             variavel_escopo[formata_variavel_escopo] = nome_variavel;
                             mudou_tipo[nome_variavel] = false;
+                            cout <<"pega variavel interna fora do esta_no while" + nome_variavel << endl;
                     }
                     
                 } else {
@@ -1191,21 +1057,31 @@ E           : E '+' E
                     } 
                         string formata_variavel_escopo = $1.label + "_local";
                         variavel_escopo[formata_variavel_escopo] = nome_variavel;
+                        cout <<"pega variavel interna no do_no while" + nome_variavel << endl;
                 }
                 
                 if($3.tipo == "string") {
                     
                     if(realocar_var_interna.count(nome_variavel)){
-                         $$.traducao = "\tfree(" + nome_variavel + ");\n";
-                    }
-                    
-                    realocar_var_interna[nome_variavel] = true;
+                        $$.traducao += "\tfree(" + nome_variavel + ");\n";
                     $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = (Var *) malloc(sizeof(Var));\n";
                     $$.traducao += "\t" + nome_variavel + "->tipo = 5;\n"; 
                     $$.traducao += "\t" + nome_variavel + "->s = (char *) malloc(" + tamanho_string[$3.label] + ");\n"; 
                     $$.traducao += "\tstrcpy(" + nome_variavel + "->s" + "," + $3.label + ");\n";
                     mudou_tipo[nome_variavel] = true;
                     edita_tipo_na_tabela($1.label, "string", $3.label);
+                    } else {
+
+                        realocar_var_interna[nome_variavel] = true;
+                        $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = (Var *) malloc(sizeof(Var));\n";
+                        $$.traducao += "\t" + nome_variavel + "->tipo = 5;\n"; 
+                        $$.traducao += "\t" + nome_variavel + "->s = (char *) malloc(" + tamanho_string[$3.label] + ");\n"; 
+                        $$.traducao += "\tstrcpy(" + nome_variavel + "->s" + "," + $3.label + ");\n";
+                        mudou_tipo[nome_variavel] = true;
+                        edita_tipo_na_tabela($1.label, "string", $3.label);
+                    }
+
+                                       
                     
                 } else {
                     if(esta_no_while || esta_no_for || esta_no_do_while) {
@@ -1213,7 +1089,7 @@ E           : E '+' E
                             $$.traducao = $1.traducao + $3.traducao + "\t" + variavel_escopo[$1.label + "_global"] + " = " + $3.label + ";\n";
                         }
                     }
-                        if (!mudou_tipo[nome_variavel]) {
+                    if (!mudou_tipo[nome_variavel]) {
                         $$.traducao = $1.traducao + $3.traducao;
                         $$.traducao += "\t" + nome_variavel + " = (Var *) malloc(sizeof(Var));\n";
                         mudou_tipo[nome_variavel] = true;
@@ -1291,22 +1167,60 @@ E           : E '+' E
                     break;
                     }
 
-                        case 1:
-                            $$.traducao += "\t" + nome_variavel + "->i = " + $3.label + ";\n";
+                        case 1: {
+
+                        
+                        if($3.tipo == "Var") {
+
+                            $$.traducao += "\t" + nome_variavel + "->i = " + $3.label + "->i;\n";
                             edita_tipo_na_tabela($1.label, "int", $3.label);
-                            break;
-                        case 2:
-                            $$.traducao += "\t" + nome_variavel + "->f = " + $3.label + ";\n";
+                        
+                        } else {
+                             $$.traducao += "\t" + nome_variavel + "->i = " + $3.label + ";\n";
+                             edita_tipo_na_tabela($1.label, "int", $3.label);
+                        }
+                        break;
+                        }
+                        case 2 : {
+                             if($3.tipo == "Var") {
+
+                            $$.traducao += "\t" + nome_variavel + "->f = " + $3.label + "->f;\n";
                             edita_tipo_na_tabela($1.label, "float", $3.label);
-                            break;
-                        case 3:
-                            $$.traducao += "\t" + nome_variavel + "->b = " + $3.label + ";\n";
+                        
+                        } else {
+                             $$.traducao += "\t" + nome_variavel + "->f = " + $3.label + ";\n";
+                             edita_tipo_na_tabela($1.label, "float", $3.label);
+                        }
+                        break;
+                        }
+                        case 3: {
+
+                        
+                           if($3.tipo == "Var") {
+
+                            $$.traducao += "\t" + nome_variavel + "->b = " + $3.label + "->b;\n";
                             edita_tipo_na_tabela($1.label, "boolean", $3.label);
-                            break;
-                        case 4:
-                            $$.traducao += "\t" + nome_variavel + "->c = " + $3.label + ";\n";
+                        
+                        } else {
+                             $$.traducao += "\t" + nome_variavel + "->b = " + $3.label + ";\n";
+                             edita_tipo_na_tabela($1.label, "boolean", $3.label);
+                        }
+                        break;
+                        }
+                        case 4: {
+
+                        
+                           if($3.tipo == "Var") {
+
+                            $$.traducao += "\t" + nome_variavel + "->c = " + $3.label + "->c;\n";
                             edita_tipo_na_tabela($1.label, "char", $3.label);
-                            break;
+                        
+                        } else {
+                             $$.traducao += "\t" + nome_variavel + "->c = " + $3.label + ";\n";
+                             edita_tipo_na_tabela($1.label, "char", $3.label);
+                        }
+                        break;
+                        }
                     }
 
                 }
@@ -1374,93 +1288,127 @@ E           : E '+' E
                     $$.traducao += "\t" + $$.label + " = (Var *) malloc(sizeof(Var));\n";
             
 
-                if(tipo == "string") {
-                        $$.traducao = realizar_contagem(nome_interno, $$.label);
-                        $$.traducao += "\t" + $$.label + "->s = " + "(char *) malloc(" + tamanho_string[$$.label] + ");\n";
-                        $$.traducao += "\tstrcpy(" + $$.label + "->s, " + nome_interno + ");\n";
-                } else {
+            
 
-                    if(esta_no_while) {
+                if(esta_no_while || esta_no_for) {
                         
                         
-                        string pega_tipo = gentempcode("int");
-                        string compara_tipo_int = gentempcode("int");
-                        string compara_tipo_float = gentempcode("float");
-                        string compara_tipo_bool = gentempcode("bool");
-                        
-    
-                        int label_tipo_int = label_tipo++;
-                        int label_tipo_float = label_tipo++;
-                        int label_tipo_boolean = label_tipo++;
-                        int label_tipo_default = label_tipo++;
-                        int fim_tipo = label_tipo++;
-                       
-                      
-                                           
-                       $$.traducao += 
-                        "\t" + pega_tipo + " = " + nome_interno + "->tipo;\n" +
-                        "\t" + compara_tipo_int + " = " + pega_tipo + " == 1;\n" +
-                        "\tif (" + compara_tipo_int + ") goto tipo_int_" + to_string(label_tipo_int) + ";\n" +
-                        "\t" + compara_tipo_float + " = " + pega_tipo + " == 2;\n" +
-                        "\tif (" + compara_tipo_float + ") goto tipo_float_" + to_string(label_tipo_float) + ";\n" +
-                        "\t" + compara_tipo_bool + " = " + pega_tipo + " == 3;\n" +
-                        "\tif (" + compara_tipo_bool + ") goto tipo_bool_" + to_string(label_tipo_boolean) + ";\n" +
-                        "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n\n" +
-    
-                        "tipo_int_" + to_string(label_tipo_int) + ":\n" +
-                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n" +
-                        "\t" + $$.label + "->i = " + nome_interno + "->i;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "tipo_float_" + to_string(label_tipo_float) + ":\n" +
-                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n" +
-                        "\t" + $$.label + "->f = " + nome_interno + "->f;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "tipo_bool_" + to_string(label_tipo_boolean) + ":\n" +
-                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n" + 
-                        "\t" + $$.label + "->b = " + nome_interno + "->b;\n" + 
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
-                        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
-                        "\t" + $$.label + "->f = 0.0;\n" +
-                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
-    
+                    string pega_tipo          = gentempcode("int");
+                    string compara_tipo_int   = gentempcode("bool");
+                    string compara_tipo_float = gentempcode("bool");
+                    string compara_tipo_bool  = gentempcode("bool");
+                    string compara_tipo_char  = gentempcode("bool");   // novo
+                    string compara_tipo_str   = gentempcode("bool");   // novo
+
+                    /* rótulos */
+                    int label_tipo_int     = label_tipo++;
+                    int label_tipo_float   = label_tipo++;
+                    int label_tipo_boolean = label_tipo++;
+                    int label_tipo_char    = label_tipo++;   // novo
+                    int label_tipo_string  = label_tipo++;   // novo
+                    int label_tipo_default = label_tipo++;
+                    int fim_tipo           = label_tipo++;
+
+                    /* seleção de tipo */
+                    $$.traducao +=
+                        "\t" + pega_tipo + " = " + nome_interno + "->tipo;\n"
+                        "\t" + compara_tipo_int   + " = " + pega_tipo + " == 1;\n"
+                        "\tif (" + compara_tipo_int   + ") goto tipo_int_"   + to_string(label_tipo_int)     + ";\n"
+                        "\t" + compara_tipo_float + " = " + pega_tipo + " == 2;\n"
+                        "\tif (" + compara_tipo_float + ") goto tipo_float_" + to_string(label_tipo_float)   + ";\n"
+                        "\t" + compara_tipo_bool  + " = " + pega_tipo + " == 3;\n"
+                        "\tif (" + compara_tipo_bool  + ") goto tipo_bool_"  + to_string(label_tipo_boolean) + ";\n"
+                        "\t" + compara_tipo_char  + " = " + pega_tipo + " == 4;\n"            // novo
+                        "\tif (" + compara_tipo_char  + ") goto tipo_char_"  + to_string(label_tipo_char)    + ";\n"
+                        "\t" + compara_tipo_str   + " = " + pega_tipo + " == 5;\n"            // novo
+                        "\tif (" + compara_tipo_str   + ") goto tipo_str_"   + to_string(label_tipo_string)  + ";\n"
+                        "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n\n"
+
+                        /* int */
+                        "tipo_int_" + to_string(label_tipo_int) + ":\n"
+                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n"
+                        "\t" + $$.label + "->i    = " + nome_interno + "->i;\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
+                        /* float */
+                        "tipo_float_" + to_string(label_tipo_float) + ":\n"
+                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n"
+                        "\t" + $$.label + "->f    = " + nome_interno + "->f;\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
+                        /* bool */
+                        "tipo_bool_" + to_string(label_tipo_boolean) + ":\n"
+                        "\t" + $$.label + "->tipo = " + nome_interno + "->tipo;\n"
+                        "\t" + $$.label + "->b    = " + nome_interno + "->b;\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
+                        /* char — NOVO */
+                        "tipo_char_" + to_string(label_tipo_char) + ":\n"
+                        "\t" + $$.label + "->tipo = 4;\n"
+                        "\t" + $$.label + "->c    = " + nome_interno + "->c;\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
+                        /* string — NOVO */
+                        "tipo_str_" + to_string(label_tipo_string) + ":\n"
+                        "\t" + $$.label + "->tipo = 5;\n";
+                        $$.traducao += realizar_contagem(nome_interno, $$.label);
+                        $$.traducao += 
+                        "\t" + $$.label + "->s = (char *) malloc(" + tamanho_string[$$.label] + ");\n"
+                        "\t" + "strcpy(" + $$.label + "->s" + " , " + nome_interno + "->s" + ");\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
+                        "tipo_default_" + to_string(label_tipo_default) + ":\n"
+                        "\t/* tratamento de tipo inesperado, se necessário */\n"
+                        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n"
+
                         "fim_tipo_" + to_string(fim_tipo) + ":\n";
 
                       
     
                     } else {
-    
+                  
+
+                    if (tipo == "string") {
+                        $$.traducao += realizar_contagem(nome_interno, $$.label);
+                        $$.traducao += "\t" + $$.label + "->tipo = 5;\n";
+                        $$.traducao += "\t" + $$.label + "->s = (char *) malloc(" + tamanho_string[$$.label] + ");\n";
+                        $$.traducao += "\tstrcpy(" + $$.label + "->s, " + nome_interno + "->s);\n";
+
+                    } else if (tipo == "char") {
+                        $$.traducao += "\t" + $$.label + "->tipo = 4;\n";
+                        $$.traducao += "\t" + $$.label + "->c = " + nome_interno + "->c;\n";
+
+                    } else {
                         int tipo_var = tipo_var_dinamica(tipo);
-        
+                        $$.traducao += "\t" + $$.label + "->tipo = " + to_string(tipo_var) + ";\n";
+
                         switch(tipo_var) {
                             case 1:
-                            $$.traducao = "\t" + $$.label + "->i = " + nome_interno + "->i;\n";
-                            break;
-        
+                                $$.traducao += "\t" + $$.label + "->i = " + nome_interno + "->i;\n";
+                                break;
                             case 2:
-                            $$.traducao = "\t" + $$.label + "->f = " + nome_interno + "->f;\n";
-                            break;
-        
+                                $$.traducao += "\t" + $$.label + "->f = " + nome_interno + "->f;\n";
+                                break;
                             case 3:
-                            $$.traducao = "\t" + $$.label + "->b = " + nome_interno + "->b;\n";
-                            break;
-        
+                                $$.traducao += "\t" + $$.label + "->b = " + nome_interno + "->b;\n";
+                                break;
                             case 4:
-                            $$.traducao = "\t" + $$.label + "c = " + nome_interno + "->c;\n";
-                            break;
-                            
+                                $$.traducao += "\t" + $$.label + "->c = " + nome_interno + "->b;\n";
+                                break;
+                            case 5:
+                                $$.traducao += "\t" + $$.label + "->s = " + nome_interno + "->b;\n";
+                                break;
                         }
-    
                     }
+                }
+
                     
                 }
 
 
 
                 
-            }
+        
             | '('TK_INT')' TK_ID
             {  
                 string tipo_atual = getTipo($4.label);
@@ -1671,6 +1619,14 @@ string pega_variavel_na_tabela(string nome_variavel, string tipo) {
         }
     }
 
+     for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
+         for (const auto& par : *it) {
+            if (par.second.nome_interno == nome_variavel) {
+                return par.second.nome_interno;
+            }
+         }
+    }
+
    for (auto& escopo : escopos_passados) {
         if (escopo.count(variavel_formatada)) {
             if(variavel_escopo.count(nome_variavel + "_global")) {
@@ -1712,10 +1668,15 @@ string realizar_contagem(string palavra, string temp) {
 
    static int count = 0;
    string id = to_string(count++);
+   string var_string = "";
+   string variavel_interna = pega_variavel_na_tabela(palavra, "Var");
 
+    if(variavel_interna != "") {
+         var_string = variavel_interna + "->s";
+    } else {
+         var_string = palavra;
+    }
 
-
-    string var_string = palavra;
     string var_i = gentempcode("int");
     string var_tam = gentempcode("int");
     string temp_if = gentempcode("int");
@@ -1782,4 +1743,404 @@ int main(int argc, char* argv[]) {
     linha = 1;
     yyparse();
     return 0;
+}
+
+string gerar_traducao_soma_var(
+    string label_esquerda, string tipo_esquerda, string traducao_esquerda,
+    string label_direita, string tipo_direita, string traducao_direita, string var
+) {
+
+    if(var == "esquerda") {
+
+    string traducao = traducao_esquerda + traducao_direita;
+
+    string var_direita = gentempcode("Var");
+    int tipo_var = tipo_var_dinamica(tipo_direita);
+
+    traducao += "\t" + var_direita + " = (Var *) malloc(sizeof(Var));\n";
+    traducao += "\t" + var_direita + "->tipo = " + to_string(tipo_var) + ";\n";
+
+    switch (tipo_var) {
+        case 1: traducao += "\t" + var_direita + "->i = " + label_direita + ";\n"; break;
+        case 2: traducao += "\t" + var_direita + "->f = " + label_direita + ";\n"; break;
+        case 3: traducao += "\t" + var_direita + "->b = " + label_direita + ";\n"; break;
+        case 4: traducao += "\t" + var_direita + "->c = " + label_direita + ";\n"; break;
+        case 5: traducao += "\t" + var_direita + "->s = " + label_direita + ";\n"; break;
+    }
+
+    // Geração de labels
+    int label_tipo_int = label_tipo++;
+    int label_tipo_float = label_tipo++;
+    int label_tipo_default = label_tipo++;
+    int fim_tipo = label_tipo++;
+
+    // Comparações INT + INT
+    string cmp_int_1 = gentempcode("boolean");
+    string cmp_int_2 = gentempcode("boolean");
+    string both_int = gentempcode("boolean");
+    string temp1_int = gentempcode("int");
+    string temp2_int = gentempcode("int");
+
+    traducao += "\t" + cmp_int_1 + " = " + label_esquerda + "->tipo == 1;\n";
+    traducao += "\t" + cmp_int_2 + " = " + var_direita + "->tipo == 1;\n";
+    traducao += "\t" + both_int + " = 0;\n";
+    traducao += "\tif (" + cmp_int_1 + ") if (" + cmp_int_2 + ") " + both_int + " = 1;\n";
+    traducao += "\tif (" + both_int + ") goto operacao_int_" + to_string(label_tipo_int) + ";\n";
+
+    // FLOAT + FLOAT
+    string cmp_float_1 = gentempcode("boolean");
+    string cmp_float_2 = gentempcode("boolean");
+    string both_float = gentempcode("boolean");
+    string temp1_float = gentempcode("float");
+    string temp2_float = gentempcode("float");
+
+    traducao += "\t" + cmp_float_1 + " = " + label_esquerda + "->tipo == 2;\n";
+    traducao += "\t" + cmp_float_2 + " = " + var_direita + "->tipo == 2;\n";
+    traducao += "\t" + both_float + " = 0;\n";
+    traducao += "\tif (" + cmp_float_1 + ") if (" + cmp_float_2 + ") " + both_float + " = 1;\n";
+    traducao += "\tif (" + both_float + ") goto operacao_float_float_" + to_string(label_tipo_float) + ";\n";
+
+    // INT + FLOAT
+    string cmp_int_float_1 = gentempcode("boolean");
+    string cmp_int_float_2 = gentempcode("boolean");
+    string int_float = gentempcode("boolean");
+    string temp1_int_float = gentempcode("float");
+    string temp2_int_float = gentempcode("float");
+
+    traducao += "\t" + cmp_int_float_1 + " = " + label_esquerda + "->tipo == 1;\n";
+    traducao += "\t" + cmp_int_float_2 + " = " + var_direita + "->tipo == 2;\n";
+    traducao += "\t" + int_float + " = 0;\n";
+    traducao += "\tif (" + cmp_int_float_1 + ") if (" + cmp_int_float_2 + ") " + int_float + " = 1;\n";
+    traducao += "\tif (" + int_float + ") goto operacao_int_float_" + to_string(label_tipo_float) + ";\n";
+
+    // FLOAT + INT
+    string cmp_float_int_1 = gentempcode("boolean");
+    string cmp_float_int_2 = gentempcode("boolean");
+    string float_int = gentempcode("boolean");
+    string temp1_float_int = gentempcode("float");
+    string temp2_float_int = gentempcode("float");
+
+    traducao += "\t" + cmp_float_int_1 + " = " + label_esquerda + "->tipo == 2;\n";
+    traducao += "\t" + cmp_float_int_2 + " = " + var_direita + "->tipo == 1;\n";
+    traducao += "\t" + float_int + " = 0;\n";
+    traducao += "\tif (" + cmp_float_int_1 + ") if (" + cmp_float_int_2 + ") " + float_int + " = 1;\n";
+    traducao += "\tif (" + float_int + ") goto operacao_float_int_" + to_string(label_tipo_float) + ";\n";
+
+    // DEFAULT
+    traducao += "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n";
+
+    // Labels finais
+    traducao += 
+        "operacao_int_" + to_string(label_tipo_int) + ":\n" +
+        "\t" + label_esquerda + "->tipo = 1;\n" +
+        "\t" + temp1_int + " = " + label_esquerda + "->i;\n" +
+        "\t" + temp2_int + " = " + var_direita + "->i;\n" +
+        "\t" + label_esquerda + "->i = " + temp1_int + " + " + temp2_int + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_float_float_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_esquerda + "->tipo = 2;\n" +
+        "\t" + temp1_float + " = " + label_esquerda + "->f;\n" +
+        "\t" + temp2_float + " = " + var_direita + "->f;\n" +
+        "\t" + label_esquerda + "->f = " + temp1_float + " + " + temp2_float + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_int_float_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_esquerda + "->tipo = 2;\n" +
+        "\t" + temp1_int_float + " = (float)" + label_esquerda + "->i;\n" +
+        "\t" + temp2_int_float + " = " + var_direita + "->f;\n" +
+        "\t" + label_esquerda + "->f = " + temp1_int_float + " + " + temp2_int_float + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_float_int_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_esquerda + "->tipo = 2;\n" +
+        "\t" + temp1_float_int + " = " + label_esquerda + "->f;\n" +
+        "\t" + temp2_float_int + " = (float)" + var_direita + "->i;\n" +
+        "\t" + label_esquerda + "->f = " + temp1_float_int + " + " + temp2_float_int + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
+        "\tprintf(\"Erro: Tipos incompatíveis na soma\\n\");\n" +
+        "\texit(1);\n\n" +
+
+        "fim_tipo_" + to_string(fim_tipo) + ":\n";
+
+    return traducao;
+
+    } else if(var == "direita") {
+
+        string traducao = traducao_esquerda + traducao_direita;
+
+    string var_esquerda = gentempcode("Var");
+    int tipo_var = tipo_var_dinamica(tipo_esquerda);
+
+    traducao += "\t" + var_esquerda + " = (Var *) malloc(sizeof(Var));\n";
+    traducao += "\t" + var_esquerda + "->tipo = " + to_string(tipo_var) + ";\n";
+
+    switch (tipo_var) {
+        case 1: traducao += "\t" + var_esquerda + "->i = " + label_esquerda + ";\n"; break;
+        case 2: traducao += "\t" + var_esquerda + "->f = " + label_esquerda + ";\n"; break;
+        case 3: traducao += "\t" + var_esquerda + "->b = " + label_esquerda + ";\n"; break;
+        case 4: traducao += "\t" + var_esquerda + "->c = " + label_esquerda + ";\n"; break;
+        case 5: traducao += "\t" + var_esquerda + "->s = " + label_esquerda + ";\n"; break;
+    }
+
+    // Labels de controle
+    int label_tipo_int = label_tipo++;
+    int label_tipo_float = label_tipo++;
+    int label_tipo_default = label_tipo++;
+    int fim_tipo = label_tipo++;
+
+    // INT + INT
+    string cmp_int_1 = gentempcode("boolean");
+    string cmp_int_2 = gentempcode("boolean");
+    string both_int = gentempcode("boolean");
+    string temp1_int = gentempcode("int");
+    string temp2_int = gentempcode("int");
+
+    traducao += "\t" + cmp_int_1 + " = " + var_esquerda + "->tipo == 1;\n";
+    traducao += "\t" + cmp_int_2 + " = " + label_direita + "->tipo == 1;\n";
+    traducao += "\t" + both_int + " = 0;\n";
+    traducao += "\tif (" + cmp_int_1 + ") if (" + cmp_int_2 + ") " + both_int + " = 1;\n";
+    traducao += "\tif (" + both_int + ") goto operacao_int_" + to_string(label_tipo_int) + ";\n";
+
+    // FLOAT + FLOAT
+    string cmp_float_1 = gentempcode("boolean");
+    string cmp_float_2 = gentempcode("boolean");
+    string both_float = gentempcode("boolean");
+    string temp1_float = gentempcode("float");
+    string temp2_float = gentempcode("float");
+
+    traducao += "\t" + cmp_float_1 + " = " + var_esquerda + "->tipo == 2;\n";
+    traducao += "\t" + cmp_float_2 + " = " + label_direita + "->tipo == 2;\n";
+    traducao += "\t" + both_float + " = 0;\n";
+    traducao += "\tif (" + cmp_float_1 + ") if (" + cmp_float_2 + ") " + both_float + " = 1;\n";
+    traducao += "\tif (" + both_float + ") goto operacao_float_float_" + to_string(label_tipo_float) + ";\n";
+
+    // INT + FLOAT
+    string cmp_int_float_1 = gentempcode("boolean");
+    string cmp_int_float_2 = gentempcode("boolean");
+    string int_float = gentempcode("boolean");
+    string temp1_int_float = gentempcode("float");
+    string temp2_int_float = gentempcode("float");
+
+    traducao += "\t" + cmp_int_float_1 + " = " + var_esquerda + "->tipo == 1;\n";
+    traducao += "\t" + cmp_int_float_2 + " = " + label_direita + "->tipo == 2;\n";
+    traducao += "\t" + int_float + " = 0;\n";
+    traducao += "\tif (" + cmp_int_float_1 + ") if (" + cmp_int_float_2 + ") " + int_float + " = 1;\n";
+    traducao += "\tif (" + int_float + ") goto operacao_int_float_" + to_string(label_tipo_float) + ";\n";
+
+    // FLOAT + INT
+    string cmp_float_int_1 = gentempcode("boolean");
+    string cmp_float_int_2 = gentempcode("boolean");
+    string float_int = gentempcode("boolean");
+    string temp1_float_int = gentempcode("float");
+    string temp2_float_int = gentempcode("float");
+
+    traducao += "\t" + cmp_float_int_1 + " = " + var_esquerda + "->tipo == 2;\n";
+    traducao += "\t" + cmp_float_int_2 + " = " + label_direita + "->tipo == 1;\n";
+    traducao += "\t" + float_int + " = 0;\n";
+    traducao += "\tif (" + cmp_float_int_1 + ") if (" + cmp_float_int_2 + ") " + float_int + " = 1;\n";
+    traducao += "\tif (" + float_int + ") goto operacao_float_int_" + to_string(label_tipo_float) + ";\n";
+
+    // DEFAULT
+    traducao += "\tgoto tipo_default_" + to_string(label_tipo_default) + ";\n";
+
+    // Labels finais
+    traducao +=
+        "operacao_int_" + to_string(label_tipo_int) + ":\n" +
+        "\t" + label_direita + "->tipo = 1;\n" +
+        "\t" + temp1_int + " = " + var_esquerda + "->i;\n" +
+        "\t" + temp2_int + " = " + label_direita + "->i;\n" +
+        "\t" + label_direita + "->i = " + temp1_int + " + " + temp2_int + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_float_float_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_direita + "->tipo = 2;\n" +
+        "\t" + temp1_float + " = " + var_esquerda + "->f;\n" +
+        "\t" + temp2_float + " = " + label_direita + "->f;\n" +
+        "\t" + label_direita + "->f = " + temp1_float + " + " + temp2_float + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_int_float_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_direita + "->tipo = 2;\n" +
+        "\t" + temp1_int_float + " = (float)" + var_esquerda + "->i;\n" +
+        "\t" + temp2_int_float + " = " + label_direita + "->f;\n" +
+        "\t" + label_direita + "->f = " + temp1_int_float + " + " + temp2_int_float + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "operacao_float_int_" + to_string(label_tipo_float) + ":\n" +
+        "\t" + label_direita + "->tipo = 2;\n" +
+        "\t" + temp1_float_int + " = " + var_esquerda + "->f;\n" +
+        "\t" + temp2_float_int + " = (float)" + label_direita + "->i;\n" +
+        "\t" + label_direita + "->f = " + temp1_float_int + " + " + temp2_float_int + ";\n" +
+        "\tgoto fim_tipo_" + to_string(fim_tipo) + ";\n\n" +
+
+        "tipo_default_" + to_string(label_tipo_default) + ":\n" +
+        "\tprintf(\"Erro: Tipos incompatíveis na soma\\n\");\n" +
+        "\texit(1);\n\n" +
+
+        "fim_tipo_" + to_string(fim_tipo) + ":\n";
+
+    return traducao;
+
+    } else if(var == "ambos") {
+
+    string traducao = traducao_esquerda + traducao_direita;
+
+    // Labels para controle de fluxo
+    int label_int = label_tipo++;
+    int label_float = label_tipo++;
+    int label_int_float = label_tipo++;
+    int label_float_int = label_tipo++;
+    int label_string_string = label_tipo++;
+    int label_char_string = label_tipo++;
+    int label_string_char = label_tipo++;
+    int label_default = label_tipo++;
+    int label_fim = label_tipo++;
+
+    // Comparações dos tipos esquerda e direita
+    string cmp_esq_int = gentempcode("boolean");
+    string cmp_dir_int = gentempcode("boolean");
+    string cmp_esq_float = gentempcode("boolean");
+    string cmp_dir_float = gentempcode("boolean");
+    string cmp_esq_string = gentempcode("boolean");
+    string cmp_dir_string = gentempcode("boolean");
+    string cmp_esq_char = gentempcode("boolean");
+    string cmp_dir_char = gentempcode("boolean");
+
+    // Temporários para cálculo
+    string temp1_int = gentempcode("int");
+    string temp2_int = gentempcode("int");
+
+    string temp1_float = gentempcode("float");
+    string temp2_float = gentempcode("float");
+
+    string temp1_int_float = gentempcode("float");
+    string temp2_int_float = gentempcode("float");
+
+    string temp1_float_int = gentempcode("float");
+    string temp2_float_int = gentempcode("float");
+
+    string temp_result = gentempcode("string");   // para resultado string concatenado
+    string temp_size = gentempcode("int");        // para tamanho da string
+    string temp_char_str = gentempcode("string"); // para char convertido em string
+
+    // Checa tipos para INT + INT
+    traducao += "\t" + cmp_esq_int + " = " + label_esquerda + "->tipo == 1;\n";
+    traducao += "\t" + cmp_dir_int + " = " + label_direita + "->tipo == 1;\n";
+    traducao += "\tif (" + cmp_esq_int + ") if (" + cmp_dir_int + ") goto op_int_" + to_string(label_int) + ";\n";
+
+    // FLOAT + FLOAT
+    traducao += "\t" + cmp_esq_float + " = " + label_esquerda + "->tipo == 2;\n";
+    traducao += "\t" + cmp_dir_float + " = " + label_direita + "->tipo == 2;\n";
+    traducao += "\tif (" + cmp_esq_float + ") if (" + cmp_dir_float + ") goto op_float_float_" + to_string(label_float) + ";\n";
+
+    // INT + FLOAT
+    traducao += "\tif (" + cmp_esq_int + ") if (" + cmp_dir_float + ") goto op_int_float_" + to_string(label_int_float) + ";\n";
+
+    // FLOAT + INT
+    traducao += "\tif (" + cmp_esq_float + ") if (" + cmp_dir_int + ") goto op_float_int_" + to_string(label_float_int) + ";\n";
+
+    // STRING + STRING
+    traducao += "\t" + cmp_esq_string + " = " + label_esquerda + "->tipo == 5;\n";
+    traducao += "\t" + cmp_dir_string + " = " + label_direita + "->tipo == 5;\n";
+    traducao += "\tif (" + cmp_esq_string + ") if (" + cmp_dir_string + ") goto op_string_string_" + to_string(label_string_string) + ";\n";
+
+    // CHAR + STRING
+    traducao += "\t" + cmp_esq_char + " = " + label_esquerda + "->tipo == 4;\n";
+    traducao += "\tif (" + cmp_esq_char + ") if (" + cmp_dir_string + ") goto op_char_string_" + to_string(label_char_string) + ";\n";
+
+    // STRING + CHAR
+    traducao += "\t" + cmp_dir_char + " = " + label_direita + "->tipo == 4;\n";
+    traducao += "\tif (" + cmp_esq_string + ") if (" + cmp_dir_char + ") goto op_string_char_" + to_string(label_string_char) + ";\n";
+
+    // Caso default (tipos incompatíveis)
+    traducao += "\tgoto tipo_default_" + to_string(label_default) + ";\n\n";
+
+    // OPERAÇÕES
+
+    // INT + INT
+    traducao += "op_int_" + to_string(label_int) + ":\n";
+    traducao += "\t" + label_esquerda + "->tipo = 1;\n";
+    traducao += "\t" + temp1_int + " = " + label_esquerda + "->i;\n";
+    traducao += "\t" + temp2_int + " = " + label_direita + "->i;\n";
+    traducao += "\t" + label_esquerda + "->i = " + temp1_int + " + " + temp2_int + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // FLOAT + FLOAT
+    traducao += "op_float_float_" + to_string(label_float) + ":\n";
+    traducao += "\t" + label_esquerda + "->tipo = 2;\n";
+    traducao += "\t" + temp1_float + " = " + label_esquerda + "->f;\n";
+    traducao += "\t" + temp2_float + " = " + label_direita + "->f;\n";
+    traducao += "\t" + label_esquerda + "->f = " + temp1_float + " + " + temp2_float + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // INT + FLOAT
+    traducao += "op_int_float_" + to_string(label_int_float) + ":\n";
+    traducao += "\t" + label_esquerda + "->tipo = 2;\n";
+    traducao += "\t" + temp1_int_float + " = (float)" + label_esquerda + "->i;\n";
+    traducao += "\t" + temp2_int_float + " = " + label_direita + "->f;\n";
+    traducao += "\t" + label_esquerda + "->f = " + temp1_int_float + " + " + temp2_int_float + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // FLOAT + INT
+    traducao += "op_float_int_" + to_string(label_float_int) + ":\n";
+    traducao += "\t" + label_esquerda + "->tipo = 2;\n";
+    traducao += "\t" + temp1_float_int + " = " + label_esquerda + "->f;\n";
+    traducao += "\t" + temp2_float_int + " = (float)" + label_direita + "->i;\n";
+    traducao += "\t" + label_esquerda + "->f = " + temp1_float_int + " + " + temp2_float_int + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // STRING + STRING
+    traducao += "op_string_string_" + to_string(label_string_string) + ":\n";
+    traducao += "\t" + temp_size + " = strlen(" + label_esquerda + "->s) + strlen(" + label_direita + "->s) + 1;\n";
+    traducao += "\t" + temp_result + " = (char *) malloc(" + temp_size + ");\n";
+    traducao += "\tstrcpy(" + temp_result + ", " + label_esquerda + "->s);\n";
+    traducao += "\tstrcat(" + temp_result + ", " + label_direita + "->s);\n";
+    traducao += "\tfree(" + label_esquerda + "->s" + ");\n";
+    traducao += "\t" + label_esquerda + "->s" + " = (char *) malloc(" + temp_size + ");\n";
+    traducao += "\t" + label_esquerda + "->tipo = 5;\n";
+    traducao += "\t" + label_esquerda + "->s = " + temp_result + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // CHAR + STRING
+    traducao += "op_char_string_" + to_string(label_char_string) + ":\n";
+    traducao += "\t" + temp_char_str + " = (char *) malloc(2);\n";
+    traducao += "\t" + temp_char_str + "[0] = " + label_esquerda + "->c;\n";
+    traducao += "\t" + temp_char_str + "[1] = '\\0';\n";
+    traducao += "\t" + temp_size + " = strlen(" + temp_char_str + ") + strlen(" + label_direita + "->s) + 1;\n";
+    traducao += "\t" + temp_result + " = (char *) malloc(" + temp_size + ");\n";
+    traducao += "\tstrcpy(" + temp_result + ", " + temp_char_str + ");\n";
+    traducao += "\tstrcat(" + temp_result + ", " + label_direita + "->s);\n";
+    traducao += "\t" + label_esquerda + "->tipo = 5;\n";
+    traducao += "\t" + label_esquerda + "->s = " + temp_result + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // STRING + CHAR
+    traducao += "op_string_char_" + to_string(label_string_char) + ":\n";
+    traducao += "\t" + temp_char_str + " = (char *) malloc(2);\n";
+    traducao += "\t" + temp_char_str + "[0] = " + label_direita + "->c;\n";
+    traducao += "\t" + temp_char_str + "[1] = '\\0';\n";
+    traducao += "\t" + temp_size + " = strlen(" + label_esquerda + "->s) + strlen(" + temp_char_str + ") + 1;\n";
+    traducao += "\t" + temp_result + " = (char *) malloc(" + temp_size + ");\n";
+    traducao += "\tstrcpy(" + temp_result + ", " + label_esquerda + "->s);\n";
+    traducao += "\tstrcat(" + temp_result + ", " + temp_char_str + ");\n";
+    traducao += "\t" + label_esquerda + "->tipo = 5;\n";
+    traducao += "\t" + label_esquerda + "->s = " + temp_result + ";\n";
+    traducao += "\tgoto fim_" + to_string(label_fim) + ";\n\n";
+
+    // Tipo incompatível
+    traducao += "tipo_default_" + to_string(label_default) + ":\n";
+    traducao += "\tprintf(\"Erro: tipos incompatíveis na operação\\n\");\n";
+    traducao += "\texit(1);\n\n";
+
+    // Fim da operação
+    traducao += "fim_" + to_string(label_fim) + ":\n";
+
+    return traducao;
+}
+
+
+    return "";
 }
