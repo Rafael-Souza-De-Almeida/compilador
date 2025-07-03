@@ -67,6 +67,7 @@ int contador_escopos = 0;
 
 map<string, bool> realocar_var_interna;
 vector<unordered_map<string, Simbolo>> pilha_escopos;
+vector<unordered_map<string, Simbolo>> pilha_funcao;
 vector<unordered_map<string, Simbolo>> escopos_passados;
 vector<Simbolo> simbolos_declarados;
 stack<string> pilha_loop_inicio;
@@ -79,10 +80,12 @@ bool origem_declarada = false;
 int yylex(void);
 void yyerror(string);
 void entra_escopo();
+void entra_funcao(string);
+void sai_funcao();
 void sai_escopo();
 void verifica_tipo_relacional(string tipo1, string tipo2);
 string gentempcode(string);
-string adiciona_variavel_na_tabela(string, string, string, string);
+string adiciona_variavel_na_tabela(string, string, string, string, string);
 string pega_variavel_na_tabela(string);
 string resolve_tipo(string, string);
 tuple<string, string, string> resolve_coercao(string, string, string);
@@ -123,7 +126,7 @@ string novo_label(string);
 
 %%
 
-S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
+S           : LISTA_DECLARACOES
             {
                 string codigo = "/* Compilador hahaha */\n"
                                 "#include <iostream>\n"
@@ -163,7 +166,9 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                 }
             }
 
-                codigo += $5.traducao;
+                codigo += "\tgoto label_main;\n";
+                codigo += $1.traducao;             
+                codigo += "end_main:\n";              
 
               
 
@@ -207,6 +212,32 @@ S           : TK_FUNCTION TK_MAIN '(' ')' BLOCO
                
             }
             ;
+
+LISTA_DECLARACOES : DECLARACAO LISTA_DECLARACOES
+    {
+        $$.traducao = $1.traducao + $2.traducao;
+    }
+    | /* vazio */
+    {
+        $$.traducao = "";
+    }
+    ;
+
+DECLARACAO : TK_FUNCTION TK_MAIN '(' ')' {entra_funcao("main");} BLOCO {sai_funcao();} {
+
+        $$.traducao = "label_main:\n";   
+        $$.traducao += $6.traducao;
+        
+
+    }
+    | TK_FUNCTION TK_ID '(' ')' {entra_funcao("funcao_" + $1.label);} BLOCO {sai_funcao();}
+    {
+        $$.traducao = "label_" + $2.label + ":\n";
+        $$.traducao += $6.traducao;
+        $$.traducao += "goto end_" + $2.label + ";\n\n";
+        
+    }
+    ;
 
 BLOCO       : '{' {entra_escopo();} COMANDOS '}' CLOSE_BLOCO{ 
     
@@ -486,7 +517,8 @@ IDENTIFICADOR_FOREACH : TK_ID
                     {
                         string indice_for = gentempcode("int");
                         string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
-                        string nome_variavel = adiciona_variavel_na_tabela($1.label, "int", indice_for, escopo_atual);
+                        string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+                        string nome_variavel = adiciona_variavel_na_tabela($1.label, "int", indice_for, escopo_atual, funcao_atual);
                         $$.label = $1.label;
                         
                     }
@@ -768,6 +800,7 @@ E           : E '+' E
          | TK_ID '=' E
             {
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+                string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
                 string chave = $1.label + "_" + escopo_atual;
                 string nome_interno;
                 bool variavel_local = false;
@@ -786,7 +819,7 @@ E           : E '+' E
                     }
                     
                     else {
-                        nome_interno = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label, escopo_atual);
+                        nome_interno = adiciona_variavel_na_tabela($1.label, $3.tipo, $3.label, escopo_atual, funcao_atual);
                         variavel_local = true;
                     }
                 }
@@ -798,7 +831,7 @@ E           : E '+' E
                 if (tipo_atual != novo_tipo) {
                     if (variavel_local) {
                         
-                        nome_interno = adiciona_variavel_na_tabela($1.label, novo_tipo, $3.label, escopo_atual);
+                        nome_interno = adiciona_variavel_na_tabela($1.label, novo_tipo, $3.label, escopo_atual, funcao_atual);
                     } else if (variavel_global) {
                         
                         yyerror("Erro: não pode alterar tipo da variável global '" + $1.label + "' em escopo diferente.");
@@ -882,7 +915,11 @@ E           : E '+' E
                 $$.tipo=tipo;
 
                 if(tipo == "string") {
+                    
                     $$.traducao = realizar_contagem(nome_interno, $$.label);
+                    string tamanho = gentempcode("int");
+                    $$.traducao += "\t" + tamanho + " = " + tamanho_string[$$.label]  + " + 1;\n";
+                    tamanho_string[$$.label] = tamanho;
                     $$.traducao += "\t" + $$.label + " = " + "(char *) malloc(" + tamanho_string[$$.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + $$.label + "," + nome_interno + ");\n";
                 }
@@ -893,8 +930,9 @@ E           : E '+' E
             {
                 
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+                string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
 
-                string nome_variavel = adiciona_variavel_na_tabela($2.label, $4.tipo, $4.label, escopo_atual);
+                string nome_variavel = adiciona_variavel_na_tabela($2.label, $4.tipo, $4.label, escopo_atual, funcao_atual);
 
                 variavel_escopo[$2.label + "_" + escopo_atual] = nome_variavel;
                 $$.escopo = escopo_atual;
@@ -917,9 +955,10 @@ E           : E '+' E
                 string tipo = getTipo($2.label);
                 string nome_interno;
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+                string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
 
                 if(tipo != $4.tipo) {
-                    nome_interno = adiciona_variavel_na_tabela($2.label, $4.tipo, $4.label, escopo_atual);
+                    nome_interno = adiciona_variavel_na_tabela($2.label, $4.tipo, $4.label, escopo_atual, funcao_atual);
                 } else {
                     nome_interno = pega_variavel_dinamica($2.label, tipo);
                 }
@@ -967,6 +1006,10 @@ E           : E '+' E
             {
                 string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao = "\t" + nome_interno + " = " + nome_interno + " - 1;\n";
+            } 
+            | TK_ID '(' ')' {
+                $$.traducao = "\tgoto label_" + $1.label + ";\n";
+                $$.traducao += "end_" + $1.label + ":\n";
             }
             ;             
 %%
@@ -984,42 +1027,51 @@ string gentempcode(string tipo) {
 }
 
 string getTipo(string nome_variavel) {
-    for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (!it->count("__escopo_nome__")) continue;
-        string escopo = it->at("__escopo_nome__").nome_interno;
-        string chave = nome_variavel + "_" + escopo;
+    for (auto escopo_it = pilha_escopos.rbegin(); escopo_it != pilha_escopos.rend(); ++escopo_it) {
+        if (!escopo_it->count("__escopo_nome__")) continue;
+        string escopo = escopo_it->at("__escopo_nome__").nome_interno;
 
-        if (it->count(chave)) {
-            string tipo = it->at(chave).tipo;
-            if (tipo == "") {
-                yyerror("Erro: variável '" + nome_variavel + "' não inicializada.");
-                exit(1);
+        for (auto funcao_it = pilha_funcao.rbegin(); funcao_it != pilha_funcao.rend(); ++funcao_it) {
+            if (!funcao_it->count("__funcao_nome__")) continue;
+            string funcao = funcao_it->at("__funcao_nome__").nome_interno;
+
+            string chave = nome_variavel + "_" + escopo + "_" + funcao;
+
+            if (escopo_it->count(chave)) {
+                string tipo = escopo_it->at(chave).tipo;
+                if (tipo == "") {
+                    yyerror("Erro: variável '" + nome_variavel + "' não inicializada.");
+                    exit(1);
+                }
+                return tipo;
             }
-            return tipo;
         }
     }
 
+    // Tenta buscar nos escopos passados
     for (auto& escopo : escopos_passados) {
         if (!escopo.count("__escopo_nome__")) continue;
         string escopo_nome = escopo.at("__escopo_nome__").nome_interno;
-        string chave = nome_variavel + "_" + escopo_nome;
 
-        if (escopo.count(chave)) {
-            string tipo = escopo.at(chave).tipo;
-            if (tipo == "") {
-                yyerror("Erro: variável '" + nome_variavel + "' não inicializada.");
-                exit(1);
+        for (auto& funcao_map : pilha_funcao) {
+            if (!funcao_map.count("__funcao_nome__")) continue;
+            string funcao = funcao_map.at("__funcao_nome__").nome_interno;
+
+            string chave = nome_variavel + "_" + escopo_nome + "_" + funcao;
+
+            if (escopo.count(chave)) {
+                string tipo = escopo.at(chave).tipo;
+                if (tipo == "") {
+                    yyerror("Erro: variável '" + nome_variavel + "' não inicializada.");
+                    exit(1);
+                }
+                return tipo;
             }
-            return tipo;
         }
     }
 
     throw std::runtime_error("Erro: variável '" + nome_variavel + "' não foi declarada.");
 }
-
-
-
-
 
 bool isGlobal(string nome_variavel) {
     if (pilha_escopos.empty()) return false;
@@ -1104,8 +1156,21 @@ void sai_escopo() {
     pilha_escopos.pop_back();
 }
 
-string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada, string escopo) {
-    string variavel_formatada = variavel + "_" + escopo;
+void entra_funcao(string nome) {
+    unordered_map<string, Simbolo> nova_funcao;
+    
+    Simbolo info = { nome, "", "", "" };
+    nova_funcao["__funcao_nome__"] = info;
+
+    pilha_funcao.push_back(nova_funcao);
+}
+
+void sai_funcao() {
+    pilha_funcao.pop_back();
+}
+
+string adiciona_variavel_na_tabela(string variavel, string tipo, string temp_associada, string escopo, string funcao) {
+    string variavel_formatada = variavel + "_" + escopo + "_" + funcao;
 
     if (pilha_escopos.empty()) entra_escopo();
 
@@ -1183,18 +1248,25 @@ string nova_label(string comando, string tipo) {
 
 
 string pega_variavel_na_tabela(string nome_variavel) {
-    for (auto it = pilha_escopos.rbegin(); it != pilha_escopos.rend(); ++it) {
-        if (!it->count("__escopo_nome__")) continue;
-        string escopo = it->at("__escopo_nome__").nome_interno;
+    for (auto escopo_it = pilha_escopos.rbegin(); escopo_it != pilha_escopos.rend(); ++escopo_it) {
+        if (!escopo_it->count("__escopo_nome__")) continue;
+        string escopo = escopo_it->at("__escopo_nome__").nome_interno;
 
-        string chave = nome_variavel + "_" + escopo;
+        for (auto funcao_it = pilha_funcao.rbegin(); funcao_it != pilha_funcao.rend(); ++funcao_it) {
+            if (!funcao_it->count("__funcao_nome__")) continue;
+            string funcao = funcao_it->at("__funcao_nome__").nome_interno;
 
-        if (it->count(chave)) {
-            return it->at(chave).nome_interno;
+            string chave = nome_variavel + "_" + escopo + "_" + funcao;
+
+            if (escopo_it->count(chave)) {
+                return escopo_it->at(chave).nome_interno;
+            }
         }
     }
+
     throw std::runtime_error("variável local não encontrada");
 }
+
 
 
 string pega_variavel_global(string nome_variavel) {
