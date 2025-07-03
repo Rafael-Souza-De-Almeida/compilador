@@ -55,8 +55,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 ":"          {return ':';}
 
-"++"        return TK_INC;
-"--"        return TK_DEC;
+"++"         {return TK_INC;}
+"--"         {return TK_DEC;}
+
+"break all"  {return TK_BREAKALL;}
 
 "if"          {return TK_IF;}
 

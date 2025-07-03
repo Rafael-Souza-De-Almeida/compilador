@@ -72,6 +72,7 @@ vector<Simbolo> simbolos_declarados;
 stack<string> pilha_loop_inicio;
 stack<string> pilha_loop_fim;
 stack<string> pilha_loop_continue;
+stack<string> pilha_fim_loop_mais_externo;
 int var_user_qnt;
 bool origem_declarada = false;
 
@@ -109,6 +110,7 @@ string novo_label(string);
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH TK_LOCAL TK_DYNAMIC
 %token TK_CONTINUE TK_BREAK
 %token TK_INC TK_DEC
+%token TK_BREAKALL
 
 
 %start S
@@ -277,54 +279,55 @@ COMANDO     : E ';'
 
                 }
             } 
-                | BEGIN_FOR '(' COMANDO E ';' INCREMENTO ')' BLOCO CLOSE_FOR
+                | BEGIN_FOR '(' COMANDO E ';' E ')' BLOCO CLOSE_FOR
                 {
                     // Gera labels e empilha
                     string label_inicio = pilha_loop_inicio.top();
                     string label_fim = pilha_loop_fim.top();
                     string label_incremento = pilha_loop_continue.top();
-                    // Tradução inicialização
+
+                    
                     $$.traducao = $3.traducao;
 
-                    // Label início do loop
+                    
                     $$.traducao += label_inicio + ":\n";
 
-                    // Cria temporário para condição (boolean)
+                   
                     string temp_cond_pre = gentempcode("boolean");
                     string temp_cond = gentempcode("boolean");
 
-                    // Tradução da condição
-                    $$.traducao += $4.traducao;
+                    
+                    $$.traducao += $4.traducao;                    
 
-                    // temp_cond_pre = <condição> - 1 (se fizer sentido, ou direto condição)
-                    // Aqui você pode adaptar conforme seu formato do E, mas normalmente:
-                    // temp_cond = condição avaliada (por exemplo, i < 10)
-
-                    // Vou assumir que $4.label tem o valor da condição booleana:
+                    
                     $$.traducao += "\t" + temp_cond + " = " + $4.label + ";\n";
 
-                    // Testa condição para pular para o fim
+                    
                     $$.traducao += "\tif (!" + temp_cond + ") goto " + label_fim + ";\n";
 
-                    // Corpo do for
+                    
                     $$.traducao += $8.traducao;
 
-                    // Label para incremento (continue)
+                   
                     $$.traducao += label_incremento + ":\n";
 
-                    // Incremento (ex: i++, i = i + 1, etc)
+                  
                     $$.traducao += $6.traducao;
 
-                    // Volta para início do loop
+                    
                     $$.traducao += "\tgoto " + label_inicio + ";\n";
 
-                    // Label de saída do loop
+                    
                     $$.traducao += label_fim + ":\n";
 
-                    // Remove labels da pilha
+                    if (!pilha_loop_inicio.size()) {
+                        pilha_fim_loop_mais_externo.pop(); 
+                    }
+                   
                     if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
                     if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
                     if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
+
                 }
 
             | BEGIN_FOR IDENTIFICADOR_FOREACH '=' E ':' E BLOCO CLOSE_FOR {
@@ -363,6 +366,10 @@ COMANDO     : E ';'
 
                     $$.traducao += label_fim + ":\n";
 
+                     if (!pilha_loop_inicio.size()) {
+                        pilha_fim_loop_mais_externo.pop(); 
+                    }
+
                      if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
                     if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
                     if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
@@ -389,6 +396,10 @@ COMANDO     : E ';'
                 $$.traducao += "\tgoto " + label_inicio + ";\n";
                 $$.traducao += label_fim + ":\n";
 
+                 if (!pilha_loop_inicio.size()) {
+                        pilha_fim_loop_mais_externo.pop(); 
+                    }
+
                 pilha_loop_inicio.pop();
                 pilha_loop_fim.pop();
             }
@@ -412,6 +423,11 @@ COMANDO     : E ';'
                     $$.traducao += "\tgoto " + label_inicio + ";\n";
                     $$.traducao += label_fim + ":\n";
 
+                    if (!pilha_loop_inicio.size()) {
+                        pilha_fim_loop_mais_externo.pop(); 
+                    }
+
+
                        if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
                         if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
                         if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
@@ -426,14 +442,23 @@ COMANDO     : E ';'
             $$.traducao = "\tgoto " + pilha_loop_fim.top() + ";\n";
             } 
             | TK_CONTINUE ';' {
-               if (pilha_loop_continue.empty()) {
+                if (pilha_loop_continue.empty()) {
                     yyerror("Comando 'continue' fora de um loop.");
                 } else {
                     cout << "DEBUG pilha continue top: " << pilha_loop_continue.top() << endl;
                     $$.traducao = "\tgoto " + pilha_loop_continue.top() + ";\n";
                 }
 
-            }
+            } | TK_BREAKALL ';'
+                   {
+                       if (pilha_fim_loop_mais_externo.empty()) {
+                           yyerror("Uso inválido de 'break all' fora de qualquer laço.");
+                           exit(1);
+                       }
+                   
+                       string label_fim_externo = pilha_fim_loop_mais_externo.top();
+                       $$.traducao = "\tgoto " + label_fim_externo + ";\n";
+                   }
             ;
 
 
@@ -472,6 +497,10 @@ BEGIN_FOR : TK_FOR
                         string label_fim = nova_label("for", "fim");
                         string label_incremento = nova_label("for", "incremento");
 
+                        if (pilha_fim_loop_mais_externo.empty()) {
+                            pilha_fim_loop_mais_externo.push(label_fim);  
+                        }
+
                         pilha_loop_inicio.push(label_inicio);
                         pilha_loop_fim.push(label_fim);
                         pilha_loop_continue.push(label_incremento);
@@ -498,6 +527,10 @@ LOOP_START_WHILE:
                         string label_inicio = nova_label("while", "inicio");
                         string label_fim = nova_label("while", "fim");
 
+                        if (pilha_fim_loop_mais_externo.empty()) {
+                            pilha_fim_loop_mais_externo.push(label_fim);  
+                        }
+
                         pilha_loop_inicio.push(label_inicio);
                         pilha_loop_fim.push(label_fim);
 
@@ -513,6 +546,10 @@ BEGIN_DO: TK_DO
     pilha_loop_inicio.push(label_inicio);
     pilha_loop_fim.push(label_fim);
     pilha_loop_continue.push(label_inicio); 
+
+    if (pilha_fim_loop_mais_externo.empty()) {
+        pilha_fim_loop_mais_externo.push(label_fim);  
+    }
 
     esta_no_do_while = true;
     qtdDoWhile++;
@@ -538,22 +575,8 @@ CLOSE_BLOCO: {
     sai_escopo();
 }
 
-INCREMENTO
-    : COMANDO
-    {
-        $$.traducao = $1.traducao;
-    }
-    | TK_ID TK_INC
-    {
-        string nome_interno = pega_variavel_na_tabela($1.label);
-        $$.traducao = "\t" + nome_interno + " = " + nome_interno + " + 1;\n";
-    }
-    | TK_ID TK_DEC
-    {
-        string nome_interno = pega_variavel_na_tabela($1.label);
-        $$.traducao = "\t" + nome_interno + " = " + nome_interno + " - 1;\n";
-    }
-    ;
+
+
 
                     
            
@@ -934,6 +957,16 @@ E           : E '+' E
             | '('TK_BOOLEAN')' TK_ID
             {  
                 yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
+            }
+            | TK_ID TK_INC 
+            {
+                string nome_interno = pega_variavel_na_tabela($1.label);
+                $$.traducao = "\t" + nome_interno + " = " + nome_interno + " + 1;\n";
+            }
+            | TK_ID TK_DEC
+            {
+                string nome_interno = pega_variavel_na_tabela($1.label);
+                $$.traducao = "\t" + nome_interno + " = " + nome_interno + " - 1;\n";
             }
             ;             
 %%
