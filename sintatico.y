@@ -232,6 +232,36 @@ E           : E '+' E
                 $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " + " + t2 + ";\n";
             }
+            | E '?' E ':' E 
+            {
+                if($1.tipo!="boolean"){
+                    yyerror("Erro na linha "+ to_string(linha)+"Condicao do ternario deve ser do tipo boolean");
+                }
+                   string tipo_resultado = resolve_tipo($3.tipo, $5.tipo);
+
+        auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
+        auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
+
+        string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
+        string rotulo_end = "tern_end_" + to_string(var_temp_qnt++);
+
+        string temp_final = gentempcode(tipo_resultado);
+
+        $$.tipo = tipo_resultado;
+        $$.label = temp_final;
+        $$.traducao =
+        $1.traducao +
+        $3.traducao + 
+        $5.traducao +
+        "\tif (" + $1.label + ") goto " + rotulo_true + ";\n" +
+        coercoes_false +
+        "\t" + temp_final + " = " + $5.label + ";\n" +
+        "\tgoto " + rotulo_end + ";\n" +
+        rotulo_true + ":\n" +
+        coercoes_true +
+        "\t" + temp_final + " = " + $3.label + ";\n" +
+        rotulo_end + ":\n";
+            } 
             | E '-' E 
             {   
                 /* cout<<"Operation subtraction"<<endl; */

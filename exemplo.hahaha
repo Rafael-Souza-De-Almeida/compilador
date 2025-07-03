@@ -5,12 +5,8 @@ function main()
 {   
 
  
- int n1;
- type(n1);
-   int n2 = 1;
-   if(n1 == 3){
-    println(n1);
-   } else {
-    println(n2);
-   }
+int a = 9;
+float b = 4;
+int maior = (a+1>b)? a:b;
+println(maior);
 }

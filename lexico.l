@@ -18,6 +18,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "\n"		{linha++;}
 
+":"       {return ':';}
+
+"?"       {return '?';} 
+
 {DELIM} 	{}
 
 

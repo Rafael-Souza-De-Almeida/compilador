@@ -5,30 +5,40 @@
 using namespace std; 
 int main(void) {
 	int t1;
+	float t10;
+	float t13;
+	int t14;
 	int t2;
 	int t3;
-	int t4;
-	int t5;
-	int t6;
+	float t4;
+	float t5;
+	float t6;
+	int t7;
+	float t8;
+	float t9;
 	int __v0;
-	int __v1;
-	cin >> __v0;
-	if (cin.fail()) {
-		cerr << "Entrada inválida para tipo int!" << endl;
-		exit(1);
-	}
-	t1 = 1;
-	__v1 = t1;
-	t2 = __v0;
-	t3 = 3;
-	t4= t2==t3;
-if (!t4) goto fim_else_1;
-	t5 = __v0;
-	 cout << t5 << endl;
-goto fim_if_1;
-fim_else_1:
-	t6 = __v1;
-	 cout << t6 << endl;
-fim_if_1:
+	float __v1;
+	int __v2;
+	t1 = 9;
+	__v0 = t1;
+	t2 = 4;
+	__v1 = t2;
+	t3 = __v0;
+	t4 = __v1;
+	t5 = (float) t3;
+	t6= t3>t4;
+	t7 = __v0;
+	t8 = __v1;
+	if (t6) goto tern_true_10;
+	t13 = t8;
+	goto tern_end_11;
+tern_true_10:
+	t9 = (float) t7;
+	t10 = (float) t7;
+	t13 = t7;
+tern_end_11:
+	__v2 = t13;
+	t14 = __v2;
+	 cout << t14 << endl;
 	return 0;
 }
