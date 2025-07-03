@@ -277,18 +277,12 @@ COMANDO     : E ';'
 
                 }
             } 
-                | TK_FOR '(' COMANDO E ';' INCREMENTO ')' BLOCO
+                | BEGIN_FOR '(' COMANDO E ';' INCREMENTO ')' BLOCO CLOSE_FOR
                 {
                     // Gera labels e empilha
-                     string label_inicio = novo_label("for_inicio");
-                     string label_fim = novo_label("for_fim");
-                     string label_incremento = novo_label("for_incremento");
-
-                    
-                    pilha_loop_inicio.push(label_inicio);
-                    pilha_loop_fim.push(label_fim);
-                    pilha_loop_continue.push(label_incremento);
-
+                    string label_inicio = pilha_loop_inicio.top();
+                    string label_fim = pilha_loop_fim.top();
+                    string label_incremento = pilha_loop_continue.top();
                     // Tradução inicialização
                     $$.traducao = $3.traducao;
 
