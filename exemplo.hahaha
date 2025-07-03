@@ -1,30 +1,23 @@
-function oi() {
-  
-  a = 20;
-  while(a < 40) {
-    a = a + 20;
-  }
+function main() {
 
-  println(a);
+a = 10;
 
-}
-
-function main() {          
-a = "rafinha";
-for(i = 0; i < 10; i++) {
-  for(j = 0; j < 5; j++) {
-    println(j);
-    if((i == 1) && (j == 3)){
-      break all;
+for(i = 0; i < 20; i++) {
+  while(a <30) {
+    for i = 0:10 {
+      local a = 50;
+      a = a + 10;
+      if(i == 5) {
+        println(a);
+        break all;
+      }
     }
   }
-  println(i);
 }
 
-
-oi();
-
 println(a);
+
+
 
 }
 

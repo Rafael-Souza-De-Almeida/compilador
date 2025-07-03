@@ -77,6 +77,7 @@ stack<string> pilha_fim_loop_mais_externo;
 int var_user_qnt;
 bool origem_declarada = false;
 
+
 int yylex(void);
 void yyerror(string);
 void entra_escopo();
@@ -262,7 +263,8 @@ COMANDO     : E ';'
             |  TK_ID ';'
             {   
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
-                string nome_interno = tipos_atuais[$1.label + "_" + escopo_atual].nome_interno;
+                string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+                string nome_interno = tipos_atuais[$1.label + "_" + escopo_atual + "_" + funcao_atual].nome_interno;
                 $$.traducao =   "\t cout << "  + nome_interno + " << endl;\n";   
             } 
             | TK_PRINT '(' E ')' ';' {
@@ -801,7 +803,7 @@ E           : E '+' E
             {
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
                 string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
-                string chave = $1.label + "_" + escopo_atual;
+                string chave = $1.label + "_" + escopo_atual + funcao_atual;
                 string nome_interno;
                 bool variavel_local = false;
                 bool variavel_global = false;
@@ -812,7 +814,7 @@ E           : E '+' E
                     variavel_local = true;
                 }
                 else {
-                    string chave_global = $1.label + "_escopo0";
+                    string chave_global = $1.label + "_escopo0" + "_" + funcao_atual;
                     if (tipos_atuais.count(chave_global)) {
                         nome_interno = tipos_atuais[chave_global].nome_interno;
                         variavel_global = true;
@@ -1083,6 +1085,8 @@ bool isGlobal(string nome_variavel) {
     }
     return false;
 }
+
+
 
 
 
