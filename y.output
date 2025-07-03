@@ -1,0 +1,2206 @@
+Nonterminals useless in grammar
+
+    FUNCAO
+
+
+Terminals unused in grammar
+
+    TK_FIM
+    TK_ERROR
+    TK_LINHA
+    TK_SWITCH
+
+
+Rules useless in grammar
+
+   54 FUNCAO: TK_FUNCTION TK_ID '(' ')' BLOCO
+
+
+State 14 conflicts: 1 shift/reduce
+State 41 conflicts: 6 shift/reduce
+State 70 conflicts: 12 shift/reduce
+State 84 conflicts: 12 shift/reduce
+State 85 conflicts: 12 shift/reduce
+State 86 conflicts: 12 shift/reduce
+State 87 conflicts: 12 shift/reduce
+State 88 conflicts: 12 shift/reduce
+State 89 conflicts: 12 shift/reduce
+State 90 conflicts: 6 shift/reduce
+State 91 conflicts: 6 shift/reduce
+State 92 conflicts: 6 shift/reduce
+State 93 conflicts: 6 shift/reduce
+State 94 conflicts: 6 shift/reduce
+State 95 conflicts: 6 shift/reduce
+State 99 conflicts: 12 shift/reduce
+State 100 conflicts: 12 shift/reduce
+
+
+Grammar
+
+    0 $accept: S $end
+
+    1 S: TK_FUNCTION TK_MAIN '(' ')' BLOCO
+
+    2 $@1: ε
+
+    3 BLOCO: '{' $@1 COMANDOS '}' CLOSE_BLOCO
+
+    4 COMANDOS: COMANDO COMANDOS
+    5         | ε
+
+    6 COMANDO: E ';'
+    7        | TK_ID ';'
+    8        | TK_PRINT '(' E ')' ';'
+    9        | TK_PRINTLN '(' E ')' ';'
+   10        | BLOCO
+   11        | TK_IF '(' E ')' BLOCO
+   12        | TK_IF '(' E ')' BLOCO TK_ELSE BLOCO
+   13        | BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR
+   14        | BEGIN_WHILE '(' E ')' LOOP_START_WHILE BLOCO CLOSE_WHILE
+   15        | BEGIN_DO BLOCO TK_WHILE '(' E ')' ';' CLOSE_DO
+   16        | TK_BREAK ';'
+   17        | TK_CONTINUE ';'
+
+   18 BEGIN_WHILE: TK_WHILE
+
+   19 CLOSE_WHILE: ε
+
+   20 IDENTIFICADOR_FOR: TK_ID
+
+   21 BEGIN_FOR: TK_FOR
+
+   22 CLOSE_FOR: ε
+
+   23 LOOP_START_WHILE: ε
+
+   24 BEGIN_DO: TK_DO
+
+   25 CLOSE_DO: ε
+
+   26 CLOSE_BLOCO: ε
+
+   27 E: E '+' E
+   28  | E '-' E
+   29  | E '*' E
+   30  | E '/' E
+   31  | '(' E ')'
+   32  | E GREATER_THAN E
+   33  | E LESS_THAN E
+   34  | E GREATER_OR_EQUAL E
+   35  | E LESS_OR_EQUAL E
+   36  | E EQUAL E
+   37  | E NOT_EQUAL E
+   38  | NOT E
+   39  | E AND E
+   40  | E OR E
+   41  | TK_ID '=' E
+   42  | TK_NUM
+   43  | TK_REAL
+   44  | TK_STRING
+   45  | TK_TRUE
+   46  | TK_FALSE
+   47  | TK_CHAR
+   48  | TK_ID
+   49  | TK_LOCAL TK_ID '=' E
+   50  | TK_DYNAMIC TK_ID '=' E
+   51  | '(' TK_INT ')' TK_ID
+   52  | '(' TK_FLOAT ')' TK_ID
+   53  | '(' TK_BOOLEAN ')' TK_ID
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 1 8 9 11 12 14 15 31 51 52 53
+    ')' (41) 1 8 9 11 12 14 15 31 51 52 53
+    '*' (42) 29
+    '+' (43) 27
+    '-' (45) 28
+    '/' (47) 30
+    ':' (58) 13
+    ';' (59) 6 7 8 9 15 16 17
+    '=' (61) 13 41 49 50
+    '{' (123) 3
+    '}' (125) 3
+    error (256)
+    TK_NUM (258) 42
+    TK_REAL (259) 43
+    TK_TRUE (260) 45
+    TK_FALSE (261) 46
+    TK_MAIN (262) 1
+    TK_ID (263) 7 20 41 48 49 50 51 52 53
+    TK_FUNCTION (264) 1
+    TK_INT (265) 51
+    TK_FLOAT (266) 52
+    TK_BOOLEAN (267) 53
+    TK_CHAR (268) 47
+    TK_STRING (269) 44
+    TK_FIM (270)
+    TK_ERROR (271)
+    TK_PRINT (272) 8
+    TK_PRINTLN (273) 9
+    TK_LINHA (274)
+    GREATER_THAN (275) 32
+    LESS_THAN (276) 33
+    GREATER_OR_EQUAL (277) 34
+    LESS_OR_EQUAL (278) 35
+    EQUAL (279) 36
+    NOT_EQUAL (280) 37
+    NOT (281) 38
+    AND (282) 39
+    OR (283) 40
+    TK_IF (284) 11 12
+    TK_ELSE (285) 12
+    TK_FOR (286) 21
+    TK_WHILE (287) 15 18
+    TK_DO (288) 24
+    TK_SWITCH (289)
+    TK_LOCAL (290) 49
+    TK_DYNAMIC (291) 50
+    TK_CONTINUE (292) 17
+    TK_BREAK (293) 16
+
+
+Nonterminals, with rules where they appear
+
+    $accept (50)
+        on left: 0
+    S (51)
+        on left: 1
+        on right: 0
+    BLOCO (52)
+        on left: 3
+        on right: 1 10 11 12 13 14 15
+    $@1 (53)
+        on left: 2
+        on right: 3
+    COMANDOS (54)
+        on left: 4 5
+        on right: 3 4
+    COMANDO (55)
+        on left: 6 7 8 9 10 11 12 13 14 15 16 17
+        on right: 4
+    BEGIN_WHILE (56)
+        on left: 18
+        on right: 14
+    CLOSE_WHILE (57)
+        on left: 19
+        on right: 14
+    IDENTIFICADOR_FOR (58)
+        on left: 20
+        on right: 13
+    BEGIN_FOR (59)
+        on left: 21
+        on right: 13
+    CLOSE_FOR (60)
+        on left: 22
+        on right: 13
+    LOOP_START_WHILE (61)
+        on left: 23
+        on right: 14
+    BEGIN_DO (62)
+        on left: 24
+        on right: 15
+    CLOSE_DO (63)
+        on left: 25
+        on right: 15
+    CLOSE_BLOCO (64)
+        on left: 26
+        on right: 3
+    E (65)
+        on left: 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
+        on right: 6 8 9 11 12 13 14 15 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 49 50
+
+
+State 0
+
+    0 $accept: • S $end
+
+    TK_FUNCTION  shift, and go to state 1
+
+    S  go to state 2
+
+
+State 1
+
+    1 S: TK_FUNCTION • TK_MAIN '(' ')' BLOCO
+
+    TK_MAIN  shift, and go to state 3
+
+
+State 2
+
+    0 $accept: S • $end
+
+    $end  shift, and go to state 4
+
+
+State 3
+
+    1 S: TK_FUNCTION TK_MAIN • '(' ')' BLOCO
+
+    '('  shift, and go to state 5
+
+
+State 4
+
+    0 $accept: S $end •
+
+    $default  accept
+
+
+State 5
+
+    1 S: TK_FUNCTION TK_MAIN '(' • ')' BLOCO
+
+    ')'  shift, and go to state 6
+
+
+State 6
+
+    1 S: TK_FUNCTION TK_MAIN '(' ')' • BLOCO
+
+    '{'  shift, and go to state 7
+
+    BLOCO  go to state 8
+
+
+State 7
+
+    3 BLOCO: '{' • $@1 COMANDOS '}' CLOSE_BLOCO
+
+    $default  reduce using rule 2 ($@1)
+
+    $@1  go to state 9
+
+
+State 8
+
+    1 S: TK_FUNCTION TK_MAIN '(' ')' BLOCO •
+
+    $default  reduce using rule 1 (S)
+
+
+State 9
+
+    3 BLOCO: '{' $@1 • COMANDOS '}' CLOSE_BLOCO
+
+    TK_NUM       shift, and go to state 10
+    TK_REAL      shift, and go to state 11
+    TK_TRUE      shift, and go to state 12
+    TK_FALSE     shift, and go to state 13
+    TK_ID        shift, and go to state 14
+    TK_CHAR      shift, and go to state 15
+    TK_STRING    shift, and go to state 16
+    TK_PRINT     shift, and go to state 17
+    TK_PRINTLN   shift, and go to state 18
+    NOT          shift, and go to state 19
+    TK_IF        shift, and go to state 20
+    TK_FOR       shift, and go to state 21
+    TK_WHILE     shift, and go to state 22
+    TK_DO        shift, and go to state 23
+    TK_LOCAL     shift, and go to state 24
+    TK_DYNAMIC   shift, and go to state 25
+    TK_CONTINUE  shift, and go to state 26
+    TK_BREAK     shift, and go to state 27
+    '('          shift, and go to state 28
+    '{'          shift, and go to state 7
+
+    $default  reduce using rule 5 (COMANDOS)
+
+    BLOCO        go to state 29
+    COMANDOS     go to state 30
+    COMANDO      go to state 31
+    BEGIN_WHILE  go to state 32
+    BEGIN_FOR    go to state 33
+    BEGIN_DO     go to state 34
+    E            go to state 35
+
+
+State 10
+
+   42 E: TK_NUM •
+
+    $default  reduce using rule 42 (E)
+
+
+State 11
+
+   43 E: TK_REAL •
+
+    $default  reduce using rule 43 (E)
+
+
+State 12
+
+   45 E: TK_TRUE •
+
+    $default  reduce using rule 45 (E)
+
+
+State 13
+
+   46 E: TK_FALSE •
+
+    $default  reduce using rule 46 (E)
+
+
+State 14
+
+    7 COMANDO: TK_ID • ';'
+   41 E: TK_ID • '=' E
+   48  | TK_ID •
+
+    ';'  shift, and go to state 36
+    '='  shift, and go to state 37
+
+    ';'       [reduce using rule 48 (E)]
+    $default  reduce using rule 48 (E)
+
+
+State 15
+
+   47 E: TK_CHAR •
+
+    $default  reduce using rule 47 (E)
+
+
+State 16
+
+   44 E: TK_STRING •
+
+    $default  reduce using rule 44 (E)
+
+
+State 17
+
+    8 COMANDO: TK_PRINT • '(' E ')' ';'
+
+    '('  shift, and go to state 38
+
+
+State 18
+
+    9 COMANDO: TK_PRINTLN • '(' E ')' ';'
+
+    '('  shift, and go to state 39
+
+
+State 19
+
+   38 E: NOT • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 41
+
+
+State 20
+
+   11 COMANDO: TK_IF • '(' E ')' BLOCO
+   12        | TK_IF • '(' E ')' BLOCO TK_ELSE BLOCO
+
+    '('  shift, and go to state 42
+
+
+State 21
+
+   21 BEGIN_FOR: TK_FOR •
+
+    $default  reduce using rule 21 (BEGIN_FOR)
+
+
+State 22
+
+   18 BEGIN_WHILE: TK_WHILE •
+
+    $default  reduce using rule 18 (BEGIN_WHILE)
+
+
+State 23
+
+   24 BEGIN_DO: TK_DO •
+
+    $default  reduce using rule 24 (BEGIN_DO)
+
+
+State 24
+
+   49 E: TK_LOCAL • TK_ID '=' E
+
+    TK_ID  shift, and go to state 43
+
+
+State 25
+
+   50 E: TK_DYNAMIC • TK_ID '=' E
+
+    TK_ID  shift, and go to state 44
+
+
+State 26
+
+   17 COMANDO: TK_CONTINUE • ';'
+
+    ';'  shift, and go to state 45
+
+
+State 27
+
+   16 COMANDO: TK_BREAK • ';'
+
+    ';'  shift, and go to state 46
+
+
+State 28
+
+   31 E: '(' • E ')'
+   51  | '(' • TK_INT ')' TK_ID
+   52  | '(' • TK_FLOAT ')' TK_ID
+   53  | '(' • TK_BOOLEAN ')' TK_ID
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_INT      shift, and go to state 47
+    TK_FLOAT    shift, and go to state 48
+    TK_BOOLEAN  shift, and go to state 49
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 50
+
+
+State 29
+
+   10 COMANDO: BLOCO •
+
+    $default  reduce using rule 10 (COMANDO)
+
+
+State 30
+
+    3 BLOCO: '{' $@1 COMANDOS • '}' CLOSE_BLOCO
+
+    '}'  shift, and go to state 51
+
+
+State 31
+
+    4 COMANDOS: COMANDO • COMANDOS
+
+    TK_NUM       shift, and go to state 10
+    TK_REAL      shift, and go to state 11
+    TK_TRUE      shift, and go to state 12
+    TK_FALSE     shift, and go to state 13
+    TK_ID        shift, and go to state 14
+    TK_CHAR      shift, and go to state 15
+    TK_STRING    shift, and go to state 16
+    TK_PRINT     shift, and go to state 17
+    TK_PRINTLN   shift, and go to state 18
+    NOT          shift, and go to state 19
+    TK_IF        shift, and go to state 20
+    TK_FOR       shift, and go to state 21
+    TK_WHILE     shift, and go to state 22
+    TK_DO        shift, and go to state 23
+    TK_LOCAL     shift, and go to state 24
+    TK_DYNAMIC   shift, and go to state 25
+    TK_CONTINUE  shift, and go to state 26
+    TK_BREAK     shift, and go to state 27
+    '('          shift, and go to state 28
+    '{'          shift, and go to state 7
+
+    $default  reduce using rule 5 (COMANDOS)
+
+    BLOCO        go to state 29
+    COMANDOS     go to state 52
+    COMANDO      go to state 31
+    BEGIN_WHILE  go to state 32
+    BEGIN_FOR    go to state 33
+    BEGIN_DO     go to state 34
+    E            go to state 35
+
+
+State 32
+
+   14 COMANDO: BEGIN_WHILE • '(' E ')' LOOP_START_WHILE BLOCO CLOSE_WHILE
+
+    '('  shift, and go to state 53
+
+
+State 33
+
+   13 COMANDO: BEGIN_FOR • IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR
+
+    TK_ID  shift, and go to state 54
+
+    IDENTIFICADOR_FOR  go to state 55
+
+
+State 34
+
+   15 COMANDO: BEGIN_DO • BLOCO TK_WHILE '(' E ')' ';' CLOSE_DO
+
+    '{'  shift, and go to state 7
+
+    BLOCO  go to state 56
+
+
+State 35
+
+    6 COMANDO: E • ';'
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ';'               shift, and go to state 69
+
+
+State 36
+
+    7 COMANDO: TK_ID ';' •
+
+    $default  reduce using rule 7 (COMANDO)
+
+
+State 37
+
+   41 E: TK_ID '=' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 70
+
+
+State 38
+
+    8 COMANDO: TK_PRINT '(' • E ')' ';'
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 71
+
+
+State 39
+
+    9 COMANDO: TK_PRINTLN '(' • E ')' ';'
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 72
+
+
+State 40
+
+   41 E: TK_ID • '=' E
+   48  | TK_ID •
+
+    '='  shift, and go to state 37
+
+    $default  reduce using rule 48 (E)
+
+
+State 41
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   38  | NOT E •
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+
+    GREATER_THAN      [reduce using rule 38 (E)]
+    LESS_THAN         [reduce using rule 38 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 38 (E)]
+    LESS_OR_EQUAL     [reduce using rule 38 (E)]
+    EQUAL             [reduce using rule 38 (E)]
+    NOT_EQUAL         [reduce using rule 38 (E)]
+    $default          reduce using rule 38 (E)
+
+
+State 42
+
+   11 COMANDO: TK_IF '(' • E ')' BLOCO
+   12        | TK_IF '(' • E ')' BLOCO TK_ELSE BLOCO
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 73
+
+
+State 43
+
+   49 E: TK_LOCAL TK_ID • '=' E
+
+    '='  shift, and go to state 74
+
+
+State 44
+
+   50 E: TK_DYNAMIC TK_ID • '=' E
+
+    '='  shift, and go to state 75
+
+
+State 45
+
+   17 COMANDO: TK_CONTINUE ';' •
+
+    $default  reduce using rule 17 (COMANDO)
+
+
+State 46
+
+   16 COMANDO: TK_BREAK ';' •
+
+    $default  reduce using rule 16 (COMANDO)
+
+
+State 47
+
+   51 E: '(' TK_INT • ')' TK_ID
+
+    ')'  shift, and go to state 76
+
+
+State 48
+
+   52 E: '(' TK_FLOAT • ')' TK_ID
+
+    ')'  shift, and go to state 77
+
+
+State 49
+
+   53 E: '(' TK_BOOLEAN • ')' TK_ID
+
+    ')'  shift, and go to state 78
+
+
+State 50
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   31  | '(' E • ')'
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 79
+
+
+State 51
+
+    3 BLOCO: '{' $@1 COMANDOS '}' • CLOSE_BLOCO
+
+    $default  reduce using rule 26 (CLOSE_BLOCO)
+
+    CLOSE_BLOCO  go to state 80
+
+
+State 52
+
+    4 COMANDOS: COMANDO COMANDOS •
+
+    $default  reduce using rule 4 (COMANDOS)
+
+
+State 53
+
+   14 COMANDO: BEGIN_WHILE '(' • E ')' LOOP_START_WHILE BLOCO CLOSE_WHILE
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 81
+
+
+State 54
+
+   20 IDENTIFICADOR_FOR: TK_ID •
+
+    $default  reduce using rule 20 (IDENTIFICADOR_FOR)
+
+
+State 55
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR • '=' E ':' E BLOCO CLOSE_FOR
+
+    '='  shift, and go to state 82
+
+
+State 56
+
+   15 COMANDO: BEGIN_DO BLOCO • TK_WHILE '(' E ')' ';' CLOSE_DO
+
+    TK_WHILE  shift, and go to state 83
+
+
+State 57
+
+   32 E: E GREATER_THAN • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 84
+
+
+State 58
+
+   33 E: E LESS_THAN • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 85
+
+
+State 59
+
+   34 E: E GREATER_OR_EQUAL • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 86
+
+
+State 60
+
+   35 E: E LESS_OR_EQUAL • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 87
+
+
+State 61
+
+   36 E: E EQUAL • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 88
+
+
+State 62
+
+   37 E: E NOT_EQUAL • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 89
+
+
+State 63
+
+   39 E: E AND • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 90
+
+
+State 64
+
+   40 E: E OR • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 91
+
+
+State 65
+
+   27 E: E '+' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 92
+
+
+State 66
+
+   28 E: E '-' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 93
+
+
+State 67
+
+   29 E: E '*' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 94
+
+
+State 68
+
+   30 E: E '/' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 95
+
+
+State 69
+
+    6 COMANDO: E ';' •
+
+    $default  reduce using rule 6 (COMANDO)
+
+
+State 70
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+   41  | TK_ID '=' E •
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 41 (E)]
+    LESS_THAN         [reduce using rule 41 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 41 (E)]
+    LESS_OR_EQUAL     [reduce using rule 41 (E)]
+    EQUAL             [reduce using rule 41 (E)]
+    NOT_EQUAL         [reduce using rule 41 (E)]
+    AND               [reduce using rule 41 (E)]
+    OR                [reduce using rule 41 (E)]
+    '+'               [reduce using rule 41 (E)]
+    '-'               [reduce using rule 41 (E)]
+    '*'               [reduce using rule 41 (E)]
+    '/'               [reduce using rule 41 (E)]
+    $default          reduce using rule 41 (E)
+
+
+State 71
+
+    8 COMANDO: TK_PRINT '(' E • ')' ';'
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 96
+
+
+State 72
+
+    9 COMANDO: TK_PRINTLN '(' E • ')' ';'
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 97
+
+
+State 73
+
+   11 COMANDO: TK_IF '(' E • ')' BLOCO
+   12        | TK_IF '(' E • ')' BLOCO TK_ELSE BLOCO
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 98
+
+
+State 74
+
+   49 E: TK_LOCAL TK_ID '=' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 99
+
+
+State 75
+
+   50 E: TK_DYNAMIC TK_ID '=' • E
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 100
+
+
+State 76
+
+   51 E: '(' TK_INT ')' • TK_ID
+
+    TK_ID  shift, and go to state 101
+
+
+State 77
+
+   52 E: '(' TK_FLOAT ')' • TK_ID
+
+    TK_ID  shift, and go to state 102
+
+
+State 78
+
+   53 E: '(' TK_BOOLEAN ')' • TK_ID
+
+    TK_ID  shift, and go to state 103
+
+
+State 79
+
+   31 E: '(' E ')' •
+
+    $default  reduce using rule 31 (E)
+
+
+State 80
+
+    3 BLOCO: '{' $@1 COMANDOS '}' CLOSE_BLOCO •
+
+    $default  reduce using rule 3 (BLOCO)
+
+
+State 81
+
+   14 COMANDO: BEGIN_WHILE '(' E • ')' LOOP_START_WHILE BLOCO CLOSE_WHILE
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 104
+
+
+State 82
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' • E ':' E BLOCO CLOSE_FOR
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 105
+
+
+State 83
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE • '(' E ')' ';' CLOSE_DO
+
+    '('  shift, and go to state 106
+
+
+State 84
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   32  | E GREATER_THAN E •
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 32 (E)]
+    LESS_THAN         [reduce using rule 32 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 32 (E)]
+    LESS_OR_EQUAL     [reduce using rule 32 (E)]
+    EQUAL             [reduce using rule 32 (E)]
+    NOT_EQUAL         [reduce using rule 32 (E)]
+    AND               [reduce using rule 32 (E)]
+    OR                [reduce using rule 32 (E)]
+    '+'               [reduce using rule 32 (E)]
+    '-'               [reduce using rule 32 (E)]
+    '*'               [reduce using rule 32 (E)]
+    '/'               [reduce using rule 32 (E)]
+    $default          reduce using rule 32 (E)
+
+
+State 85
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   33  | E LESS_THAN E •
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 33 (E)]
+    LESS_THAN         [reduce using rule 33 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 33 (E)]
+    LESS_OR_EQUAL     [reduce using rule 33 (E)]
+    EQUAL             [reduce using rule 33 (E)]
+    NOT_EQUAL         [reduce using rule 33 (E)]
+    AND               [reduce using rule 33 (E)]
+    OR                [reduce using rule 33 (E)]
+    '+'               [reduce using rule 33 (E)]
+    '-'               [reduce using rule 33 (E)]
+    '*'               [reduce using rule 33 (E)]
+    '/'               [reduce using rule 33 (E)]
+    $default          reduce using rule 33 (E)
+
+
+State 86
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   34  | E GREATER_OR_EQUAL E •
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 34 (E)]
+    LESS_THAN         [reduce using rule 34 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 34 (E)]
+    LESS_OR_EQUAL     [reduce using rule 34 (E)]
+    EQUAL             [reduce using rule 34 (E)]
+    NOT_EQUAL         [reduce using rule 34 (E)]
+    AND               [reduce using rule 34 (E)]
+    OR                [reduce using rule 34 (E)]
+    '+'               [reduce using rule 34 (E)]
+    '-'               [reduce using rule 34 (E)]
+    '*'               [reduce using rule 34 (E)]
+    '/'               [reduce using rule 34 (E)]
+    $default          reduce using rule 34 (E)
+
+
+State 87
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   35  | E LESS_OR_EQUAL E •
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 35 (E)]
+    LESS_THAN         [reduce using rule 35 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 35 (E)]
+    LESS_OR_EQUAL     [reduce using rule 35 (E)]
+    EQUAL             [reduce using rule 35 (E)]
+    NOT_EQUAL         [reduce using rule 35 (E)]
+    AND               [reduce using rule 35 (E)]
+    OR                [reduce using rule 35 (E)]
+    '+'               [reduce using rule 35 (E)]
+    '-'               [reduce using rule 35 (E)]
+    '*'               [reduce using rule 35 (E)]
+    '/'               [reduce using rule 35 (E)]
+    $default          reduce using rule 35 (E)
+
+
+State 88
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   36  | E EQUAL E •
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 36 (E)]
+    LESS_THAN         [reduce using rule 36 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 36 (E)]
+    LESS_OR_EQUAL     [reduce using rule 36 (E)]
+    EQUAL             [reduce using rule 36 (E)]
+    NOT_EQUAL         [reduce using rule 36 (E)]
+    AND               [reduce using rule 36 (E)]
+    OR                [reduce using rule 36 (E)]
+    '+'               [reduce using rule 36 (E)]
+    '-'               [reduce using rule 36 (E)]
+    '*'               [reduce using rule 36 (E)]
+    '/'               [reduce using rule 36 (E)]
+    $default          reduce using rule 36 (E)
+
+
+State 89
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   37  | E NOT_EQUAL E •
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 37 (E)]
+    LESS_THAN         [reduce using rule 37 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 37 (E)]
+    LESS_OR_EQUAL     [reduce using rule 37 (E)]
+    EQUAL             [reduce using rule 37 (E)]
+    NOT_EQUAL         [reduce using rule 37 (E)]
+    AND               [reduce using rule 37 (E)]
+    OR                [reduce using rule 37 (E)]
+    '+'               [reduce using rule 37 (E)]
+    '-'               [reduce using rule 37 (E)]
+    '*'               [reduce using rule 37 (E)]
+    '/'               [reduce using rule 37 (E)]
+    $default          reduce using rule 37 (E)
+
+
+State 90
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   39  | E AND E •
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+
+    GREATER_THAN      [reduce using rule 39 (E)]
+    LESS_THAN         [reduce using rule 39 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 39 (E)]
+    LESS_OR_EQUAL     [reduce using rule 39 (E)]
+    EQUAL             [reduce using rule 39 (E)]
+    NOT_EQUAL         [reduce using rule 39 (E)]
+    $default          reduce using rule 39 (E)
+
+
+State 91
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+   40  | E OR E •
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+
+    GREATER_THAN      [reduce using rule 40 (E)]
+    LESS_THAN         [reduce using rule 40 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 40 (E)]
+    LESS_OR_EQUAL     [reduce using rule 40 (E)]
+    EQUAL             [reduce using rule 40 (E)]
+    NOT_EQUAL         [reduce using rule 40 (E)]
+    $default          reduce using rule 40 (E)
+
+
+State 92
+
+   27 E: E • '+' E
+   27  | E '+' E •
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 27 (E)]
+    LESS_THAN         [reduce using rule 27 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 27 (E)]
+    LESS_OR_EQUAL     [reduce using rule 27 (E)]
+    EQUAL             [reduce using rule 27 (E)]
+    NOT_EQUAL         [reduce using rule 27 (E)]
+    $default          reduce using rule 27 (E)
+
+
+State 93
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   28  | E '-' E •
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 28 (E)]
+    LESS_THAN         [reduce using rule 28 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 28 (E)]
+    LESS_OR_EQUAL     [reduce using rule 28 (E)]
+    EQUAL             [reduce using rule 28 (E)]
+    NOT_EQUAL         [reduce using rule 28 (E)]
+    $default          reduce using rule 28 (E)
+
+
+State 94
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   29  | E '*' E •
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+
+    GREATER_THAN      [reduce using rule 29 (E)]
+    LESS_THAN         [reduce using rule 29 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 29 (E)]
+    LESS_OR_EQUAL     [reduce using rule 29 (E)]
+    EQUAL             [reduce using rule 29 (E)]
+    NOT_EQUAL         [reduce using rule 29 (E)]
+    $default          reduce using rule 29 (E)
+
+
+State 95
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   30  | E '/' E •
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+
+    GREATER_THAN      [reduce using rule 30 (E)]
+    LESS_THAN         [reduce using rule 30 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 30 (E)]
+    LESS_OR_EQUAL     [reduce using rule 30 (E)]
+    EQUAL             [reduce using rule 30 (E)]
+    NOT_EQUAL         [reduce using rule 30 (E)]
+    $default          reduce using rule 30 (E)
+
+
+State 96
+
+    8 COMANDO: TK_PRINT '(' E ')' • ';'
+
+    ';'  shift, and go to state 107
+
+
+State 97
+
+    9 COMANDO: TK_PRINTLN '(' E ')' • ';'
+
+    ';'  shift, and go to state 108
+
+
+State 98
+
+   11 COMANDO: TK_IF '(' E ')' • BLOCO
+   12        | TK_IF '(' E ')' • BLOCO TK_ELSE BLOCO
+
+    '{'  shift, and go to state 7
+
+    BLOCO  go to state 109
+
+
+State 99
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+   49  | TK_LOCAL TK_ID '=' E •
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 49 (E)]
+    LESS_THAN         [reduce using rule 49 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 49 (E)]
+    LESS_OR_EQUAL     [reduce using rule 49 (E)]
+    EQUAL             [reduce using rule 49 (E)]
+    NOT_EQUAL         [reduce using rule 49 (E)]
+    AND               [reduce using rule 49 (E)]
+    OR                [reduce using rule 49 (E)]
+    '+'               [reduce using rule 49 (E)]
+    '-'               [reduce using rule 49 (E)]
+    '*'               [reduce using rule 49 (E)]
+    '/'               [reduce using rule 49 (E)]
+    $default          reduce using rule 49 (E)
+
+
+State 100
+
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+   50  | TK_DYNAMIC TK_ID '=' E •
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+
+    GREATER_THAN      [reduce using rule 50 (E)]
+    LESS_THAN         [reduce using rule 50 (E)]
+    GREATER_OR_EQUAL  [reduce using rule 50 (E)]
+    LESS_OR_EQUAL     [reduce using rule 50 (E)]
+    EQUAL             [reduce using rule 50 (E)]
+    NOT_EQUAL         [reduce using rule 50 (E)]
+    AND               [reduce using rule 50 (E)]
+    OR                [reduce using rule 50 (E)]
+    '+'               [reduce using rule 50 (E)]
+    '-'               [reduce using rule 50 (E)]
+    '*'               [reduce using rule 50 (E)]
+    '/'               [reduce using rule 50 (E)]
+    $default          reduce using rule 50 (E)
+
+
+State 101
+
+   51 E: '(' TK_INT ')' TK_ID •
+
+    $default  reduce using rule 51 (E)
+
+
+State 102
+
+   52 E: '(' TK_FLOAT ')' TK_ID •
+
+    $default  reduce using rule 52 (E)
+
+
+State 103
+
+   53 E: '(' TK_BOOLEAN ')' TK_ID •
+
+    $default  reduce using rule 53 (E)
+
+
+State 104
+
+   14 COMANDO: BEGIN_WHILE '(' E ')' • LOOP_START_WHILE BLOCO CLOSE_WHILE
+
+    $default  reduce using rule 23 (LOOP_START_WHILE)
+
+    LOOP_START_WHILE  go to state 110
+
+
+State 105
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' E • ':' E BLOCO CLOSE_FOR
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ':'               shift, and go to state 111
+
+
+State 106
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE '(' • E ')' ';' CLOSE_DO
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 112
+
+
+State 107
+
+    8 COMANDO: TK_PRINT '(' E ')' ';' •
+
+    $default  reduce using rule 8 (COMANDO)
+
+
+State 108
+
+    9 COMANDO: TK_PRINTLN '(' E ')' ';' •
+
+    $default  reduce using rule 9 (COMANDO)
+
+
+State 109
+
+   11 COMANDO: TK_IF '(' E ')' BLOCO •
+   12        | TK_IF '(' E ')' BLOCO • TK_ELSE BLOCO
+
+    TK_ELSE  shift, and go to state 113
+
+    $default  reduce using rule 11 (COMANDO)
+
+
+State 110
+
+   14 COMANDO: BEGIN_WHILE '(' E ')' LOOP_START_WHILE • BLOCO CLOSE_WHILE
+
+    '{'  shift, and go to state 7
+
+    BLOCO  go to state 114
+
+
+State 111
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' • E BLOCO CLOSE_FOR
+
+    TK_NUM      shift, and go to state 10
+    TK_REAL     shift, and go to state 11
+    TK_TRUE     shift, and go to state 12
+    TK_FALSE    shift, and go to state 13
+    TK_ID       shift, and go to state 40
+    TK_CHAR     shift, and go to state 15
+    TK_STRING   shift, and go to state 16
+    NOT         shift, and go to state 19
+    TK_LOCAL    shift, and go to state 24
+    TK_DYNAMIC  shift, and go to state 25
+    '('         shift, and go to state 28
+
+    E  go to state 115
+
+
+State 112
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE '(' E • ')' ';' CLOSE_DO
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    ')'               shift, and go to state 116
+
+
+State 113
+
+   12 COMANDO: TK_IF '(' E ')' BLOCO TK_ELSE • BLOCO
+
+    '{'  shift, and go to state 7
+
+    BLOCO  go to state 117
+
+
+State 114
+
+   14 COMANDO: BEGIN_WHILE '(' E ')' LOOP_START_WHILE BLOCO • CLOSE_WHILE
+
+    $default  reduce using rule 19 (CLOSE_WHILE)
+
+    CLOSE_WHILE  go to state 118
+
+
+State 115
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E • BLOCO CLOSE_FOR
+   27 E: E • '+' E
+   28  | E • '-' E
+   29  | E • '*' E
+   30  | E • '/' E
+   32  | E • GREATER_THAN E
+   33  | E • LESS_THAN E
+   34  | E • GREATER_OR_EQUAL E
+   35  | E • LESS_OR_EQUAL E
+   36  | E • EQUAL E
+   37  | E • NOT_EQUAL E
+   39  | E • AND E
+   40  | E • OR E
+
+    GREATER_THAN      shift, and go to state 57
+    LESS_THAN         shift, and go to state 58
+    GREATER_OR_EQUAL  shift, and go to state 59
+    LESS_OR_EQUAL     shift, and go to state 60
+    EQUAL             shift, and go to state 61
+    NOT_EQUAL         shift, and go to state 62
+    AND               shift, and go to state 63
+    OR                shift, and go to state 64
+    '+'               shift, and go to state 65
+    '-'               shift, and go to state 66
+    '*'               shift, and go to state 67
+    '/'               shift, and go to state 68
+    '{'               shift, and go to state 7
+
+    BLOCO  go to state 119
+
+
+State 116
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE '(' E ')' • ';' CLOSE_DO
+
+    ';'  shift, and go to state 120
+
+
+State 117
+
+   12 COMANDO: TK_IF '(' E ')' BLOCO TK_ELSE BLOCO •
+
+    $default  reduce using rule 12 (COMANDO)
+
+
+State 118
+
+   14 COMANDO: BEGIN_WHILE '(' E ')' LOOP_START_WHILE BLOCO CLOSE_WHILE •
+
+    $default  reduce using rule 14 (COMANDO)
+
+
+State 119
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO • CLOSE_FOR
+
+    $default  reduce using rule 22 (CLOSE_FOR)
+
+    CLOSE_FOR  go to state 121
+
+
+State 120
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE '(' E ')' ';' • CLOSE_DO
+
+    $default  reduce using rule 25 (CLOSE_DO)
+
+    CLOSE_DO  go to state 122
+
+
+State 121
+
+   13 COMANDO: BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR •
+
+    $default  reduce using rule 13 (COMANDO)
+
+
+State 122
+
+   15 COMANDO: BEGIN_DO BLOCO TK_WHILE '(' E ')' ';' CLOSE_DO •
+
+    $default  reduce using rule 15 (COMANDO)

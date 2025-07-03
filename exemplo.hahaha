@@ -1,11 +1,6 @@
 function main() {
 
-a = 10;          
-
-for i = 0:10 {
-  a = "rafinha";
-  println(a);
-}
+a = 10;
 
 a = "rafael";
 a;   

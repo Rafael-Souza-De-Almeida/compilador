@@ -23,6 +23,8 @@ int label_incremento = 0;
 int contador_if = 0;
 int contador_else=0;
 bool esta_no_escopo = false;
+int contador_label = 0;
+int contador_temp = 0;
 
 
 struct atributos {
@@ -95,6 +97,7 @@ string pega_variavel_global(string);
 string fim_if();
 string fim_else();
 bool isGlobal(string);
+string novo_label(string);
 
 %}
 
@@ -105,6 +108,8 @@ bool isGlobal(string);
 %token GREATER_THAN LESS_THAN GREATER_OR_EQUAL LESS_OR_EQUAL EQUAL NOT_EQUAL NOT AND OR
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH TK_LOCAL TK_DYNAMIC
 %token TK_CONTINUE TK_BREAK
+%token TK_INC TK_DEC
+
 
 %start S
 
@@ -271,16 +276,71 @@ COMANDO     : E ';'
                     $$.traducao += rotulo_if + ":\n";
 
                 }
-            }
+            } 
+                | TK_FOR '(' COMANDO E ';' INCREMENTO ')' BLOCO
+                {
+                    // Gera labels e empilha
+                     string label_inicio = novo_label("for_inicio");
+                     string label_fim = novo_label("for_fim");
+                     string label_incremento = novo_label("for_incremento");
 
-            | BEGIN_FOR IDENTIFICADOR_FOR '=' E ':' E BLOCO CLOSE_FOR {
+                    
+                    pilha_loop_inicio.push(label_inicio);
+                    pilha_loop_fim.push(label_fim);
+                    pilha_loop_continue.push(label_incremento);
+
+                    // Tradução inicialização
+                    $$.traducao = $3.traducao;
+
+                    // Label início do loop
+                    $$.traducao += label_inicio + ":\n";
+
+                    // Cria temporário para condição (boolean)
+                    string temp_cond_pre = gentempcode("boolean");
+                    string temp_cond = gentempcode("boolean");
+
+                    // Tradução da condição
+                    $$.traducao += $4.traducao;
+
+                    // temp_cond_pre = <condição> - 1 (se fizer sentido, ou direto condição)
+                    // Aqui você pode adaptar conforme seu formato do E, mas normalmente:
+                    // temp_cond = condição avaliada (por exemplo, i < 10)
+
+                    // Vou assumir que $4.label tem o valor da condição booleana:
+                    $$.traducao += "\t" + temp_cond + " = " + $4.label + ";\n";
+
+                    // Testa condição para pular para o fim
+                    $$.traducao += "\tif (!" + temp_cond + ") goto " + label_fim + ";\n";
+
+                    // Corpo do for
+                    $$.traducao += $8.traducao;
+
+                    // Label para incremento (continue)
+                    $$.traducao += label_incremento + ":\n";
+
+                    // Incremento (ex: i++, i = i + 1, etc)
+                    $$.traducao += $6.traducao;
+
+                    // Volta para início do loop
+                    $$.traducao += "\tgoto " + label_inicio + ";\n";
+
+                    // Label de saída do loop
+                    $$.traducao += label_fim + ":\n";
+
+                    // Remove labels da pilha
+                    if (!pilha_loop_continue.empty()) pilha_loop_continue.pop();
+                    if (!pilha_loop_inicio.empty()) pilha_loop_inicio.pop();
+                    if (!pilha_loop_fim.empty()) pilha_loop_fim.pop();
+                }
+
+            | BEGIN_FOR IDENTIFICADOR_FOREACH '=' E ':' E BLOCO CLOSE_FOR {
 
                     if ($4.tipo != "int") {
-                        yyerror("Início do for deve ser numérico (int)");
+                        yyerror("Início do foreach deve ser numérico (int)");
                     }
 
                     if ($6.tipo != "int") {
-                        yyerror("Fim do for deve ser numérico (int)");
+                        yyerror("Fim do foreach deve ser numérico (int)");
                     }
 
                     string label_inicio = pilha_loop_inicio.top();
@@ -403,7 +463,7 @@ CLOSE_WHILE:
                     }
                     ;
 
-IDENTIFICADOR_FOR : TK_ID 
+IDENTIFICADOR_FOREACH : TK_ID 
                     {
                         string indice_for = gentempcode("int");
                         string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
@@ -483,6 +543,23 @@ CLOSE_DO:
 CLOSE_BLOCO: {
     sai_escopo();
 }
+
+INCREMENTO
+    : COMANDO
+    {
+        $$.traducao = $1.traducao;
+    }
+    | TK_ID TK_INC
+    {
+        string nome_interno = pega_variavel_na_tabela($1.label);
+        $$.traducao = "\t" + nome_interno + " = " + nome_interno + " + 1;\n";
+    }
+    | TK_ID TK_DEC
+    {
+        string nome_interno = pega_variavel_na_tabela($1.label);
+        $$.traducao = "\t" + nome_interno + " = " + nome_interno + " - 1;\n";
+    }
+    ;
 
                     
            
@@ -1196,6 +1273,11 @@ string fim_else(){
 void yyerror(string MSG) {
     cout << "\033[1;31m" << MSG << "\033[0m" << endl;
     exit (0);
+}
+
+
+string novo_label(string base) {
+    return base + "_" + to_string(contador_label++);
 }
 
 int main(int argc, char* argv[]) {
