@@ -18,7 +18,7 @@ Para compilar e executar um programa com este compilador, siga os passos abaixo:
 
 A seguir, são apresentados diversos exemplos de código que demonstram as capacidades do compilador. Você pode usar esses exemplos para testar as funcionalidades.
 
-### 1. Impreessão de variáveis
+### 1. Impressão de variáveis
 
 É possível imprimir variáveis utilizando o identificador da variável mais ';'
 
