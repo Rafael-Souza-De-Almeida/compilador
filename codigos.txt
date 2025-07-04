@@ -1,0 +1,158 @@
+-- 1. For contando até 10
+
+
+function main() {
+  for(i = 0; i < 10; i++) {
+    i;
+  }
+
+}
+
+
+-- 2. String
+
+function main() {
+
+a = "Essa é a disciplina de compiladores";
+a;
+
+}
+
+-- 3. String com stdin
+
+
+function main() {
+
+string type(x);
+
+x;
+
+}
+
+-- 4. Controle de laço
+
+
+function main() {
+
+for(i = 0; i < 10; i++) {
+
+  if(i == 2){
+    continue;
+  }
+
+   i;
+
+  if(i == 5){
+    break;
+  }
+}
+
+}
+
+-- 5. Subprogramas 
+
+function foo() {
+  a = "Olá mundo!";
+  a;
+}
+
+
+function main() {
+
+a = 20;
+b = 40.5;
+
+c = a + b;
+
+foo();
+
+c;
+
+}
+
+-- 6. Operadores unários e compostos
+
+function main() {
+
+a = 10;
+b = 20;
+c = 40;
+d = 15;
+
+a++;
+b--;
+
+c += 10;
+d -= 10;
+
+a;
+b;
+c;
+d;
+
+}
+
+-- 7. Foreach
+
+function main() {
+
+for i = 0:10 {
+  i;
+}
+
+}
+
+-- 8. Vinculação dinâmica de tipos
+
+function main() {
+
+a = 10;
+a = "rafael";
+b = a + " " + "souza";
+
+b;
+
+}
+
+-- 9. Break all
+
+function main() {
+
+b = 30;
+
+for(i = 0; i < 20; i++) {
+  a = "primeiro for";
+  a;
+  for(j = 0; j < 10; j++) {
+    local b = "segundo for";
+    b;
+    if(j == 1){
+      break all;
+    }
+  }
+}
+  b;
+}
+
+-- 10. Ternário
+
+function main() {
+
+  a = 30;
+  b = 20;
+  g = true;
+
+  c = (a < 20) ? "A é menor que 20" : "A é maior que 20";
+  c;
+
+  d = (b > 10) ? "B é maior que 10" : "B é menor que 10";
+  d;
+
+  f = g ? 1 : 0;
+  f;
+
+}
+
+
+
+

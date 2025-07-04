@@ -25,6 +25,7 @@ int contador_else=0;
 bool esta_no_escopo = false;
 int contador_label = 0;
 int contador_temp = 0;
+int troca_quebra_linha = 0;
 
 
 struct atributos {
@@ -117,6 +118,11 @@ string novo_label(string);
 %token TK_BREAKALL
 %token TOKEN_STRING_TYPE
 %token TK_TYPE
+%token TK_MAISCOMPOSTO
+%token TK_MENOSCOMPOSTO
+%token TK_MULTIPLICACOMPOSTO
+%token TK_DIVIDECOMPOSTO
+%token TK_MODCOMPOSTO
 
 
 %start S
@@ -141,57 +147,50 @@ S           : LISTA_DECLARACOES
                                 "int main(void) {\n";
                 
                 
-                 for(auto iterador : temporarias) {
-                    if(iterador.second == "boolean") {
+                                
+                for (auto iterador : temporarias) {
+                    if (iterador.second == "") continue; 
+
+                    if (iterador.second == "boolean") {
                         codigo += "\tint " + iterador.first + ";\n";
-                        continue;
-                    }
-
-                    if(iterador.second == "string" && iterador.second.length() > 1) {
+                    } else if (iterador.second == "string") {
                         codigo += "\tchar *" + iterador.first + ";\n";
-                        continue;
+                    } else {
+                        codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
                     }
-                    codigo += "\t" + iterador.second + " " + iterador.first + ";\n";
-                 }
-
-
-
-               for (auto& simbolo : simbolos_declarados) {
-                if (simbolo.tipo == "boolean") {
-                    codigo += "\tint " + simbolo.nome_interno + ";\n";
                 }
 
-                else if(simbolo.tipo == "string") {
-                    codigo += "\tchar *" + simbolo.nome_interno + ";\n";
-                }
-                 else {
-                    codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
-                }
-            }
+               
+                for (auto& simbolo : simbolos_declarados) {
+                    if (simbolo.tipo == "") continue; 
 
+                    if (simbolo.tipo == "boolean") {
+                        codigo += "\tint " + simbolo.nome_interno + ";\n";
+                    } else if (simbolo.tipo == "string") {
+                        codigo += "\tchar *" + simbolo.nome_interno + ";\n";
+                    } else {
+                        codigo += "\t" + simbolo.tipo + " " + simbolo.nome_interno + ";\n";
+                    }
+                }
+
+               
                 codigo += "\tgoto label_main;\n";
-                codigo += $1.traducao;             
-                codigo += "end_main:\n";              
+                codigo += $1.traducao;
+                codigo += "end_main:\n";
 
-              
-
-                for(auto iterador : simbolos_declarados) {
-
-                    if(iterador.tipo == "string") {
-                        codigo += "\tfree(" + iterador.nome_interno + ")" + ";\n";
-                        continue;
-                    } 
-
+            
+                for (auto& simbolo : simbolos_declarados) {
+                    if (simbolo.tipo == "string") {
+                        codigo += "\tfree(" + simbolo.nome_interno + ");\n";
+                    }
                 }
 
-                 for(auto iterador : temporarias) {
-                    if(iterador.second == "string" && iterador.second.length() > 1) {
-                        codigo += "\tfree(" + iterador.first + ")" + ";\n";
-                        
+                
+                for (auto iterador : temporarias) {
+                    if (iterador.second == "string") {
+                        codigo += "\tfree(" + iterador.first + ");\n";
                     }
-
-                 }
-
+                }
              
 
                 codigo += "\treturn 0;"
@@ -331,20 +330,65 @@ COMANDO     : E ';'
         
             $$.traducao = comando_leitura;
             }
-            | TOKEN_STRING_TYPE TK_TYPE '(' TK_ID ')' ';'
-            {
-            
-            string temp_associada = gentempcode("string");
-            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
-            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
-            string nome_interno = adiciona_variavel_na_tabela($4.label, "string" , temp_associada, escopo_atual, funcao_atual);
+           | TOKEN_STRING_TYPE TK_TYPE '(' TK_ID ')' ';'
+{
+    string temp_input = gentempcode("string");
+    string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+    string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+    string nome_interno = adiciona_variavel_na_tabela($4.label, "string", temp_input, escopo_atual, funcao_atual);
 
-            string comando_leitura;
-            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
-  
-        
-            $$.traducao = comando_leitura;
-            }
+    string tamanho = gentempcode("int");
+    string i = gentempcode("int");
+    string contador = gentempcode("int");
+    string cond = gentempcode("int");
+    string ultima_pos = gentempcode("int");
+    string eh_quebra = gentempcode("int");
+
+    $$.label = gentempcode("string");
+    tamanho_string[$$.label] = tamanho;
+
+    // Aloca e lê do stdin
+    $$.traducao += "\t" + temp_input + " = (char *) malloc(300);\n";
+    $$.traducao += "\tfgets(" + temp_input + ", 300, stdin);\n";
+
+    // Contar caracteres até '\0'
+    $$.traducao += "\t" + i + " = 0;\n";
+    $$.traducao += "\t" + contador + " = 0;\n";
+    string loop_ini = "label_contagem_inicio_" + to_string(troca_quebra_linha++);
+    string loop_fim = "label_contagem_fim_" + to_string(troca_quebra_linha++);
+
+    $$.traducao += loop_ini + ":\n";
+    $$.traducao += "\t" + cond + " = " + temp_input + "[" + i + "] == '\\0';\n";
+    $$.traducao += "\tif (" + cond + ") goto " + loop_fim + ";\n";
+    $$.traducao += "\t" + contador + " = " + contador + " + 1;\n";
+    $$.traducao += "\t" + i + " = " + i + " + 1;\n";
+    $$.traducao += "\tgoto " + loop_ini + ";\n";
+    $$.traducao += loop_fim + ":\n";
+
+
+    // Verifica se último caractere é '\n'
+    $$.traducao += "\t" + ultima_pos + " = " + contador + " - 1;\n";
+    $$.traducao += "\t" + eh_quebra + " = " + temp_input + "[" + ultima_pos + "] == '\\n';\n";
+
+    string troca_label = "troca_quebra_linha_" + to_string(troca_quebra_linha);
+    string fim_troca = "fim_troca_quebra_linha_" + to_string(troca_quebra_linha);
+    troca_quebra_linha++;
+
+    $$.traducao += "\tif (" + eh_quebra + ") goto " + troca_label + ";\n";
+    $$.traducao += troca_label + ":\n";
+    $$.traducao += "\t" + temp_input + "[" + ultima_pos + "] = '\\0';\n";
+    $$.traducao += "\t" + tamanho + " = " + contador + ";\n";  // se tinha \n, reduz tamanho
+    $$.traducao += "\tgoto " + fim_troca + ";\n";
+    $$.traducao += fim_troca + ":\n";
+
+    // Aloca string final
+    $$.traducao += "\t" + $$.label + " = (char *) malloc(" + tamanho + ");\n";
+    $$.traducao += "\tstrcpy(" + $$.label + ", " + temp_input + ");\n";
+
+    $$.traducao += "\t" + nome_interno + " = (char *) malloc(" + tamanho + ");\n";
+    $$.traducao += "\tstrcpy(" + nome_interno + ", " + $$.label + ");\n";
+}
+
 
             | TK_IF '(' E ')' BLOCO{
                 if($3.tipo!="boolean"){
@@ -914,12 +958,12 @@ E           : E '+' E
 
 
                 if (novo_tipo == "string") {
+                    $$.traducao = $1.traducao + $3.traducao;
                     if (realocar_var_interna.count(nome_interno)) {
-                        $$.traducao = "\tfree(" + nome_interno + ");\n";
+                        $$.traducao += "\tfree(" + nome_interno + ");\n";
                     }
                     realocar_var_interna[nome_interno] = true;
-
-                    $$.traducao += $1.traducao + $3.traducao;
+                    
                     $$.traducao += "\t" + nome_interno + " = (char *) malloc(" + tamanho_string[$3.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_interno + ", " + $3.label + ");\n";
                 } else {
@@ -981,7 +1025,7 @@ E           : E '+' E
             }
             | TK_ID
             {   string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
-                string tipo = getTipo($1.label); 
+                string tipo = getTipo($1.label);
                 $$.label = gentempcode(tipo);
                 string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao = "\t" + $$.label + " = " + nome_interno + ";\n";
@@ -1011,11 +1055,12 @@ E           : E '+' E
                 $$.escopo = escopo_atual;
 
                 if ($4.tipo == "string") {
+                   $$.traducao = $2.traducao + $4.traducao; 
                     if (realocar_var_interna.count(nome_variavel)) {
-                        $$.traducao = "\tfree(" + nome_variavel + ");\n";
+                        $$.traducao += "\tfree(" + nome_variavel + ");\n";
                     }
                     realocar_var_interna[nome_variavel] = true;
-                    $$.traducao += $2.traducao + $4.traducao + "\t" + nome_variavel + " = (char *) malloc(" + tamanho_string[$4.label] + ");\n";
+                    $$.traducao += "\t" + nome_variavel + " = (char *) malloc(" + tamanho_string[$4.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_variavel + ", " + $4.label + ");\n";
                 } else {
                     $$.traducao = $2.traducao + $4.traducao + "\t" + nome_variavel + " = " + $4.label + ";\n";
@@ -1036,11 +1081,12 @@ E           : E '+' E
                 }
 
                 if ($4.tipo == "string") {
+                    $$.traducao = $2.traducao + $4.traducao;
                     if (realocar_var_interna.count(nome_interno)) {
-                        $$.traducao = "\tfree(" + nome_interno + ");\n";
+                        $$.traducao += "\tfree(" + nome_interno + ");\n";
                     }
                     realocar_var_interna[nome_interno] = true;
-                    $$.traducao += $2.traducao + $4.traducao + "\t" + nome_interno + " = (char *) malloc(" + tamanho_string[$4.label] + ");\n";
+                    $$.traducao +="\t" + nome_interno + " = (char *) malloc(" + tamanho_string[$4.label] + ");\n";
                     $$.traducao += "\tstrcpy(" + nome_interno + ", " + $4.label + ");\n";
                 } else {
                     $$.traducao = $2.traducao + $4.traducao + "\t" + nome_interno + " = " + $4.label + ";\n";
@@ -1083,36 +1129,216 @@ E           : E '+' E
                 $$.traducao = "\tgoto label_" + $1.label + ";\n";
                 $$.traducao += "end_" + $1.label + ":\n";
             }
-            | E '?' E ':' E 
+           | E '?' E ':' E 
+            {
+                if($1.tipo != "boolean"){
+                    yyerror("Erro na linha "+ to_string(linha) + ": condição do ternário deve ser booleana.");
+                }
+
+                string tipo_resultado = resolve_tipo($3.tipo, $5.tipo);
+                $$.tipo = tipo_resultado;
+                $$.label = gentempcode(tipo_resultado);
+
+                string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
+                string rotulo_end  = "tern_end_" + to_string(var_temp_qnt++);
+
+                auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
+                auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
+
+                $$.traducao = $1.traducao + $3.traducao + $5.traducao;
+                $$.traducao += "\tif (" + $1.label + ") goto " + rotulo_true + ";\n";
+
+                // Falso
+                if (tipo_resultado == "string") {
+                    string tam_false = tamanho_string[$5.label];
+                    $$.traducao += "\t" + $$.label + " = (char *) malloc(" + tam_false + ");\n";
+                    $$.traducao += "\tstrcpy(" + $$.label + ", " + $5.label + ");\n";
+                } else {
+                    $$.traducao += coercoes_false;
+                    $$.traducao += "\t" + $$.label + " = " + $5.label + ";\n";
+                }
+
+                $$.traducao += "\tgoto " + rotulo_end + ";\n";
+
+                // Verdadeiro
+                $$.traducao += rotulo_true + ":\n";
+
+                if (tipo_resultado == "string") {
+                    string tam_true = tamanho_string[$3.label];
+                    $$.traducao += "\t" + $$.label + " = (char *) malloc(" + tam_true + ");\n";
+                    $$.traducao += "\tstrcpy(" + $$.label + ", " + $3.label + ");\n";
+                } else {
+                    $$.traducao += coercoes_true;
+                    $$.traducao += "\t" + $$.label + " = " + $3.label + ";\n";
+                }
+
+                $$.traducao += rotulo_end + ":\n";
+
+                if (tipo_resultado == "string") {
+                    tamanho_string[$$.label] = (tamanho_string[$3.label] > tamanho_string[$5.label]) ? tamanho_string[$3.label] : tamanho_string[$5.label];
+                }
+            }
+
+               | TK_ID TK_MAISCOMPOSTO E
                 {
-                    if($1.tipo!="boolean"){
-                        yyerror("Erro na linha "+ to_string(linha)+" Condicao do ternario deve ser do tipo boolean");
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+
+                string tipo = resolve_tipo(tipo_var, $3.tipo);
+
+                // Caso 1: Concatenação de char + char
+                if (tipo == "char") {
+                    string var_1 = gentempcode("string");
+                    string var_2 = gentempcode("string");
+                    $$.tipo = "string";
+                    $$.label = gentempcode("string");
+
+                    $$.traducao = $1.traducao + $3.traducao;
+                    $$.traducao += "\t" + var_1 + " = (char *) malloc(2);\n";
+                    $$.traducao += "\t" + var_1 + "[0] = " + $1.label + ";\n";
+                    $$.traducao += "\t" + var_1 + "[1] = '\\0';\n";
+
+                    $$.traducao += "\t" + var_2 + " = (char *) malloc(2);\n";
+                    $$.traducao += "\t" + var_2 + "[0] = " + $3.label + ";\n";
+                    $$.traducao += "\t" + var_2 + "[1] = '\\0';\n";
+
+                    string temp_tamanho = gentempcode("int");
+                    $$.traducao += "\t" + temp_tamanho + " = 3;\n";
+                    $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
+                    $$.traducao += "\tstrcpy(" + $$.label + ", " + var_1 + ");\n";
+                    $$.traducao += "\tstrcat(" + $$.label + ", " + var_2 + ");\n";
+
+                    tamanho_string[$$.label] = temp_tamanho;
+
+                    // Libera valor anterior se necessário
+                    if (realocar_var_interna.count(nome_variavel)) {
+                        $$.traducao += "\tfree(" + nome_variavel + ");\n";
                     }
-                    string tipo_resultado = resolve_tipo($3.tipo, $5.tipo);
-            
-                    auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
-                    auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
-            
-                    string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
-                    string rotulo_end = "tern_end_" + to_string(var_temp_qnt++);
-            
-                    string temp_final = gentempcode(tipo_resultado);
-            
-                    $$.tipo = tipo_resultado;
-                    $$.label = temp_final;
-                    $$.traducao =
-                    $1.traducao +
-                    $3.traducao + 
-                    $5.traducao +
-                    "\tif (" + $1.label + ") goto " + rotulo_true + ";\n" +
-                    coercoes_false +
-                    "\t" + temp_final + " = " + $5.label + ";\n" +
-                    "\tgoto " + rotulo_end + ";\n" +
-                    rotulo_true + ":\n" +
-                    coercoes_true +
-                    "\t" + temp_final + " = " + $3.label + ";\n" +
-                    rotulo_end + ":\n";
-                } 
+                    realocar_var_interna[nome_variavel] = true;
+
+                    $$.traducao += "\t" + nome_variavel + " = (char *) malloc(" + temp_tamanho + ");\n";
+                    $$.traducao += "\tstrcpy(" + nome_variavel + ", " + $$.label + ");\n";
+                }
+
+                // Caso 2: string += string, string += char, char += string
+                else if (tipo == "string") {
+                    $$.label = gentempcode("string");
+                    $$.tipo = "string";
+
+                    bool left_is_char = tipo_var == "char";
+                    bool right_is_char = $3.tipo == "char";
+
+                     string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+                    string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+
+                    string left_label = tipos_atuais[$1.label + "_" + escopo_atual + "_" + funcao_atual].temp_associada;
+                    string right_label = $3.label;
+                    string prep = "";
+
+                    // Coerção do lado esquerdo se for char
+                    if (left_is_char) {
+                        string var = gentempcode("string");
+                        prep += "\t" + var + " = (char *) malloc(2);\n";
+                        prep += "\t" + var + "[0] = " + $1.label + ";\n";
+                        prep += "\t" + var + "[1] = '\\0';\n";
+                        left_label = var;
+                        tamanho_string[var] = "2";
+                    }
+
+                    // Coerção do lado direito se for char
+                    if (right_is_char) {
+                        string var = gentempcode("string");
+                        prep += "\t" + var + " = (char *) malloc(2);\n";
+                        prep += "\t" + var + "[0] = " + $3.label + ";\n";
+                        prep += "\t" + var + "[1] = '\\0';\n";
+                        right_label = var;
+                        tamanho_string[var] = "2";
+                    }
+
+                    string temp_tamanho = gentempcode("int");
+
+                    $$.traducao = $1.traducao + $3.traducao + prep;
+                    $$.traducao += "\t" + temp_tamanho + " = " + tamanho_string[left_label] + " + " + tamanho_string[right_label] + ";\n";
+                    $$.traducao += "\t" + temp_tamanho + " = " + temp_tamanho + " + 1;\n";
+                    $$.traducao += "\t" + $$.label + " = (char *) malloc(" + temp_tamanho + ");\n";
+                    $$.traducao += "\tstrcpy(" + $$.label + ", " + left_label + ");\n";
+                    $$.traducao += "\tstrcat(" + $$.label + ", " + right_label + ");\n";
+
+                    tamanho_string[$$.label] = temp_tamanho;
+
+                    // Libera valor anterior se necessário
+                    if (realocar_var_interna.count(nome_variavel)) {
+                        $$.traducao += "\tfree(" + nome_variavel + ");\n";
+                    }
+                    realocar_var_interna[nome_variavel] = true;
+
+
+
+                    $$.traducao += "\t" + nome_variavel + " = (char *) malloc(" + temp_tamanho + ");\n";
+                    $$.traducao += "\tstrcpy(" + nome_variavel + ", " + $$.label + ");\n";
+                }
+
+                // Caso default: += comum com int, float etc.
+                else {
+                    string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+                    string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+
+                    // Pega o nome interno da variável (ex: __v0)
+                    string nome_interno = pega_variavel_na_tabela($1.label);
+
+                    // Pega o tipo atual da variável e do lado direito da expressão
+                    string tipo_var = getTipo($1.label);
+                    string tipo = resolve_tipo(tipo_var, $3.tipo);
+
+                    // Atualiza o tipo da variável na tabela de tipos (se necessário)
+                    tipos_atuais[$1.label + "_" + escopo_atual + "_" + funcao_atual].tipo = tipo;
+
+                    // Faz coerção, se for necessário (ex: int + float → float)
+                    auto [coercoes, t1, t2] = resolve_coercao(nome_interno, $3.label, tipo);
+
+                    // Gera nome temporário se quiser usar em outras regras
+                    $$.label = gentempcode(tipo);
+                    $$.tipo = tipo;
+
+                    // Gera código traduzido
+                    $$.traducao = $1.traducao + $3.traducao + coercoes;
+                    $$.traducao += "\t" + nome_interno + " = " + t1 + " + " + t2 + ";\n";
+                }
+            }
+
+            | TK_ID TK_MENOSCOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " - " + $3.label + ";\n";
+            }
+            | TK_ID TK_MULTIPLICACOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " * " + $3.label + ";\n";
+            }
+            | TK_ID TK_DIVIDECOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " / " + $3.label + ";\n";
+            }
+            | TK_ID TK_MODCOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " % " + $3.label + ";\n";
+            }
             ;             
 %%
 

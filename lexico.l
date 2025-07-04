@@ -82,6 +82,16 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "type"       {return TK_TYPE;}
 
+"+="           {return TK_MAISCOMPOSTO;}
+
+"-="          {return TK_MENOSCOMPOSTO;}
+
+"*="         {return TK_MULTIPLICACOMPOSTO;}
+
+"/="         {return TK_DIVIDECOMPOSTO;}
+
+"%="       {return TK_MODCOMPOSTO;}
+
 
 
 ">"         {return GREATER_THAN;}

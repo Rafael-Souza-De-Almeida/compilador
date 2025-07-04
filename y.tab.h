@@ -94,7 +94,12 @@ extern int yydebug;
     TK_DEC = 295,                  /* TK_DEC  */
     TK_BREAKALL = 296,             /* TK_BREAKALL  */
     TOKEN_STRING_TYPE = 297,       /* TOKEN_STRING_TYPE  */
-    TK_TYPE = 298                  /* TK_TYPE  */
+    TK_TYPE = 298,                 /* TK_TYPE  */
+    TK_MAISCOMPOSTO = 299,         /* TK_MAISCOMPOSTO  */
+    TK_MENOSCOMPOSTO = 300,        /* TK_MENOSCOMPOSTO  */
+    TK_MULTIPLICACOMPOSTO = 301,   /* TK_MULTIPLICACOMPOSTO  */
+    TK_DIVIDECOMPOSTO = 302,       /* TK_DIVIDECOMPOSTO  */
+    TK_MODCOMPOSTO = 303           /* TK_MODCOMPOSTO  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -144,6 +149,11 @@ extern int yydebug;
 #define TK_BREAKALL 296
 #define TOKEN_STRING_TYPE 297
 #define TK_TYPE 298
+#define TK_MAISCOMPOSTO 299
+#define TK_MENOSCOMPOSTO 300
+#define TK_MULTIPLICACOMPOSTO 301
+#define TK_DIVIDECOMPOSTO 302
+#define TK_MODCOMPOSTO 303
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

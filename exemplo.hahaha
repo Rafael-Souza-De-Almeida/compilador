@@ -1,16 +1,13 @@
-function foo() {
-
-  a = 50;
-  a;
-
-}
-
 function main() {
 
-  int type(a);
+  a = 30;
 
-  foo();
-
-  a;
+  while(a < 50) {
+    local b = 30;
+    a = a + 10;
+    b = b + 50;
+    a;
+    b;
+  }
 
 }
