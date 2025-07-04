@@ -64,6 +64,11 @@ string getTempId(string);
 %token TK_IF TK_ELSE TK_FOR TK_WHILE TK_DO TK_SWITCH
 %token TK_CONTINUE TK_BREAK
 %token TK_TYPE
+%token TK_MAISCOMPOSTO
+%token TK_MENOSCOMPOSTO
+%token TK_MULTIPLICACOMPOSTO
+%token TK_DIVIDECOMPOSTO
+%token TK_MODCOMPOSTO
 
 %start S
 
@@ -239,13 +244,13 @@ E           : E '+' E
                 }
                    string tipo_resultado = resolve_tipo($3.tipo, $5.tipo);
 
-        auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
-        auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
+    auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
+    auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
 
-        string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
-        string rotulo_end = "tern_end_" + to_string(var_temp_qnt++);
+    string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
+    string rotulo_end = "tern_end_" + to_string(var_temp_qnt++);
 
-        string temp_final = gentempcode(tipo_resultado);
+            string temp_final = gentempcode(tipo_resultado);
 
         $$.tipo = tipo_resultado;
         $$.label = temp_final;
@@ -397,6 +402,47 @@ E           : E '+' E
                 verifica_tipo(tipo_var, $3.tipo, "atribuição incompatível!");
                 $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + $3.label + ";\n";
             } 
+            | TK_ID TK_MAISCOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " + " + $3.label + ";\n";
+            }
+            | TK_ID TK_MENOSCOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " - " + $3.label + ";\n";
+            }
+            | TK_ID TK_MULTIPLICACOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " * " + $3.label + ";\n";
+            }
+            | TK_ID TK_DIVIDECOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " / " + $3.label + ";\n";
+            }
+            | TK_ID TK_MODCOMPOSTO E
+            {
+                string nome_variavel = pega_variavel_na_tabela($1.label);
+                string tipo_var = getTipo($1.label);
+                verifica_tipo(tipo_var, $3.tipo, "atribuição composta incompatível!");
+
+
+                $$.traducao = $1.traducao + $3.traducao + "\t" + nome_variavel + " = " + nome_variavel + " % " + $3.label + ";\n";
+            }
             | TK_INT TK_ID '=' E
             {
 
@@ -607,6 +653,7 @@ tuple<string, string, string> resolve_coercao(string label1, string label2, stri
 int main(int argc, char* argv[]) {
     var_temp_qnt = 0;
     linha = 1;
+    entra_escopo();
     yyparse();
     return 0;
 }

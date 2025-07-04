@@ -1,12 +1,11 @@
 
-
 function main() 
 
 {   
 
- 
-int a = 9;
-float b = 4;
-int maior = (a+1>b)? a:b;
-println(maior);
+float a=10.3;
+float b=3;
+
+a%=b;
+println(a);
 }

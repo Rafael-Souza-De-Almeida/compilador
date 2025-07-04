@@ -87,6 +87,16 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "type"       {return TK_TYPE;}
 
+"+="           {return TK_MAISCOMPOSTO;}
+
+"-="          {return TK_MENOSCOMPOSTO;}
+
+"*="         {return TK_MULTIPLICACOMPOSTO;}
+
+"/="         {return TK_DIVIDECOMPOSTO;}
+
+"%="       {return TK_MODCOMPOSTO;}
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
