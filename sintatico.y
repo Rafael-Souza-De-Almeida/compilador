@@ -442,6 +442,105 @@ COMANDO     : E ';'
                 }
 
             }
+
+            | TK_ID PRE_ADICAO E ';' // x += E; (equivalente a x = x + E;)
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '+=' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + id_coerced + " + " + expr_coerced + ";\n";
+            }
+            | TK_ID POS_ADICAO E ';' // x =+ E; (equivalente a x = E + x;) - Semântica assumida
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '=+ ' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + expr_coerced + " + " + id_coerced + ";\n"; // Ordem inversa para '='
+            }
+            | TK_ID PRE_SUB E ';' // x -= E; (equivalente a x = x - E;)
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char" || tipo_resultante == "string") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '-=' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + id_coerced + " - " + expr_coerced + ";\n";
+            }
+            | TK_ID POS_SUB E ';' // x =- E; (equivalente a x = E - x;) - Semântica assumida
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char" || tipo_resultante == "string") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '=-' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + expr_coerced + " - " + id_coerced + ";\n"; // Ordem inversa para '=-'
+            }
+            | TK_ID ATRIBUICAO_MULTI E ';' // x *= E; (equivalente a x = x * E;)
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char" || tipo_resultante == "string") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '*=' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + id_coerced + " * " + expr_coerced + ";\n";
+            }
+            | TK_ID ATRIBUICAO_DIV E ';' // x /= E; (equivalente a x = x / E;)
+            {
+                string tipo_id = getTipo($1.label);
+                string tipo_expr = $3.tipo;
+
+                string tipo_resultante = resolve_tipo(tipo_id, tipo_expr);
+                if (tipo_resultante == "boolean" || tipo_resultante == "char" || tipo_resultante == "string") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador '/=' não pode ser usado com tipos " + tipo_id + " e " + tipo_expr);
+                }
+
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_id);
+                auto [coercoes_id, id_coerced, expr_coerced] = resolve_coercao(nome_interno, $3.label, tipo_resultante);
+
+                $$.traducao = $3.traducao + coercoes_id;
+                $$.traducao += "\t" + nome_interno + " = " + id_coerced + " / " + expr_coerced + ";\n";
+            }
+
+
             ;
 
 
@@ -733,6 +832,70 @@ E           : E '+' E
                 $$.label = gentempcode("int");
                 $$.tipo = "boolean";
                 $$.traducao = $1.traducao + $3.traducao + "\t" + $$.label + " = " + $1.label + " || " + $3.label + ";\n";
+            }
+
+            | TK_ID INCREMENTAR // x++
+            {
+                string tipo_var = getTipo($1.label);
+                if (tipo_var != "int" && tipo_var != "float") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador de incremento '++' só pode ser usado com variáveis numéricas (int ou float).");
+                }
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_var);
+                string temp_result = gentempcode(tipo_var);
+
+                $$.traducao = tipos_atuais[$1.label].traducao; // Se precisar da tradução da variável em si
+                $$.traducao += "\t" + temp_result + " = " + nome_interno + ";\n"; // Salva o valor original
+                $$.traducao += "\t" + nome_interno + " = " + nome_interno + " + 1;\n"; // Incrementa a variável
+                $$.label = temp_result; // O resultado da expressão é o valor original
+                $$.tipo = tipo_var;
+            }
+            | TK_ID DECREMENTAR // x--
+            {
+                string tipo_var = getTipo($1.label);
+                if (tipo_var != "int" && tipo_var != "float") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador de decremento '--' só pode ser usado com variáveis numéricas (int ou float).");
+                }
+                string nome_interno = pega_variavel_na_tabela($1.label, tipo_var);
+                string temp_result = gentempcode(tipo_var);
+
+                $$.traducao = tipos_atuais[$1.label].traducao; // Se precisar da tradução da variável em si
+                $$.traducao += "\t" + temp_result + " = " + nome_interno + ";\n"; // Salva o valor original
+                $$.traducao += "\t" + nome_interno + " = " + nome_interno + " - 1;\n"; // Decrementa a variável
+                $$.label = temp_result; // O resultado da expressão é o valor original
+                $$.tipo = tipo_var;
+            }
+            | '-' E %prec UMINUS // Negação unária (-x)
+            {
+                if ($2.tipo != "int" && $2.tipo != "float") {
+                    yyerror("Erro na linha " + to_string(linha) + ": Operador de negação unária '-' só pode ser usado com expressões numéricas.");
+                }
+                string temp_result = gentempcode($2.tipo);
+                $$.traducao = $2.traducao + "\t" + temp_result + " = -" + $2.label + ";\n";
+                $$.label = temp_result;
+                $$.tipo = $2.tipo;
+            }
+            // Casts
+            | '(' TK_INT ')' TK_ID
+            {
+                string tipo_atual = getTipo($4.label);
+                string novo_tipo = "int";
+                $$.label = gentempcode(novo_tipo);
+                $$.tipo = novo_tipo;
+                string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
+                $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+            | '(' TK_FLOAT ')' TK_ID
+            {
+                string tipo_atual = getTipo($4.label);
+                string novo_tipo = "float";
+                $$.label = gentempcode(novo_tipo);
+                $$.tipo = novo_tipo;
+                string nome_interno = pega_variavel_na_tabela($4.label, tipo_atual);
+                $$.traducao = "\t" + $$.label + " = " + "(" + novo_tipo + ")" + " " + nome_interno + ";\n";
+            }
+            | '(' TK_BOOLEAN ')' TK_ID
+            {
+                yyerror("Erro na linha " + to_string(linha) + ": não é possível transformar a variável em boolean!");
             }
 
             |  TK_ID '=' E

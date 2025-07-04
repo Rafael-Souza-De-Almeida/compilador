@@ -84,6 +84,17 @@ ID {LETRA}({LETRA}|{NUM})*
 "&&"        { return AND; }
 "||"        { return OR; }
 
+"++"        {return INCREMENTAR;}
+"--"        {return DECREMENTAR;}
+
+"+="        {return PRE_ADICAO;}
+"=+"        {return POS_ADICAO;}
+"-="        {return PRE_SUB;}
+"=-"        {return POS_SUB;}
+"*="        {return ATRIBUICAO_MULTI;}
+"/="        {return ATRIBUICAO_DIV;}
+
+
 {NUM}		{ yylval.label = yytext; return TK_NUM; }
 {REAL}      {yylval.label = yytext; return TK_REAL;}
 {ID}		{ yylval.label = yytext; return TK_ID; }
