@@ -20,7 +20,7 @@ A seguir, são apresentados diversos exemplos de código que demonstram as capac
 
 ### 1. Impreessão de variáveis
 
-É possível imprimir variáveis utilizando o identificador da variável mais o ';':
+É possível imprimir variáveis utilizando o identificador da variável mais ';'
 
 ```
 function main() {
