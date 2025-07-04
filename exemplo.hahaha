@@ -1,13 +1,16 @@
 function main() {
 
   a = 30;
+  b = 20;
+  g = true;
 
-  while(a < 50) {
-    local b = 30;
-    a = a + 10;
-    b = b + 50;
-    a;
-    b;
-  }
+  c = (a < 20) ? "A é menor que 20" : "A é maior que 20";
+  c;
+
+  d = (b > 10) ? "B é maior que 10" : "B é menor que 10";
+  d;
+
+  f = g ? 1 : 0;
+  f;
 
 }

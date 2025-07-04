@@ -20,8 +20,6 @@ compile:
 run: 	glf
 		clear
 		compile
-		translate
-		test
 
 debug:	PARSER_PARAMS += -Wcounterexamples
 debug: 	all
