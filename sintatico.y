@@ -312,6 +312,8 @@ COMANDO     : E ';'
 
                 }
             } 
+
+
                 | BEGIN_FOR '(' COMANDO E ';' E ')' BLOCO CLOSE_FOR
                 {
                     // Gera labels e empilha
@@ -364,7 +366,7 @@ COMANDO     : E ';'
                 }
 
             | BEGIN_FOR IDENTIFICADOR_FOREACH '=' E ':' E BLOCO CLOSE_FOR {
-
+                
                     if ($4.tipo != "int") {
                         yyerror("Início do foreach deve ser numérico (int)");
                     }
@@ -467,7 +469,7 @@ COMANDO     : E ';'
                 }
 
             | TK_BREAK ';' {
-
+                
             if (pilha_loop_fim.empty()) {
                 yyerror("Comando 'break' fora de um loop.");
             }
@@ -594,10 +596,10 @@ BEGIN_DO: TK_DO
 
 CLOSE_DO:
 {
-  
+    
     qtdDoWhile--;
     if(qtdDoWhile == 0) {
-
+        
         esta_no_do_while = false;
     }
 
@@ -616,7 +618,7 @@ CLOSE_BLOCO: {
            
 E           : E '+' E
             {
-            string tipo = resolve_tipo($1.tipo, $3.tipo);
+                string tipo = resolve_tipo($1.tipo, $3.tipo);
 
             if(tipo == "char") {
                 string var_1 = gentempcode("string");
@@ -640,7 +642,7 @@ E           : E '+' E
             }
 
             else if(tipo == "string") {
-            $$.label = gentempcode(tipo);
+                $$.label = gentempcode(tipo);
             $$.tipo = tipo;
 
            
@@ -681,7 +683,7 @@ E           : E '+' E
         }
         else {
                 
-                $$.label = gentempcode(tipo);
+            $$.label = gentempcode(tipo);
                 auto [coercoes, t1, t2] = resolve_coercao($1.label, $3.label, tipo);
                 $$.tipo = tipo;
                 $$.traducao = $1.traducao + $3.traducao + coercoes + "\t" + $$.label + " = " + t1 + " + " + t2 + ";\n";
@@ -803,7 +805,7 @@ E           : E '+' E
             {
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
                 string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
-                string chave = $1.label + "_" + escopo_atual + funcao_atual;
+                string chave = $1.label + "_" + escopo_atual + "_" + funcao_atual;
                 string nome_interno;
                 bool variavel_local = false;
                 bool variavel_global = false;
@@ -814,7 +816,7 @@ E           : E '+' E
                     variavel_local = true;
                 }
                 else {
-                    string chave_global = $1.label + "_escopo0" + "_" + funcao_atual;
+                    string chave_global = $1.label + "_escopo0_" + funcao_atual;
                     if (tipos_atuais.count(chave_global)) {
                         nome_interno = tipos_atuais[chave_global].nome_interno;
                         variavel_global = true;
@@ -870,7 +872,7 @@ E           : E '+' E
                 $$.traducao = "\t" + $$.label + " = " + $1.label + ";\n";
             }
             | TK_STRING {
-
+                
                 
                 $$.label = gentempcode("string");
                 $$.tipo = "string";
@@ -953,7 +955,7 @@ E           : E '+' E
 
              | TK_DYNAMIC TK_ID '=' E
             {
-               
+                
                 string tipo = getTipo($2.label);
                 string nome_interno;
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
@@ -1013,6 +1015,36 @@ E           : E '+' E
                 $$.traducao = "\tgoto label_" + $1.label + ";\n";
                 $$.traducao += "end_" + $1.label + ":\n";
             }
+                | E '?' E ':' E 
+                {
+                    if($1.tipo!="boolean"){
+                        yyerror("Erro na linha "+ to_string(linha)+" Condicao do ternario deve ser do tipo boolean");
+                    }
+                    string tipo_resultado = resolve_tipo($3.tipo, $5.tipo);
+            
+                    auto [coercoes_true, t_true1, t_true2] = resolve_coercao($3.label, $3.label, tipo_resultado);
+                    auto [coercoes_false, f_false1, f_false2] = resolve_coercao($5.label, $5.label, tipo_resultado);
+            
+                    string rotulo_true = "tern_true_" + to_string(var_temp_qnt++);
+                    string rotulo_end = "tern_end_" + to_string(var_temp_qnt++);
+            
+                    string temp_final = gentempcode(tipo_resultado);
+            
+                    $$.tipo = tipo_resultado;
+                    $$.label = temp_final;
+                    $$.traducao =
+                    $1.traducao +
+                    $3.traducao + 
+                    $5.traducao +
+                    "\tif (" + $1.label + ") goto " + rotulo_true + ";\n" +
+                    coercoes_false +
+                    "\t" + temp_final + " = " + $5.label + ";\n" +
+                    "\tgoto " + rotulo_end + ";\n" +
+                    rotulo_true + ":\n" +
+                    coercoes_true +
+                    "\t" + temp_final + " = " + $3.label + ";\n" +
+                    rotulo_end + ":\n";
+                } 
             ;             
 %%
 
