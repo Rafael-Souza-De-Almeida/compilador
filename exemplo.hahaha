@@ -1,14 +1,16 @@
-function main() {
+function foo() {
 
-a = 10;
-
-b = (a < 5) ? a : 20;
-
-println(b);
-
-println(a);
-
-
+  a = 50;
+  a;
 
 }
 
+function main() {
+
+  int type(a);
+
+  foo();
+
+  a;
+
+}

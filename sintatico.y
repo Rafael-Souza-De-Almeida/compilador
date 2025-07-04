@@ -115,6 +115,8 @@ string novo_label(string);
 %token TK_CONTINUE TK_BREAK
 %token TK_INC TK_DEC
 %token TK_BREAKALL
+%token TOKEN_STRING_TYPE
+%token TK_TYPE
 
 
 %start S
@@ -264,7 +266,7 @@ COMANDO     : E ';'
             {   
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
                 string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
-                string nome_interno = tipos_atuais[$1.label + "_" + escopo_atual + "_" + funcao_atual].nome_interno;
+                string nome_interno = pega_variavel_na_tabela($1.label);
                 $$.traducao =   "\t cout << "  + nome_interno + " << endl;\n";   
             } 
             | TK_PRINT '(' E ')' ';' {
@@ -276,6 +278,73 @@ COMANDO     : E ';'
             | BLOCO {
                 $$.traducao = $1.traducao;
             } 
+             | TK_INT TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("int");
+            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "int" , temp_associada, escopo_atual, funcao_atual);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+        
+            $$.traducao = comando_leitura;
+            }
+             | TK_FLOAT TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("float");
+            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "float" , temp_associada, escopo_atual, funcao_atual);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+        
+            $$.traducao = comando_leitura;
+            }
+            | TK_BOOLEAN TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("boolean");
+            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "boolean" , temp_associada, escopo_atual, funcao_atual);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+        
+            $$.traducao = comando_leitura;
+            }
+            | TK_CHAR TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("char");
+            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "char" , temp_associada, escopo_atual, funcao_atual);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+
+        
+            $$.traducao = comando_leitura;
+            }
+            | TOKEN_STRING_TYPE TK_TYPE '(' TK_ID ')' ';'
+            {
+            
+            string temp_associada = gentempcode("string");
+            string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
+            string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
+            string nome_interno = adiciona_variavel_na_tabela($4.label, "string" , temp_associada, escopo_atual, funcao_atual);
+
+            string comando_leitura;
+            comando_leitura  = "\tcin >> " + nome_interno + ";\n";
+  
+        
+            $$.traducao = comando_leitura;
+            }
 
             | TK_IF '(' E ')' BLOCO{
                 if($3.tipo!="boolean"){
@@ -956,15 +1025,14 @@ E           : E '+' E
              | TK_DYNAMIC TK_ID '=' E
             {
                 
-                string tipo = getTipo($2.label);
                 string nome_interno;
                 string escopo_atual = pilha_escopos.back()["__escopo_nome__"].nome_interno;
                 string funcao_atual = pilha_funcao.back()["__funcao_nome__"].nome_interno;
 
-                if(tipo != $4.tipo) {
+                if($2.tipo != $4.tipo) {
                     nome_interno = adiciona_variavel_na_tabela($2.label, $4.tipo, $4.label, escopo_atual, funcao_atual);
                 } else {
-                    nome_interno = pega_variavel_dinamica($2.label, tipo);
+                    nome_interno = pega_variavel_dinamica($2.label, $2.tipo);
                 }
 
                 if ($4.tipo == "string") {
@@ -1015,7 +1083,7 @@ E           : E '+' E
                 $$.traducao = "\tgoto label_" + $1.label + ";\n";
                 $$.traducao += "end_" + $1.label + ":\n";
             }
-                | E '?' E ':' E 
+            | E '?' E ':' E 
                 {
                     if($1.tipo!="boolean"){
                         yyerror("Erro na linha "+ to_string(linha)+" Condicao do ternario deve ser do tipo boolean");

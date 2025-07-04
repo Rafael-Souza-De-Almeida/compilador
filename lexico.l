@@ -78,6 +78,10 @@ ID {LETRA}({LETRA}|{NUM})*
 
 "continue"    {return TK_CONTINUE;}
 
+"string"    {return TOKEN_STRING_TYPE;}
+
+"type"       {return TK_TYPE;}
+
 
 
 ">"         {return GREATER_THAN;}
